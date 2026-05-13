@@ -1,0 +1,6 @@
+{
+  "name": "Leitor de Planilha de Qualidade",
+  "description": "Aplicativo para leitura de planilha de controle de qualidade, extraindo colunas A-H e S. Desenvolvido para múltiplos usuários simultâneos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
