@@ -37,6 +37,10 @@
         .custom-dropdown-list::-webkit-scrollbar-track { background: #ffffff; }
         .custom-dropdown-list::-webkit-scrollbar-thumb { background-color: #cbd5e0; border-radius: 4px; }
 
+        #available-catmats-list::-webkit-scrollbar { width: 8px; }
+        #available-catmats-list::-webkit-scrollbar-track { background: transparent; }
+        #available-catmats-list::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
+
         /* Extrator de E-mails */
         .email-ext-container {
             max-width: 1200px; 
@@ -198,6 +202,9 @@
                 <button id="navEmailExtractorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="mail" class="w-4 h-4 mr-2 pointer-events-none"></i> Extrair E-mails
                 </button>
+                <button id="navCatmatBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="search" class="w-4 h-4 mr-2 pointer-events-none"></i> Filtrar Preços Compras Net
+                </button>
             </div>
         </div>
     </nav>
@@ -223,12 +230,17 @@
     <main class="flex-1 min-h-0 container mx-auto max-w-[1600px] h-full flex flex-col">
         
         <!-- Empty / Error state -->
-        <div id="emptyState" class="bg-amber-50 border border-amber-200 rounded-xl p-6 flex flex-col items-center justify-center h-64 shadow-sm">
-            <i data-lucide="alert-circle" class="w-12 h-12 text-amber-500 mb-4"></i>
-            <h3 class="text-lg font-semibold text-amber-900 mb-2">Nenhuma planilha carregada</h3>
-            <p class="text-amber-700 text-center max-w-md">
-                Bem-vindo! Por favor, carregue a planilha utilizando o botão <strong>Carregar Planilha</strong> acima. Cada usuário pode carregar a sua planilha sem interferir nos demais. O processamento ocorre localmente no seu dispositivo.
+        <div id="emptyState" onclick="document.getElementById('fileInput').click()" class="bg-indigo-50/50 border-2 border-dashed border-indigo-200 rounded-xl p-6 flex flex-col items-center justify-center h-64 shadow-sm hover:bg-indigo-50 hover:border-indigo-400 transition-colors cursor-pointer group">
+            <div class="bg-indigo-100 p-3 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                <i data-lucide="upload-cloud" class="w-8 h-8 text-indigo-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-indigo-900 mb-2">Nenhuma planilha carregada</h3>
+            <p class="text-indigo-600/80 text-center max-w-md text-sm mb-4">
+                Por favor, <strong>clique aqui</strong> ou <strong>arraste e solte</strong> para anexar a planilha "Banco de Marcas.xlsx".
             </p>
+            <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium shadow-sm pointer-events-none">
+                Selecionar Arquivo
+            </span>
         </div>
 
         <!-- Filter state (Hidden initially) -->
@@ -250,7 +262,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                     <div class="flex items-center space-x-2 text-indigo-700">
                         <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
-                        <h2 class="font-semibold text-gray-800">Visualização de Dados</h2>
+                        <h2 class="font-semibold text-gray-800">Todos os Dados</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
@@ -418,10 +430,15 @@
 
         <!-- Área de Exibição -->
         <main id="dataContainer" class="flex-1 overflow-y-auto pb-10 space-y-4">
-            <div id="initialMessage" class="h-64 flex flex-col items-center justify-center bg-amber-50 border border-amber-200 rounded-xl shadow-sm p-6 text-center">
-                <i data-lucide="upload" class="w-12 h-12 text-amber-500 mb-4"></i>
-                <h3 class="text-lg font-semibold text-amber-900 mb-2">Aguardando Planilha</h3>
-                <p class="text-amber-700 text-center max-w-md">Por favor, carregue um arquivo Excel ou CSV de fornecedores usando o botão acima. Seus dados são processados localmente.</p>
+            <div id="initialMessage" onclick="document.getElementById('csvFileInput').click()" class="h-64 flex flex-col items-center justify-center bg-indigo-50/50 border-2 border-dashed border-indigo-200 rounded-xl shadow-sm p-6 text-center hover:bg-indigo-50 hover:border-indigo-400 transition-colors cursor-pointer group">
+                <div class="bg-indigo-100 p-3 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                    <i data-lucide="upload-cloud" class="w-8 h-8 text-indigo-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-indigo-900 mb-2">Aguardando Planilha</h3>
+                <p class="text-indigo-600/80 text-center max-w-md text-sm mb-4">Por favor, <strong>clique aqui</strong> ou <strong>arraste e solte</strong> para anexar um arquivo Excel ou CSV de fornecedores.</p>
+                <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium shadow-sm pointer-events-none">
+                    Selecionar Arquivo
+                </span>
             </div>
         </main>
     </div>
@@ -485,10 +502,203 @@
         </div>
     </div>
 
+    <!-- View: Filtrar Preços Compras Net -->
+    <div id="catmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Compras Net - Filtragem de preços</h1>
+                <p class="text-gray-500 mt-2">Carregue as planilhas e selecione um CATMAT para filtrar preços a cada cód. SIH.</p>
+            </div>
+
+            <!-- Seção de Entradas -->
+            <div class="space-y-6">
+                <!-- Passo 1: Planilha de Referência (.xlsx) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        1. Selecione a planilha dos códigos SIH, CATMAT e Últimos valores pagos (.xlsx)
+                    </label>
+                    <div id="drop-zone-xlsx" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                        <div class="space-y-1 text-center">
+                            <i data-lucide="file-spreadsheet" class="mx-auto h-12 w-12 text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600 justify-center">
+                                <label for="file-input-xlsx" class="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                    <span>Carregar arquivo .xlsx</span>
+                                    <input id="file-input-xlsx" name="file-input-xlsx" type="file" class="sr-only" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                </label>
+                                <p class="pl-1">ou arraste e solte</p>
+                            </div>
+                            <p id="file-name-xlsx" class="text-xs text-gray-500">Nenhum arquivo selecionado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Planilha de Consulta (.csv) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        2. Selecione a planilha de Cotação xxx-xxxx gerada no site Compras Net (.csv)
+                    </label>
+                    <div id="drop-zone-csv" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                        <div class="space-y-1 text-center">
+                            <i data-lucide="file-text" class="mx-auto h-12 w-12 text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600 justify-center">
+                                <label for="file-input-csv" class="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                    <span>Carregar arquivo .csv</span>
+                                    <input id="file-input-csv" name="file-input-csv" type="file" class="sr-only" accept=".csv">
+                                </label>
+                                <p class="pl-1">ou arraste e solte</p>
+                            </div>
+                            <p id="file-name-csv" class="text-xs text-gray-500">Nenhum arquivo selecionado</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Passo 3: Filtros -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        3. Filtros (Opcional)
+                    </label>
+                    <div class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="start-date" class="block text-xs font-medium text-gray-500">Data Inicial</label>
+                            <input type="date" id="start-date" name="start-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="end-date" class="block text-xs font-medium text-gray-500">Data Final</label>
+                            <input type="date" id="end-date" name="end-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <button id="btn-since-2024" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors">Desde 01/01/2024</button>
+                        <button id="btn-last-180-days" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors">Últimos 180 dias</button>
+                    </div>
+                    <div class="mt-4 flex flex-col sm:flex-row sm:items-start sm:space-x-6 space-y-4 sm:space-y-0">
+                        <div class="relative flex items-start">
+                            <div class="flex h-5 items-center">
+                                <input id="exclude-uasg-checkbox" name="exclude-uasg" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="exclude-uasg-checkbox" class="font-medium text-gray-700">Retirar preços da UASG 155902</label>
+                            </div>
+                        </div>
+                        <div class="relative flex items-start">
+                            <div class="flex h-5 items-center">
+                                <input id="manual-price-checkbox" name="manual-price" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="manual-price-checkbox" class="font-medium text-gray-700">Meu filtro de valor mínimo</label>
+                            </div>
+                        </div>
+                    </div>
+                     <div id="manual-price-container" class="mt-4 hidden p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="manual-price-min-input" class="block text-xs font-medium text-gray-600">Valor mínimo para todos os Cód. SIH</label>
+                                <input type="text" id="manual-price-min-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 500,00">
+                            </div>
+                            <div>
+                                <label for="manual-price-max-input" class="block text-xs font-medium text-gray-600">Valor máximo para todos os Cód. SIH</label>
+                                <input type="text" id="manual-price-max-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 1000,00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                     <button id="clear-catmat-filters-button" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 items-center">
+                        <i data-lucide="trash-2" class="w-4 h-4 mr-2 text-gray-500"></i> Limpar Tudo
+                    </button>
+                    <button id="download-saved-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 items-center">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> Baixar Planilha Salva
+                    </button>
+                </div>
+            </div>
+            
+            <hr class="my-8 border-gray-200">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Coluna Esquerda: Banner de CATMATs da Cotação -->
+                <div id="available-catmats-banner" class="bg-gray-100 border border-gray-200 p-4 rounded-md hidden lg:col-span-1 self-start sticky top-6">
+                     <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-gray-800">CATMATs da Planilha de<br>Cotação:</p>
+                            <p class="text-xs text-gray-500 mt-1">Clique em um CATMAT para consultar. Os<br>Cód. SIH salvos aparecerão ao lado.</p>
+                        </div>
+                         <button id="clear-saved-data-button" class="ml-2 flex-shrink-0 bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors">
+                            Limpar Salvos
+                        </button>
+                    </div>
+                     <div id="available-catmats-list" class="mt-4 flex flex-col items-start gap-2 max-h-[calc(100vh-20rem)] overflow-y-auto pr-2">
+                        <!-- Botões de CATMAT e SIH salvos/vazios serão inseridos aqui -->
+                     </div>
+                </div>
+        
+                <!-- Coluna Direita: Seção de Resultados -->
+                <div id="results-section" class="text-gray-800 p-2 hidden lg:col-span-2">
+                     <div id="results-container" class="space-y-4">
+                        <!-- Os resultados serão inseridos aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banner de Fornecedores -->
+            <div id="suppliers-banner" class="bg-indigo-50 border border-indigo-100 rounded-xl shadow-sm p-6 mt-6 hidden">
+                 <div class="flex justify-between items-center mb-4">
+                    <h3 id="suppliers-title" class="font-bold text-indigo-900 flex items-center">
+                        <i data-lucide="users" class="w-5 h-5 mr-2 text-indigo-600"></i> Fornecedores do processo
+                    </h3>
+                    <button id="copy-suppliers-button" class="py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 flex items-center transition-colors">
+                        <i data-lucide="copy" class="w-4 h-4 mr-1.5"></i> Copiar para IA
+                    </button>
+                </div>
+                <p class="font-medium italic text-indigo-600/70 mb-3 text-sm">Lista de nomes recuperados do CSV:</p>
+                 <div id="suppliers-list" class="text-sm text-gray-700 space-y-1.5 max-h-[400px] overflow-y-auto bg-white p-4 rounded-lg border border-indigo-200/50">
+                    <!-- Lista de fornecedores -->
+                 </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification (Global) -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white py-3 px-5 rounded-xl shadow-xl opacity-0 transform translate-y-2 flex items-center justify-center font-medium z-50 pointer-events-none" style="transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+        <i id="toast-icon" data-lucide="info" class="w-5 h-5 mr-3"></i>
+        <span id="toast-message">Mensagem</span>
+    </div>
+
     <script>
         
         // Init Lucide icons
         lucide.createIcons();
+
+        // Utility func for drop zones
+        function applyDropZone(zoneId, inputId) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(inputId);
+            if (!zone || !input) return;
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('border-indigo-500', 'bg-indigo-100');
+            });
+            zone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                zone.classList.remove('border-indigo-500', 'bg-indigo-100');
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('border-indigo-500', 'bg-indigo-100');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    input.files = e.dataTransfer.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+
+        applyDropZone('emptyState', 'fileInput');
+        applyDropZone('initialMessage', 'csvFileInput');
+        applyDropZone('isoUploadBtn', 'fileInput');
+        applyDropZone('fornecedoresUploadBtn', 'csvFileInput');
 
         let appData = [];
         let filteredData = [];
@@ -927,9 +1137,11 @@
         const navIsoBtn = document.getElementById('navIsoBtn');
         const navFornecedoresBtn = document.getElementById('navFornecedoresBtn');
         const navEmailExtractorBtn = document.getElementById('navEmailExtractorBtn');
+        const navCatmatBtn = document.getElementById('navCatmatBtn');
         const isoView = document.getElementById('isoView');
         const fornecedoresView = document.getElementById('fornecedoresView');
         const emailExtractorView = document.getElementById('emailExtractorView');
+        const catmatView = document.getElementById('catmatView');
 
         function activateTab(tab) {
             const activeClasses = 'px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
@@ -938,19 +1150,23 @@
             navIsoBtn.className = tab === 'iso' ? activeClasses : inactiveClasses;
             navFornecedoresBtn.className = tab === 'fornecedores' ? activeClasses : inactiveClasses;
             navEmailExtractorBtn.className = tab === 'emailExtractor' ? activeClasses : inactiveClasses;
+            navCatmatBtn.className = tab === 'catmat' ? activeClasses : inactiveClasses;
             
             const btnChildIso = navIsoBtn.querySelector('svg');
             const btnChildForn = navFornecedoresBtn.querySelector('svg');
             const btnChildEmail = navEmailExtractorBtn.querySelector('svg');
+            const btnChildCatmat = navCatmatBtn.querySelector('svg');
 
             // Reset icons
             if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 pointer-events-none');
             if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-4 h-4 mr-2 pointer-events-none');
             if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-4 h-4 mr-2 pointer-events-none');
+            if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 pointer-events-none');
             
             isoView.style.display = 'none';
             fornecedoresView.style.display = 'none';
             emailExtractorView.style.display = 'none';
+            catmatView.style.display = 'none';
 
             if (tab === 'iso') {
                 if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
@@ -961,12 +1177,16 @@
             } else if (tab === 'emailExtractor') {
                 if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
                 emailExtractorView.style.display = 'flex';
+            } else if (tab === 'catmat') {
+                if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                catmatView.style.display = 'flex';
             }
         }
 
         navIsoBtn.addEventListener('click', () => activateTab('iso'));
         navFornecedoresBtn.addEventListener('click', () => activateTab('fornecedores'));
         navEmailExtractorBtn.addEventListener('click', () => activateTab('emailExtractor'));
+        navCatmatBtn.addEventListener('click', () => activateTab('catmat'));
         
         
         lucide.createIcons();
@@ -1741,6 +1961,719 @@
             todosEmailsExtraidos = [];
         }
     
+        // --- Filtrar Preços Compras Net LOGIC ---
+        let catmat_referenceData = [];
+        let catmat_queryData = new Map();
+        let catmat_savedResults = [];
+        let catmat_currentCatmat = null;
+        let catmat_activeCodItemFilter = null;
+        let catmat_activePriceFilter = null;
+        let catmat_priceInputTimeout;
+        let catmat_emptySihForCatmat = new Map();
+
+        function catmat_parseCSVFloat(str) {
+            if (str === null || str === undefined || str === '') return NaN;
+            let cleaned = String(str).replace(/[^0-9,\.-]/g, '');
+            if (cleaned.includes(',') && cleaned.includes('.')) {
+                if (cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
+                    return parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+                } else {
+                    return parseFloat(cleaned.replace(/,/g, ''));
+                }
+            } else if (cleaned.includes(',')) {
+                return parseFloat(cleaned.replace(',', '.'));
+            }
+            return parseFloat(cleaned);
+        }
+
+        function catmat_parseExcelFloat(val) {
+            if (typeof val === 'number') return val;
+            if (val === null || val === undefined || val === '') return NaN;
+            const str = String(val).trim();
+            if (str.includes(',') && str.includes('.')) {
+                if (str.lastIndexOf(',') > str.lastIndexOf('.')) {
+                    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+                } else {
+                    return parseFloat(str.replace(/,/g, ''));
+                }
+            } else if (str.includes(',')) {
+                return parseFloat(str.replace(',', '.'));
+            }
+            return parseFloat(str);
+        }
+
+        const catmat_fileInputXlsx = document.getElementById('file-input-xlsx');
+        const catmat_dropZoneXlsx = document.getElementById('drop-zone-xlsx');
+        const catmat_fileNameXlsx = document.getElementById('file-name-xlsx');
+        const catmat_fileInputCsv = document.getElementById('file-input-csv');
+        const catmat_dropZoneCsv = document.getElementById('drop-zone-csv');
+        const catmat_fileNameCsv = document.getElementById('file-name-csv');
+        const catmat_startDateInput = document.getElementById('start-date');
+        const catmat_endDateInput = document.getElementById('end-date');
+        const catmat_excludeUasgCheckbox = document.getElementById('exclude-uasg-checkbox');
+        const catmat_clearFiltersButton = document.getElementById('clear-catmat-filters-button');
+        const catmat_resultsSection = document.getElementById('results-section');
+        const catmat_resultsContainer = document.getElementById('results-container');
+        const catmat_downloadSavedButton = document.getElementById('download-saved-button');
+        const catmat_btnSince2024 = document.getElementById('btn-since-2024');
+        const catmat_btnLast180Days = document.getElementById('btn-last-180-days');
+        const catmat_manualPriceCheckbox = document.getElementById('manual-price-checkbox');
+        const catmat_manualPriceContainer = document.getElementById('manual-price-container');
+        const catmat_manualPriceMinInput = document.getElementById('manual-price-min-input');
+        const catmat_manualPriceMaxInput = document.getElementById('manual-price-max-input');
+        const catmat_clearSavedDataButton = document.getElementById('clear-saved-data-button');
+        const catmat_availableCatmatsBanner = document.getElementById('available-catmats-banner');
+        const catmat_availableCatmatsList = document.getElementById('available-catmats-list');
+        const catmat_suppliersBanner = document.getElementById('suppliers-banner');
+        const catmat_suppliersList = document.getElementById('suppliers-list');
+        const catmat_copySuppliersButton = document.getElementById('copy-suppliers-button');
+
+        function catmat_setTodayDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            if (catmat_endDateInput) catmat_endDateInput.value = `${year}-${month}-${day}`;
+        }
+
+        function catmat_clearFilters() {
+            catmat_activeCodItemFilter = null;
+            catmat_activePriceFilter = null;
+            catmat_currentCatmat = null;
+            catmat_emptySihForCatmat.clear();
+            if (catmat_manualPriceCheckbox) catmat_manualPriceCheckbox.checked = false;
+            if (catmat_manualPriceContainer) catmat_manualPriceContainer.classList.add('hidden');
+            if (catmat_manualPriceMinInput) catmat_manualPriceMinInput.value = '';
+            if (catmat_manualPriceMaxInput) catmat_manualPriceMaxInput.value = '';
+            if (catmat_resultsSection) catmat_resultsSection.classList.add('hidden');
+            if (catmat_suppliersBanner) catmat_suppliersBanner.classList.add('hidden');
+            if (catmat_availableCatmatsBanner) catmat_availableCatmatsBanner.classList.add('hidden');
+            if (catmat_fileInputXlsx) catmat_fileInputXlsx.value = '';
+            if (catmat_fileNameXlsx) catmat_fileNameXlsx.textContent = 'Nenhum arquivo selecionado';
+            catmat_referenceData = [];
+            if (catmat_fileInputCsv) catmat_fileInputCsv.value = '';
+            if (catmat_fileNameCsv) catmat_fileNameCsv.textContent = 'Nenhum arquivo selecionado';
+            catmat_queryData = new Map();
+            catmat_clearSavedData();
+            catmat_showToast("Tudo foi limpo. Carregue novas planilhas.");
+            catmat_setTodayDate();
+        }
+        
+        function catmat_clearSavedData() {
+             catmat_savedResults = [];
+             if(catmat_queryData.size > 0){
+                catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+             } else {
+                if (catmat_availableCatmatsBanner) catmat_availableCatmatsBanner.classList.add('hidden');
+             }
+             catmat_showToast("Dados salvos na planilha foram limpos.");
+        }
+
+        catmat_setTodayDate();
+
+        function catmat_setupDragDrop(dropZone, fileInput, fileType) {
+            if(!dropZone || !fileInput) return;
+            fileInput.addEventListener('change', (e) => catmat_handleFile(e.target.files[0], fileType));
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500', 'bg-indigo-50'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-indigo-500', 'bg-indigo-50'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+                catmat_handleFile(e.dataTransfer.files[0], fileType);
+            });
+        }
+        catmat_setupDragDrop(catmat_dropZoneXlsx, catmat_fileInputXlsx, 'xlsx');
+        catmat_setupDragDrop(catmat_dropZoneCsv, catmat_fileInputCsv, 'csv');
+        if (catmat_clearFiltersButton) catmat_clearFiltersButton.addEventListener('click', catmat_clearFilters);
+        if (catmat_clearSavedDataButton) catmat_clearSavedDataButton.addEventListener('click', catmat_clearSavedData);
+        if (catmat_downloadSavedButton) catmat_downloadSavedButton.addEventListener('click', catmat_downloadSavedXlsx);
+        if (catmat_copySuppliersButton) catmat_copySuppliersButton.addEventListener('click', catmat_copySuppliersForIA);
+
+        if (catmat_startDateInput) catmat_startDateInput.addEventListener('change', catmat_processCurrentCatmat);
+        if (catmat_endDateInput) catmat_endDateInput.addEventListener('change', catmat_processCurrentCatmat);
+        if (catmat_excludeUasgCheckbox) catmat_excludeUasgCheckbox.addEventListener('change', catmat_processCurrentCatmat);
+
+        if (catmat_btnSince2024) catmat_btnSince2024.addEventListener('click', () => {
+            catmat_startDateInput.value = '2024-01-01';
+            catmat_processCurrentCatmat();
+        });
+        if (catmat_btnLast180Days) catmat_btnLast180Days.addEventListener('click', () => {
+            const endDateStr = catmat_endDateInput.value;
+            const endDate = endDateStr ? new Date(endDateStr + 'T00:00:00') : new Date();
+            const startDate = new Date(endDate);
+            startDate.setDate(startDate.getDate() - 180);
+            catmat_startDateInput.value = startDate.toISOString().split('T')[0];
+            catmat_processCurrentCatmat();
+        });
+
+        if (catmat_manualPriceCheckbox) {
+            catmat_manualPriceCheckbox.addEventListener('change', () => {
+                if (catmat_manualPriceCheckbox.checked) {
+                    catmat_manualPriceContainer.classList.remove('hidden');
+                    if (catmat_activeCodItemFilter) {
+                        catmat_activeCodItemFilter = null;
+                        catmat_activePriceFilter = null;
+                    }
+                } else {
+                    catmat_manualPriceContainer.classList.add('hidden');
+                    catmat_manualPriceMinInput.value = '';
+                    catmat_manualPriceMaxInput.value = '';
+                }
+                catmat_processCurrentCatmat();
+            });
+        }
+
+        const catmat_autoProcessOnPriceInput = () => {
+            if (catmat_manualPriceCheckbox && catmat_manualPriceCheckbox.checked) {
+                clearTimeout(catmat_priceInputTimeout);
+                catmat_priceInputTimeout = setTimeout(() => {
+                    catmat_processCurrentCatmat();
+                }, 400);
+            }
+        };
+        if (catmat_manualPriceMinInput) catmat_manualPriceMinInput.addEventListener('input', catmat_autoProcessOnPriceInput);
+        if (catmat_manualPriceMaxInput) catmat_manualPriceMaxInput.addEventListener('input', catmat_autoProcessOnPriceInput);
+
+        function catmat_handleFile(file, type) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            const fileNameElement = type === 'xlsx' ? catmat_fileNameXlsx : catmat_fileNameCsv;
+            if(fileNameElement) fileNameElement.textContent = file.name;
+
+            reader.onload = (e) => {
+                try {
+                    if (type === 'xlsx') {
+                        catmat_referenceData = catmat_parseXlsx(e.target.result);
+                        catmat_showToast('Planilha de referência processada com sucesso.');
+                    } else if (type === 'csv') {
+                        catmat_queryData = catmat_parseCsv(e.target.result);
+                        catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+                        catmat_displayAllSuppliers();
+                        catmat_showToast('Planilha de consulta processada com sucesso.');
+                    }
+                } catch (error) {
+                    console.error(`Erro ao processar o arquivo ${file.name}:`, error);
+                    catmat_showToast(`Erro ao processar ${file.name}. Verifique o formato.`, true);
+                    if(fileNameElement) fileNameElement.textContent = 'Nenhum arquivo selecionado';
+                    if (type === 'xlsx') catmat_referenceData = [];
+                    else {
+                        catmat_queryData = new Map();
+                        if (catmat_availableCatmatsBanner) catmat_availableCatmatsBanner.classList.add('hidden');
+                        if (catmat_suppliersBanner) catmat_suppliersBanner.classList.add('hidden');
+                    }
+                }
+            };
+            reader.onerror = () => {
+                catmat_showToast(`Ocorreu um erro ao ler o arquivo ${file.name}.`, true);
+                if(fileNameElement) fileNameElement.textContent = 'Nenhum arquivo selecionado';
+            };
+            if (type === 'xlsx') {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsText(file, 'ISO-8859-1');
+            }
+        }
+
+        function catmat_showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            if(!toast || !toastMsg || !toastIcon) return;
+            
+            toastMsg.textContent = message;
+            toast.className = `fixed bottom-5 right-5 text-white py-3 px-5 rounded-xl shadow-xl flex items-center transform transition-all duration-300 z-50 pointer-events-none ${isError ? 'bg-rose-600' : 'bg-gray-800'}`;
+            toastIcon.setAttribute('data-lucide', isError ? 'alert-circle' : 'check-circle');
+            lucide.createIcons({root: toast});
+            
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 4000);
+        }
+
+        function catmat_parseXlsx(data) {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            return XLSX.utils.sheet_to_json(worksheet, { header: 1 }).map(row => ({
+                codItem: row[0],
+                catmat: row[1],
+                price: row[2]
+            })).filter(item => item.codItem && item.catmat);
+        }
+        
+        function catmat_parseCsv(text) {
+            const dataMap = new Map();
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        currentCell += '"';
+                        i++; 
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ';' && !inQuotes) {
+                    currentRow.push(currentCell);
+                    currentCell = '';
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (char === '\r' && nextChar === '\n') {
+                        i++; 
+                    }
+                    currentRow.push(currentCell);
+                    rows.push(currentRow);
+                    currentRow = [];
+                    currentCell = '';
+                } else {
+                    currentCell += char;
+                }
+            }
+            if (currentCell !== '' || currentRow.length > 0) {
+                currentRow.push(currentCell);
+                if (currentRow.length > 1 || currentRow[0] !== '') {
+                    rows.push(currentRow);
+                }
+            }
+
+            for (let i = 3; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.length >= 14) {
+                    const catmat = row[9]?.trim();
+                    let value = row[13]?.trim();
+                    if (value) {
+                        value = value.replace(/^"|"$/g, '');
+                    }
+                    const dateStr = row[3]?.trim();
+                    const numeroCompra = row.length > 2 ? row[2]?.trim() : '';
+                    const nomeFornecedor = row.length > 15 ? row[15]?.trim() : '';
+                    const uasg = row.length > 17 ? row[17]?.trim() : '';
+
+                    if (catmat && value && dateStr) {
+                         const dateParts = dateStr.split(' ')[0].split('/');
+                         if (dateParts.length === 3) {
+                             const date = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T00:00:00`);
+                            if (!isNaN(date.getTime())) {
+                                 if (!dataMap.has(catmat)) {
+                                    dataMap.set(catmat, []);
+                                }
+                                dataMap.get(catmat).push({ value, date, uasg, numeroCompra, nomeFornecedor });
+                            }
+                         }
+                    }
+                }
+            }
+            return dataMap;
+        }
+
+        window.catmat_selectCatmat = function(catmat) {
+            catmat_activeCodItemFilter = null;
+            catmat_activePriceFilter = null;
+            catmat_currentCatmat = catmat;
+            catmat_emptySihForCatmat.clear();
+            catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+            catmat_processCurrentCatmat();
+        }
+
+        window.catmat_removeSavedSih = function(catmatToRemove, sihToRemove) {
+            const initialLength = catmat_savedResults.length;
+            catmat_savedResults = catmat_savedResults.filter(item => !(String(item['Cod. CATMAT']) === String(catmatToRemove) && String(item['Cod. SIH']) === String(sihToRemove)));
+            if (initialLength > catmat_savedResults.length) {
+                catmat_showToast(`Dados do Cód. SIH ${sihToRemove} removidos.`);
+                catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+            }
+        }
+
+        function catmat_displayAvailableCatmats(catmats) {
+            if (!catmat_availableCatmatsList) return;
+            catmat_availableCatmatsList.innerHTML = '';
+            if (catmats.length === 0) {
+                if (catmat_availableCatmatsBanner) catmat_availableCatmatsBanner.classList.add('hidden');
+                return;
+            }
+            catmats.sort((a, b) => a - b);
+            
+            const savedByCatmat = new Map();
+            catmat_savedResults.forEach(item => {
+                const catmat = String(item['Cod. CATMAT']);
+                const sih = String(item['Cod. SIH']);
+                if (!savedByCatmat.has(catmat)) savedByCatmat.set(catmat, new Set());
+                savedByCatmat.get(catmat).add(sih);
+            });
+            
+            catmats.forEach(catmat => {
+                const catmatStr = String(catmat);
+                const container = document.createElement('div');
+                container.className = 'flex items-center gap-2 w-full py-1';
+
+                const button = document.createElement('button');
+                button.textContent = catmatStr;
+                button.dataset.catmat = catmatStr;
+                
+                let buttonClasses = 'flex-shrink-0 text-sm font-semibold px-3 py-1 rounded transition-colors duration-200';
+                
+                const allReferenceSih = new Set(catmat_referenceData.filter(item => String(item.catmat) === catmatStr).map(item => String(item.codItem)));
+                const savedSihSet = savedByCatmat.get(catmatStr) || new Set();
+                const allItemsSaved = allReferenceSih.size > 0 && [...allReferenceSih].every(sih => savedSihSet.has(sih));
+
+                if (allItemsSaved) {
+                    button.className = `${buttonClasses} bg-green-100 text-green-800 hover:bg-green-200`;
+                    button.title = "Todos os Cód. SIH para este CATMAT foram salvos.";
+                } else if (catmat_currentCatmat === catmatStr) {
+                    button.className = `${buttonClasses} bg-indigo-600 text-white`;
+                } else {
+                    button.className = `${buttonClasses} bg-gray-200 text-gray-800 hover:bg-indigo-600 hover:text-white`;
+                }
+
+                button.onclick = () => window.catmat_selectCatmat(catmatStr);
+                container.appendChild(button);
+
+                const sihContainer = document.createElement('div');
+                sihContainer.className = 'flex flex-wrap gap-1 ml-2';
+
+                if(savedSihSet.size > 0) {
+                    savedSihSet.forEach(sih => {
+                        const sihButton = document.createElement('button');
+                        sihButton.textContent = sih;
+                        sihButton.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full hover:bg-red-100 hover:text-red-800 transition-colors';
+                        sihButton.title = `Remover SIH ${sih}`;
+                        sihButton.onclick = () => window.catmat_removeSavedSih(catmatStr, sih);
+                        sihContainer.appendChild(sihButton);
+                    });
+                }
+                
+                const emptySihSet = catmat_emptySihForCatmat.get(catmatStr) || new Set();
+                emptySihSet.forEach(sih => {
+                    if (!savedSihSet.has(sih)) {
+                         const sihElement = document.createElement('span');
+                         sihElement.textContent = sih;
+                         sihElement.className = 'bg-red-100 text-red-800 text-xs font-semibold px-2 py-0.5 rounded-full cursor-not-allowed';
+                         sihElement.title = `Nenhum valor para SIH ${sih} com os filtros atuais.`;
+                         sihContainer.appendChild(sihElement);
+                    }
+                });
+
+                container.appendChild(sihContainer);
+                catmat_availableCatmatsList.appendChild(container);
+            });
+            if(catmat_availableCatmatsBanner) catmat_availableCatmatsBanner.classList.remove('hidden');
+            lucide.createIcons({root: catmat_availableCatmatsList});
+        }
+
+        function catmat_processCurrentCatmat() {
+            if (!catmat_currentCatmat) {
+                if(catmat_resultsSection && !catmat_resultsSection.classList.contains('hidden')){
+                    catmat_resultsContainer.innerHTML = '<div class="text-center py-8"><i data-lucide="inbox" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i><p class="text-gray-500 font-medium">Selecione um CATMAT na lista ao lado.</p></div>';
+                    lucide.createIcons({root: catmat_resultsContainer});
+                }
+                return;
+            }
+            if (catmat_referenceData.length === 0 || catmat_queryData.size === 0) return;
+            if(catmat_resultsSection) catmat_resultsSection.classList.remove('hidden');
+            catmat_processCatmat(catmat_currentCatmat);
+            catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+        }
+
+        window.catmat_applyPriceFilter = function(price, codItem) {
+            if (String(catmat_activeCodItemFilter) === String(codItem)) {
+                catmat_activeCodItemFilter = null;
+                catmat_activePriceFilter = null;
+            } else {
+                catmat_activeCodItemFilter = codItem;
+                if (catmat_manualPriceCheckbox && !catmat_manualPriceCheckbox.checked) {
+                    catmat_activePriceFilter = price;
+                }
+            }
+            catmat_processCurrentCatmat();
+        }
+
+        function catmat_processCatmat(catmat) {
+            const results = catmat_referenceData.filter(item => String(item.catmat) === catmat);
+            const entriesFromN = catmat_queryData.get(catmat) || [];
+            catmat_displayResult(catmat, results, entriesFromN);
+        }
+
+        function catmat_filterEntries(entries, excludeUasg) {
+            let filtered = [...entries];
+            const startDateStr = catmat_startDateInput ? catmat_startDateInput.value : null;
+            const endDateStr = catmat_endDateInput ? catmat_endDateInput.value : null;
+            if (startDateStr && endDateStr) {
+                const startDate = new Date(startDateStr + 'T00:00:00');
+                const endDate = new Date(endDateStr + 'T23:59:59');
+                if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+                    filtered = filtered.filter(entry => entry.date >= startDate && entry.date <= endDate);
+                }
+            } else if (startDateStr) {
+                 const startDate = new Date(startDateStr + 'T00:00:00');
+                 if(!isNaN(startDate.getTime())){
+                    filtered = filtered.filter(entry => entry.date >= startDate);
+                 }
+            } else if (endDateStr) {
+                 const endDate = new Date(endDateStr + 'T23:59:59');
+                 if(!isNaN(endDate.getTime())){
+                    filtered = filtered.filter(entry => entry.date <= endDate);
+                 }
+            }
+
+            if(catmat_manualPriceCheckbox && catmat_manualPriceCheckbox.checked){
+                const minPrice = catmat_parseCSVFloat(catmat_manualPriceMinInput.value);
+                const maxPrice = catmat_parseCSVFloat(catmat_manualPriceMaxInput.value);
+                const hasMin = !isNaN(minPrice);
+                const hasMax = !isNaN(maxPrice);
+                if (hasMin || hasMax) {
+                    filtered = filtered.filter(entry => {
+                        const entryValue = catmat_parseCSVFloat(entry.value);
+                        if (isNaN(entryValue)) return false;
+                        const minOk = hasMin ? entryValue >= minPrice : true;
+                        const maxOk = hasMax ? entryValue <= maxPrice : true;
+                        return minOk && maxOk;
+                    });
+                }
+            } else if (catmat_activePriceFilter !== null && !isNaN(catmat_activePriceFilter)) {
+                const priceFilterToUse = catmat_activePriceFilter;
+                 filtered = filtered.filter(entry => {
+                    const entryValue = catmat_parseCSVFloat(entry.value);
+                    return !isNaN(entryValue) && entryValue >= priceFilterToUse;
+                });
+            }
+            
+            if (excludeUasg) {
+                filtered = filtered.filter(entry => entry.uasg !== '155902');
+            }
+            return filtered;
+        }
+
+        window.catmat_saveFilteredData = function(catmat) {
+            if (catmat_activeCodItemFilter === null) {
+                catmat_showToast("Selecione um Cód. SIH (clique no botão azul) para salvar.", true);
+                return;
+            }
+            const referenceItem = catmat_referenceData.find(item => String(item.codItem) === String(catmat_activeCodItemFilter));
+            let referenceValue = 'N/A';
+            if (referenceItem) {
+                const parsedRef = catmat_parseExcelFloat(referenceItem.price);
+                if (!isNaN(parsedRef)) {
+                    referenceValue = parsedRef.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+                } else {
+                    referenceValue = String(referenceItem.price || 'N/A');
+                }
+            }
+
+            const entriesFromN = catmat_queryData.get(catmat) || [];
+            const filteredEntries = catmat_filterEntries(entriesFromN, catmat_excludeUasgCheckbox && catmat_excludeUasgCheckbox.checked);
+
+            if (filteredEntries.length === 0) {
+                catmat_showToast("Não há valores filtrados para salvar.", true);
+                return;
+            }
+
+            filteredEntries.forEach(entry => {
+                catmat_savedResults.push({
+                    'Cod. CATMAT': catmat,
+                    'Cod. SIH': catmat_activeCodItemFilter,
+                    'Valor Referência': referenceValue,
+                    'Valor Encontrado': entry.value,
+                    'Data da Compra': entry.date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
+                    'Número da Compra': entry.numeroCompra,
+                    'Nome do Fornecedor / Identificação da Fonte': entry.nomeFornecedor,
+                    'UASG': entry.uasg
+                });
+            });
+
+            if(catmat_emptySihForCatmat.has(catmat)) {
+                catmat_emptySihForCatmat.get(catmat).delete(String(catmat_activeCodItemFilter));
+            }
+            catmat_showToast(`Dados do Cód. SIH ${catmat_activeCodItemFilter} salvos com sucesso!`, false);
+            catmat_displayAvailableCatmats(Array.from(catmat_queryData.keys()));
+        }
+        
+        function catmat_copySuppliersForIA() {
+            const allSuppliers = new Set();
+            catmat_queryData.forEach(entries => {
+                entries.forEach(entry => {
+                    if (entry.nomeFornecedor && isNaN(entry.nomeFornecedor)) {
+                        allSuppliers.add(entry.nomeFornecedor);
+                    }
+                });
+            });
+
+            const sortedSuppliers = [...allSuppliers].sort();
+
+            if (sortedSuppliers.length === 0) {
+                catmat_showToast('Não há fornecedores para copiar.', true);
+                return;
+            }
+
+            const introSentence = "Busque profundamente e extensivamente na internet por emails e/ou telefones dos fornecedores/empresas listados abaixo:";
+            const textToCopy = introSentence + "\n\n" + sortedSuppliers.join('\n');
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                catmat_showToast('Lista de fornecedores copiada para a IA!');
+            }).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                catmat_showToast('Lista de fornecedores copiada!');
+            })
+        }
+
+        function catmat_displayAllSuppliers() {
+            if(!catmat_suppliersBanner || !catmat_suppliersList) return;
+            const supplierNames = new Set();
+            catmat_queryData.forEach(entries => {
+                entries.forEach(entry => {
+                    if (entry.nomeFornecedor && isNaN(entry.nomeFornecedor)) {
+                        supplierNames.add(entry.nomeFornecedor);
+                    }
+                });
+            });
+            const sortedSuppliers = [...supplierNames].sort();
+
+            if (sortedSuppliers.length > 0) {
+                catmat_suppliersList.innerHTML = sortedSuppliers.map(name => `<div class="py-1 border-b border-gray-100 last:border-0">${name}</div>`).join('');
+            } else {
+                catmat_suppliersList.innerHTML = `<p class="text-gray-500 py-2">Nenhum fornecedor encontrado.</p>`;
+            }
+            catmat_suppliersBanner.classList.remove('hidden');
+        }
+
+        function catmat_displayResult(catmat, results, entriesFromN) {
+            if(!catmat_resultsContainer) return;
+            catmat_resultsContainer.innerHTML = '';
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'pt-2';
+            
+            const saveButtonHtml = catmat_activeCodItemFilter !== null ? `<button onclick="window.catmat_saveFilteredData('${catmat}')" class="ml-4 py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>` : '';
+
+            let content = `
+                <div class="flex items-center mt-2 mb-6">
+                    <h3 class="font-semibold text-lg text-gray-700">Resultado da Consulta por CATMAT: <span class="text-indigo-600 font-bold">${catmat}</span></h3>
+                    ${saveButtonHtml}
+                </div>`;
+
+            const filteredEntries = catmat_filterEntries(entriesFromN, catmat_excludeUasgCheckbox && catmat_excludeUasgCheckbox.checked);
+
+            if (catmat_activeCodItemFilter !== null) {
+                if (filteredEntries.length === 0) {
+                    if (!catmat_emptySihForCatmat.has(catmat)) {
+                        catmat_emptySihForCatmat.set(catmat, new Set());
+                    }
+                    catmat_emptySihForCatmat.get(catmat).add(String(catmat_activeCodItemFilter));
+                } else {
+                    if (catmat_emptySihForCatmat.has(catmat)) {
+                        catmat_emptySihForCatmat.get(catmat).delete(String(catmat_activeCodItemFilter));
+                    }
+                }
+            }
+
+            if (filteredEntries.length === 0 && results.length === 0) {
+                 content += `<p class="text-gray-500 mt-2">Nenhum dado encontrado com os filtros atuais.</p>`;
+                 resultDiv.innerHTML = content;
+                 catmat_resultsContainer.appendChild(resultDiv);
+                 return;
+            }
+            
+             const sortedEntries = filteredEntries.sort((a, b) => catmat_parseCSVFloat(b.value) - catmat_parseCSVFloat(a.value));
+
+            content += '<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">';
+            
+            content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Cód. SIH (Último valor):</p>';
+            if (results.length > 0) {
+                content += '<ul class="list-disc list-inside space-y-1.5">';
+                results.forEach(item => {
+                    const isActiveFilter = catmat_activeCodItemFilter !== null && String(catmat_activeCodItemFilter) === String(item.codItem);
+                    const priceValue = catmat_parseExcelFloat(item.price);
+                    
+                    let priceDisplaySpan = '';
+                    if (!catmat_manualPriceCheckbox || !catmat_manualPriceCheckbox.checked) {
+                         let priceDisplay = 'N/A';
+                         if (!isNaN(priceValue)) {
+                             priceDisplay = priceValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+                         } else if (item.price) {
+                             priceDisplay = String(item.price);
+                         }
+                         priceDisplaySpan = `<span class="text-sm ml-1 ${isActiveFilter ? 'font-bold text-gray-800' : 'text-gray-500'}">(${priceDisplay})</span>`;
+                    }
+                    
+                    const activatedText = isActiveFilter ? `<span class="text-xs font-semibold text-green-600 ml-1">(Ativado)</span>` : '';
+                    content += `
+                        <li class="text-gray-600">
+                            <button onclick="window.catmat_applyPriceFilter(${priceValue}, '${item.codItem}')" 
+                                    class="text-blue-600 hover:text-blue-800 focus:outline-none ${isActiveFilter ? 'font-bold underline' : 'hover:underline'}">
+                                ${item.codItem}
+                            </button>
+                            ${priceDisplaySpan}
+                            ${activatedText}
+                        </li>
+                    `;
+                });
+                content += '</ul>';
+            } else {
+                content += `<p class="text-gray-500 mt-1 italic text-sm">Nenhum cód. SIH.</p>`;
+            }
+            content += '</div>';
+
+            if(sortedEntries.length > 0) {
+                const sum = sortedEntries.reduce((acc, entry) => {
+                    const value = catmat_parseCSVFloat(entry.value);
+                    return acc + (isNaN(value) ? 0 : value);
+                }, 0);
+                const average = sortedEntries.length > 0 ? sum / sortedEntries.length : 0;
+                const formattedAverage = average.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Valor(es) para SIH:</p><ul class="list-disc list-inside space-y-1.5">';
+                sortedEntries.forEach(entry => { 
+                    content += `<li class="text-gray-600">${entry.value}</li>`; 
+                });
+                content += '</ul>';
+                content += `<p class="mt-4 text-sm font-bold text-gray-800">Média: ${formattedAverage}</p></div>`;
+                
+                content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Data da Compra:</p><ul class="list-disc list-inside space-y-1.5">';
+                sortedEntries.forEach(entry => {
+                    const formattedDate = entry.date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                    content += `<li class="text-gray-600">${formattedDate}</li>`;
+                });
+                content += '</ul></div>';
+            } else {
+                 content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Valor(es) para SIH:</p><p class="text-gray-500 mt-1">Nenhum valor com os filtros atuais.</p></div><div></div>';
+            }
+
+            content += '</div>';
+            
+            if (catmat_activeCodItemFilter !== null) {
+                content += `
+                    <div class="flex justify-end mt-8">
+                        <button onclick="window.catmat_saveFilteredData('${catmat}')" class="py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>
+                    </div>`;
+            }
+
+            resultDiv.innerHTML = content;
+            catmat_resultsContainer.appendChild(resultDiv);
+        }
+
+        function catmat_downloadSavedXlsx() {
+            if (catmat_savedResults.length === 0) {
+                catmat_showToast('Não há dados salvos para baixar. Use o botão "Salvar na Planilha".', true);
+                return;
+            }
+            const ws = XLSX.utils.json_to_sheet(catmat_savedResults);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Consulta Salva");
+            XLSX.writeFile(wb, "Precos_do_ComprasNet_Selecionados.xlsx");
+        }
     </script>
 </body>
 </html>
