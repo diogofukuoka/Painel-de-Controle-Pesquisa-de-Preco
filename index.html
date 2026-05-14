@@ -1,34 +1,77 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor de Qualidade ISO</title>
+    <title>Fabricantes e Marcas do Banco de Marcas</title>
     <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (via CDN para ler as planilhas do Excel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Lucide Icons (via CDN para os ícones) -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        th.sortable { cursor: pointer; }
-        th.sortable:hover { background-color: #f3f4f6; }
+        /* Estilo para a fonte Inter */
+        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        /* Estilos para o modal */
+        #modal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+        #modal.hidden { visibility: hidden; opacity: 0; }
+        #modal-content { transition: transform 0.3s ease-in-out; }
+        #modal.hidden #modal-content { transform: scale(0.95); }
+
+        /* Ícones e Tooltips */
+        .copy-icon { display: inline-block; margin-left: 8px; cursor: pointer; color: #4a5568; position: relative; vertical-align: middle; }
+        .copy-icon:hover { color: #2563eb; }
+        .copy-icon svg { width: 1rem; height: 1rem; display: inline-block; }
+        .copy-icon .copy-tooltip { visibility: hidden; width: 80px; background-color: #2d3748; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -40px; opacity: 0; transition: opacity 0.3s; font-size: 12px; font-weight: 500; }
+        .copy-icon .copy-tooltip.visible { visibility: visible; opacity: 1; }
+        .whatsapp-icon:hover { color: #25D366; }
+        
+        /* Scrollbar customizada */
+        .custom-dropdown-list::-webkit-scrollbar { width: 8px; }
+        .custom-dropdown-list::-webkit-scrollbar-track { background: #ffffff; }
+        .custom-dropdown-list::-webkit-scrollbar-thumb { background-color: #cbd5e0; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-6 lg:p-8 flex flex-col font-sans">
+<body class="bg-gray-100 flex flex-col min-h-screen text-gray-800 font-sans">
     
-    <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <!-- Navbar -->
+    <nav class="bg-indigo-800 text-white shadow-md z-50 w-full mb-6 sticky top-0">
+        <div class="container mx-auto max-w-[1600px] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="layers" class="w-6 h-6 text-indigo-300"></i>
+                <span class="text-xl font-bold tracking-tight">Painel Operacional</span>
+            </div>
+            <div class="flex space-x-2 overflow-x-auto pb-1 sm:pb-0">
+                <button id="navIsoBtn" class="px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
+                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fabricantes e Marcas
+                </button>
+                <button id="navFornecedoresBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="users" class="w-4 h-4 mr-2 pointer-events-none"></i> Fornecedores
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    
+    
+    <div id="isoView" style="display: flex;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col">
+        
+        <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Leitor de Qualidade ISO</h1>
-            <p class="text-sm text-gray-500 mt-1">Visualização online e independente (Colunas A-H e S)</p>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Fabricantes e Marcas do Banco de Marcas</h1>
         </div>
 
         <div class="flex items-center space-x-3">
             <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls,.csv" />
-            <button onclick="document.getElementById('fileInput').click()" id="uploadBtn" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium shadow-sm">
+            <button onclick="document.getElementById('fileInput').click()" id="isoUploadBtn" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium shadow-sm">
                 <i data-lucide="upload-cloud" class="w-4 h-4 mr-2"></i>
-                <span id="uploadText">Carregar Planilha</span>
+                <span id="isoUploadText">Carregar Planilha</span>
             </button>
         </div>
     </header>
@@ -58,67 +101,258 @@
         </div>
 
         <!-- Data table (Hidden initially) -->
-        <div id="dataTableContainer" class="hidden bg-white rounded-xl border border-gray-200 shadow-sm flex-col h-full overflow-hidden flex-1">
-            <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div id="dataTableContainer" class="hidden flex-col h-full overflow-hidden flex-1 space-y-6">
+            <div class="p-4 border border-gray-200 bg-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl">
                 <div class="flex items-center space-x-2 text-indigo-700">
                     <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
-                    <h2 class="font-semibold text-gray-800">Visualização de Dados (<span id="rowCount">0</span> registros)</h2>
+                    <h2 class="font-semibold text-gray-800">Visualização de Dados (<span id="rowCount">0</span> registros encontrados)</h2>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="exportExcelBtn" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center" title="Exportar Excel">
+                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Excel
+                    </button>
+                    <button id="expandAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Expandir Todos">
+                        <i data-lucide="maximize-2" class="w-3.5 h-3.5 mr-1.5"></i> Expandir Todos
+                    </button>
+                    <button id="collapseAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Recolher Todos">
+                        <i data-lucide="minimize-2" class="w-3.5 h-3.5 mr-1.5"></i> Recolher Todos
+                    </button>
                 </div>
             </div>
 
-            <div class="overflow-x-auto flex-1 h-[calc(100vh-250px)]">
-                <table class="w-full text-left border-collapse table-auto">
-                    <thead class="bg-gray-50 sticky top-0 border-b border-gray-200 z-10 shadow-sm">
-                        <tr class="whitespace-nowrap">
-                            <th data-key="codigo" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Cód. SIH <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="descricao" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Descrição <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="fabricante" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Fabricante <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="marca" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Marca <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="aprovado" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center justify-center">Aprovado <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="reprovado" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center justify-center">Reprovado <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-gray-100">
-                        <!-- Rows rendered by JS -->
-                    </tbody>
-                </table>
-                <!-- No results state -->
-                <div id="noResults" class="hidden px-4 py-12 text-center text-gray-500">
-                    Nenhum registro encontrado correspondente à busca.
-                </div>
+            <div id="groupedResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-6 pb-20 pr-2">
+                <!-- Grouped cards rendered by JS -->
+            </div>
+
+            <!-- No results state -->
+            <div id="noResults" class="hidden px-4 py-12 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-200">
+                Nenhum registro encontrado correspondente à busca.
             </div>
         </div>
     </main>
 
+    
+    </div>
+
+
+    
+    <div id="fornecedoresView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
+        
+        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Visualizador de Fornecedores</h1>
+                <p class="text-sm text-gray-500 mt-1">Carregue o arquivo "CHC-UFPR - Cadastro de Fornecedores e Mapeamento de Mercado(1-950).xlsx".</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <!-- 1. Upload -->
+                <input type="file" id="csvFileInput" class="hidden" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+                <button onclick="document.getElementById('csvFileInput').click()" id="fornecedoresUploadBtn" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium shadow-sm">
+                    <i data-lucide="upload-cloud" class="w-4 h-4 mr-2"></i>
+                    <span id="fornecedoresUploadText" class="whitespace-nowrap">Carregar Planilha</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Seção de Controles -->
+        <div id="controlsSection" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 2. Categoria -->
+                <div class="col-span-1">
+                    <label for="categoryFilter" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Categoria Principal</label>
+                    <select id="categoryFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="">Todas as Categorias</option>
+                    </select>
+                </div>
+                <!-- 3. Busca Texto -->
+                <div class="col-span-1">
+                    <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">Buscar Buscar</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="searchInput" placeholder="Nome ou CNPJ..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <!-- 4. Localização -->
+                <div class="col-span-1">
+                    <label for="locationInput" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Localização</label>
+                    <input type="text" id="locationInput" placeholder="Ex: 41, PR, Sul, Curitiba..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400" disabled>
+                </div>
+                <!-- Ações -->
+                <div class="col-span-1 flex flex-col justify-end">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Ações</label>
+                    <div class="flex gap-2">
+                        <button id="clearFiltersButton" class="w-1/3 bg-gray-100 text-gray-600 border border-gray-300 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors hidden" title="Limpar Filtros">
+                            Limpar
+                        </button>
+                        <button id="downloadButton" class="flex-1 bg-green-600 border border-transparent text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors hidden flex justify-center items-center" title="Baixar Contatos Atuais">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> Baixar Atual
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subcategorias (1, 2, 3) -->
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup1">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 1</label>
+                    <div class="globalSubcategoryContainer relative">
+                        <input type="text" id="subcategoryInput1" data-idx="1" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <div id="subcategoryListContainer1" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
+                    </div>
+                    <div class="specificSubcategoryContainer hidden relative">
+                        <select id="subcategorySelect1" data-idx="1" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                    </div>
+                </div>
+
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 2</label>
+                    <div class="globalSubcategoryContainer relative">
+                        <input type="text" id="subcategoryInput2" data-idx="2" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <div id="subcategoryListContainer2" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
+                    </div>
+                    <div class="specificSubcategoryContainer hidden relative">
+                        <select id="subcategorySelect2" data-idx="2" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                    </div>
+                </div>
+
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 3</label>
+                    <div class="globalSubcategoryContainer relative">
+                        <input type="text" id="subcategoryInput3" data-idx="3" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <div id="subcategoryListContainer3" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
+                    </div>
+                    <div class="specificSubcategoryContainer hidden relative">
+                        <select id="subcategorySelect3" data-idx="3" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                    </div>
+                </div>
+
+                <!-- Lista unificada card -->
+                <div class="col-span-1 w-full bg-indigo-50 rounded-xl border border-indigo-100 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-indigo-900">Lista Unificada</h4>
+                        <span class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded-full" id="queueCountBadge">0</span>
+                    </div>
+                    <div id="accumulatorActions" class="flex flex-col gap-2">
+                        <button id="addToQueueButton" class="w-full bg-white text-indigo-700 border border-indigo-300 px-3 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Adicionar à Lista
+                        </button>
+                        <div class="flex gap-2">
+                            <button id="downloadQueueButton" class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled>
+                                <i data-lucide="download" class="w-4 h-4"></i> Baixar Unificada
+                            </button>
+                            <button id="clearQueueBtn" class="bg-white border border-red-200 text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled title="Limpar Lista">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="filterSummary" class="mt-4 text-sm text-indigo-600 font-medium hidden"></div>
+        </div>
+
+        <p id="loadingMessage" class="text-center text-indigo-600 mt-4 hidden font-medium flex justify-center items-center">
+            <i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> Processando arquivo...
+        </p>
+        <p id="errorMessage" class="text-center text-red-600 mt-4 hidden font-medium"></p>
+
+        <!-- Área de Exibição -->
+        <main id="dataContainer" class="flex-1 overflow-y-auto pb-10 space-y-4">
+            <div id="initialMessage" class="h-64 flex flex-col items-center justify-center bg-amber-50 border border-amber-200 rounded-xl shadow-sm p-6 text-center">
+                <i data-lucide="upload" class="w-12 h-12 text-amber-500 mb-4"></i>
+                <h3 class="text-lg font-semibold text-amber-900 mb-2">Aguardando Planilha</h3>
+                <p class="text-amber-700 text-center max-w-md">Por favor, carregue um arquivo Excel ou CSV de fornecedores usando o botão acima. Seus dados são processados localmente.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Detalhes do Fornecedor -->
+    <div id="modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 sm:p-6 z-[60] hidden">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Header do Modal -->
+            <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-white">
+                <h2 id="modalTitle" class="text-xl md:text-2xl font-bold text-gray-800 pr-4 flex items-center gap-2">Detalhes do Fornecedor</h2>
+                <button id="closeModal" class="text-gray-400 hover:bg-gray-100 hover:text-gray-600 p-2 rounded-full focus:outline-none transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Corpo do Modal (Scrollável) -->
+            <div id="modalBodyWrapper" class="overflow-y-auto p-0 bg-gray-50 flex-1">
+                <!-- Este ID 'capture-target' será usado para gerar a imagem -->
+                <div id="capture-target" class="bg-white m-4 sm:m-6 p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200">
+                    <div id="modalBody"></div>
+                </div>
+            </div>
+
+            <!-- Footer do Modal (Ações) -->
+            <div class="p-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3 z-10">
+                <button id="btnCopyText" class="px-4 py-2.5 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar Dados
+                </button>
+                <button id="btnDownloadImage" class="px-4 py-2.5 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4"></i> Baixar Imagem
+                </button>
+                <button id="closeModalFooter" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+
+
     <script>
+        
         // Init Lucide icons
         lucide.createIcons();
 
         let appData = [];
         let filteredData = [];
-        let currentSort = { key: null, direction: 'asc' };
 
         document.getElementById('fileInput').addEventListener('change', handleFileUpload);
         
         document.getElementById('filterBtn').addEventListener('click', handleFilterByCodes);
 
-        document.querySelectorAll('th.sortable').forEach(th => {
-            th.addEventListener('click', () => {
-                const key = th.getAttribute('data-key');
-                handleSort(key);
+        document.getElementById('expandAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('#groupedResults .overflow-x-auto').forEach(wrapper => {
+                wrapper.classList.remove('hidden');
             });
+            document.querySelectorAll('#groupedResults .toggle-icon').forEach(icon => {
+                icon.classList.add('rotate-180');
+            });
+        });
+
+        document.getElementById('collapseAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('#groupedResults .overflow-x-auto').forEach(wrapper => {
+                wrapper.classList.add('hidden');
+            });
+            document.querySelectorAll('#groupedResults .toggle-icon').forEach(icon => {
+                icon.classList.remove('rotate-180');
+            });
+        });
+
+        document.getElementById('exportExcelBtn').addEventListener('click', () => {
+            if (filteredData.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            const exportData = filteredData.map(row => ({
+                "Cód. SIH": row.codigo,
+                "Descrição": row.descricao,
+                "Fabricante": row.fabricante,
+                "Marca": row.marca,
+                "Aprovado": formatAprovado(row.aprovado),
+                "Reprovado": formatReprovado(row.reprovado)
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+
+            XLSX.writeFile(workbook, "Resultados_Pesquisa.xlsx");
         });
 
         function formatAprovado(val) {
@@ -139,8 +373,8 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            const uploadBtn = document.getElementById('uploadBtn');
-            const uploadText = document.getElementById('uploadText');
+            const uploadBtn = document.getElementById('isoUploadBtn');
+            const uploadText = document.getElementById('isoUploadText');
             
             uploadBtn.disabled = true;
             uploadBtn.classList.add('opacity-50');
@@ -180,7 +414,7 @@
                         }).filter(r => r.codigo || r.descricao);
                         
                         filteredData = []; // Clear old filtered data
-                        renderTable();
+                        renderGroupedData();
                         
                         document.getElementById('emptyState').classList.add('hidden');
                         document.getElementById('filterState').classList.remove('hidden');
@@ -219,93 +453,839 @@
             // Filter data by codes (comparing as strings)
             filteredData = appData.filter(row => codes.includes(row.codigo));
             
-            sortData();
-            renderTable();
+            renderGroupedData();
 
             document.getElementById('dataTableContainer').classList.remove('hidden');
             document.getElementById('dataTableContainer').style.display = 'flex';
         }
 
-        function handleSort(key) {
-            if (currentSort.key === key) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.key = key;
-                currentSort.direction = 'asc';
-            }
-            
-            // Update UI icons
-            document.querySelectorAll('th.sortable i').forEach(icon => {
-                icon.setAttribute('data-lucide', 'chevron-down');
-                icon.classList.remove('text-blue-600');
-                icon.classList.add('text-gray-300');
-            });
-
-            const activeTh = document.querySelector(`th[data-key="${key}"]`);
-            if (activeTh) {
-                const icon = activeTh.querySelector('i');
-                icon.setAttribute('data-lucide', currentSort.direction === 'asc' ? 'chevron-up' : 'chevron-down');
-                icon.classList.remove('text-gray-300');
-                icon.classList.add('text-blue-600');
-            }
-            // Re-render icons after adding new data-lucide attributes
-            lucide.createIcons();
-
-            sortData();
-            renderTable();
-        }
-
-        function sortData() {
-            if (!currentSort.key) return;
-
-            filteredData.sort((a, b) => {
-                let valA = a[currentSort.key];
-                let valB = b[currentSort.key];
-
-                if (typeof valA === 'string') valA = valA.toLowerCase();
-                if (typeof valB === 'string') valB = valB.toLowerCase();
-
-                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
-                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
+        function renderGroupedData() {
+            const container = document.getElementById('groupedResults');
             const noResults = document.getElementById('noResults');
             document.getElementById('rowCount').textContent = filteredData.length;
 
-            tbody.innerHTML = '';
+            container.innerHTML = '';
             
             if (filteredData.length === 0) {
                 noResults.classList.remove('hidden');
+                container.classList.add('hidden');
             } else {
                 noResults.classList.add('hidden');
+                container.classList.remove('hidden');
                 
+                // Group the data by codigo
+                const grouped = {};
                 filteredData.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-indigo-50/50 transition-colors';
-                    
-                    const isAprovadoVerdadeiro = String(row.aprovado).toUpperCase() === 'VERDADEIRO' || String(row.aprovado).toUpperCase() === 'V' || row.aprovado === true;
-                    // Se o texto for igual a verdadeiro, usaremos a fonte verde. 
-                    const aprovadoColor = isAprovadoVerdadeiro ? 'text-green-600 font-medium' : 'text-gray-600';
-                    
-                    const isReprovadoVerdadeiro = String(row.reprovado).toUpperCase() === 'VERDADEIRO' || String(row.reprovado).toUpperCase() === 'V' || row.reprovado === true;
-                    const reprovadoColor = isReprovadoVerdadeiro ? 'text-red-600 font-medium' : 'text-gray-600';
+                    const code = row.codigo;
+                    if (!grouped[code]) {
+                        grouped[code] = [];
+                    }
+                    grouped[code].push(row);
+                });
 
-                    tr.innerHTML = `
-                        <td class="px-3 py-2 text-sm text-gray-600 font-mono align-top">${row.codigo}</td>
-                        <td class="px-3 py-2 text-sm text-gray-800 align-top whitespace-normal break-words min-w-[200px] max-w-[300px]">${row.descricao}</td>
-                        <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
-                        <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[200px]">${row.marca}</td>
-                        <td class="px-3 py-2 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
-                        <td class="px-3 py-2 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
+                Object.keys(grouped).forEach(code => {
+                    const rows = grouped[code];
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden';
+
+                    // Group Header
+                    const header = document.createElement('div');
+                    header.className = 'bg-indigo-50 px-4 py-3 border-b border-indigo-100 flex justify-between items-center cursor-pointer hover:bg-indigo-100/80 transition-colors select-none group';
+                    header.innerHTML = `
+                        <div class="flex items-center flex-wrap gap-2">
+                            <h3 class="text-indigo-900 font-semibold flex items-center mr-2">
+                                <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400 mr-2 transition-transform duration-200 transform rotate-180 toggle-icon group-hover:text-indigo-600"></i>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-md mr-3 font-mono border border-indigo-200">CÓD. SIH</span>
+                                <span class="text-lg">${code}</span>
+                            </h3>
+                            <button class="copy-iso-btn px-2 py-1 text-xs font-medium text-indigo-600 bg-white border border-indigo-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center shadow-sm" title="Copiar dados" type="button">
+                                <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="btn-text pointer-events-none">Copiar todos os dados deste card</span>
+                            </button>
+                        </div>
+                        <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'}</span>
                     `;
-                    tbody.appendChild(tr);
+                    card.appendChild(header);
+
+                    const copyBtn = header.querySelector('.copy-iso-btn');
+                    copyBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        let textToCopy = `CÓD. SIH: ${code}\n`;
+                        textToCopy += `Registros: ${rows.length}\n\n`;
+                        rows.forEach((r, i) => {
+                            textToCopy += `-- Registro ${i + 1} --\n`;
+                            textToCopy += `Descrição: ${r.descricao || '-'}\n`;
+                            textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
+                            textToCopy += `Marca: ${r.marca || '-'}\n`;
+                            textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
+                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n\n`;
+                        });
+                        
+                        try {
+                            await navigator.clipboard.writeText(textToCopy);
+                            const originalHTML = copyBtn.innerHTML;
+                            copyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-green-600"></i> <span class="text-green-600 font-semibold pointer-events-none">Copiado!</span>`;
+                            lucide.createIcons();
+                            setTimeout(() => {
+                                copyBtn.innerHTML = originalHTML;
+                                lucide.createIcons();
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Falha ao copiar:', err);
+                            alert('Erro ao copiar.');
+                        }
+                    });
+
+                    // Group Table
+                    const tableWrapper = document.createElement('div');
+                    tableWrapper.className = 'overflow-x-auto';
+                    
+                    header.addEventListener('click', () => {
+                        const isHidden = tableWrapper.classList.contains('hidden');
+                        const icon = header.querySelector('.toggle-icon');
+                        if (isHidden) {
+                            tableWrapper.classList.remove('hidden');
+                            icon.classList.add('rotate-180');
+                        } else {
+                            tableWrapper.classList.add('hidden');
+                            icon.classList.remove('rotate-180');
+                        }
+                    });
+                    
+                    // Calculate summaries
+                    const uniqueFabricantes = new Set(rows.map(r => r.fabricante).filter(f => f && String(f).trim() !== ""));
+                    const numFabricantes = uniqueFabricantes.size;
+                    
+                    const uniqueMarcas = new Set(rows.map(r => r.marca).filter(m => m && String(m).trim() !== ""));
+                    const numMarcas = uniqueMarcas.size;
+                    
+                    const numAprovados = rows.filter(r => String(r.aprovado).toUpperCase() === 'VERDADEIRO' || String(r.aprovado).toUpperCase() === 'V' || r.aprovado === true).length;
+                    const numReprovados = rows.filter(r => String(r.reprovado).toUpperCase() === 'VERDADEIRO' || String(r.reprovado).toUpperCase() === 'V' || r.reprovado === true).length;
+
+                    const table = document.createElement('table');
+                    table.className = 'w-full text-left border-collapse table-auto';
+                    
+                    const thead = document.createElement('thead');
+                    thead.className = 'bg-gray-50 border-b border-gray-200';
+                    thead.innerHTML = `
+                        <tr class="whitespace-nowrap">
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fabricante (${numFabricantes})</th>
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca (${numMarcas})</th>
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aprovado (${numAprovados})</th>
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Reprovado (${numReprovados})</th>
+                        </tr>
+                    `;
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    tbody.className = 'divide-y divide-gray-100';
+
+                    rows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gray-50/80 transition-colors group';
+
+                        const isAprovadoVerdadeiro = String(row.aprovado).toUpperCase() === 'VERDADEIRO' || String(row.aprovado).toUpperCase() === 'V' || row.aprovado === true;
+                        const aprovadoColor = isAprovadoVerdadeiro ? 'text-green-600 font-medium' : 'text-gray-600';
+                        
+                        const isReprovadoVerdadeiro = String(row.reprovado).toUpperCase() === 'VERDADEIRO' || String(row.reprovado).toUpperCase() === 'V' || row.reprovado === true;
+                        const reprovadoColor = isReprovadoVerdadeiro ? 'text-red-600 font-medium' : 'text-gray-600';
+
+                        tr.innerHTML = `
+                            <td class="px-4 py-3 text-sm text-gray-800 align-top whitespace-normal break-words min-w-[200px] max-w-[400px] group-hover:text-indigo-900 transition-colors">${row.descricao}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[250px]">${row.marca}</td>
+                            <td class="px-4 py-3 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
+                            <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    table.appendChild(tbody);
+                    tableWrapper.appendChild(table);
+                    card.appendChild(tableWrapper);
+
+                    container.appendChild(card);
+                });
+            }
+            lucide.createIcons();
+        }
+    
+        
+        // Tab switching logic
+        const navIsoBtn = document.getElementById('navIsoBtn');
+        const navFornecedoresBtn = document.getElementById('navFornecedoresBtn');
+        const isoView = document.getElementById('isoView');
+        const fornecedoresView = document.getElementById('fornecedoresView');
+
+        function activateTab(tab) {
+            const activeClasses = 'px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
+            const inactiveClasses = 'px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap';
+            
+            navIsoBtn.className = tab === 'iso' ? activeClasses : inactiveClasses;
+            navFornecedoresBtn.className = tab === 'fornecedores' ? activeClasses : inactiveClasses;
+            
+            const btnChildIso = navIsoBtn.querySelector('svg');
+            const btnChildForn = navFornecedoresBtn.querySelector('svg');
+            if (tab === 'iso') {
+                if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-4 h-4 mr-2 pointer-events-none');
+                isoView.style.display = 'flex';
+                fornecedoresView.style.display = 'none';
+            } else {
+                if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 pointer-events-none');
+                if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                isoView.style.display = 'none';
+                fornecedoresView.style.display = 'flex';
+            }
+        }
+
+        navIsoBtn.addEventListener('click', () => activateTab('iso'));
+        navFornecedoresBtn.addEventListener('click', () => activateTab('fornecedores'));
+        
+        
+        lucide.createIcons();
+
+        // --- BASE DE DADOS DE DDD ---
+        const DDD_MAP = {
+            68: { uf: 'AC', region: 'Norte', desc: 'Acre' }, 96: { uf: 'AP', region: 'Norte', desc: 'Amapá' }, 92: { uf: 'AM', region: 'Norte', desc: 'Manaus' }, 97: { uf: 'AM', region: 'Norte', desc: 'Interior AM' }, 91: { uf: 'PA', region: 'Norte', desc: 'Belém' }, 93: { uf: 'PA', region: 'Norte', desc: 'Santarém' }, 94: { uf: 'PA', region: 'Norte', desc: 'Marabá' }, 69: { uf: 'RO', region: 'Norte', desc: 'Rondônia' }, 95: { uf: 'RR', region: 'Norte', desc: 'Roraima' }, 63: { uf: 'TO', region: 'Norte', desc: 'Tocantins' },
+            82: { uf: 'AL', region: 'Nordeste', desc: 'Alagoas' }, 71: { uf: 'BA', region: 'Nordeste', desc: 'Salvador' }, 73: { uf: 'BA', region: 'Nordeste', desc: 'Sul BA' }, 74: { uf: 'BA', region: 'Nordeste', desc: 'Juazeiro' }, 75: { uf: 'BA', region: 'Nordeste', desc: 'Feira de Santana' }, 77: { uf: 'BA', region: 'Nordeste', desc: 'Vitória da Conquista' }, 85: { uf: 'CE', region: 'Nordeste', desc: 'Fortaleza' }, 88: { uf: 'CE', region: 'Nordeste', desc: 'Interior CE' }, 98: { uf: 'MA', region: 'Nordeste', desc: 'São Luís' }, 99: { uf: 'MA', region: 'Nordeste', desc: 'Imperatriz' }, 83: { uf: 'PB', region: 'Nordeste', desc: 'Paraíba' }, 81: { uf: 'PE', region: 'Nordeste', desc: 'Recife' }, 87: { uf: 'PE', region: 'Nordeste', desc: 'Petrolina' }, 86: { uf: 'PI', region: 'Nordeste', desc: 'Teresina' }, 89: { uf: 'PI', region: 'Nordeste', desc: 'Interior PI' }, 84: { uf: 'RN', region: 'Nordeste', desc: 'RN' }, 79: { uf: 'SE', region: 'Nordeste', desc: 'Sergipe' },
+            61: { uf: 'DF', region: 'Centro-Oeste', desc: 'Brasília' }, 62: { uf: 'GO', region: 'Centro-Oeste', desc: 'Goiânia' }, 64: { uf: 'GO', region: 'Centro-Oeste', desc: 'Rio Verde' }, 65: { uf: 'MT', region: 'Centro-Oeste', desc: 'Cuiabá' }, 66: { uf: 'MT', region: 'Centro-Oeste', desc: 'Rondonópolis' }, 67: { uf: 'MS', region: 'Centro-Oeste', desc: 'MS' },
+            27: { uf: 'ES', region: 'Sudeste', desc: 'Vitória' }, 28: { uf: 'ES', region: 'Sudeste', desc: 'Cachoeiro' }, 31: { uf: 'MG', region: 'Sudeste', desc: 'Belo Horizonte' }, 32: { uf: 'MG', region: 'Sudeste', desc: 'Juiz de Fora' }, 33: { uf: 'MG', region: 'Sudeste', desc: 'Gov. Valadares' }, 34: { uf: 'MG', region: 'Sudeste', desc: 'Uberlândia' }, 35: { uf: 'MG', region: 'Sudeste', desc: 'Poços de Caldas' }, 37: { uf: 'MG', region: 'Sudeste', desc: 'Divinópolis' }, 38: { uf: 'MG', region: 'Sudeste', desc: 'Montes Claros' }, 21: { uf: 'RJ', region: 'Sudeste', desc: 'Rio de Janeiro' }, 22: { uf: 'RJ', region: 'Sudeste', desc: 'Campos' }, 24: { uf: 'RJ', region: 'Sudeste', desc: 'Volta Redonda' }, 11: { uf: 'SP', region: 'Sudeste', desc: 'São Paulo' }, 12: { uf: 'SP', region: 'Sudeste', desc: 'SJC' }, 13: { uf: 'SP', region: 'Sudeste', desc: 'Santos' }, 14: { uf: 'SP', region: 'Sudeste', desc: 'Bauru' }, 15: { uf: 'SP', region: 'Sudeste', desc: 'Sorocaba' }, 16: { uf: 'SP', region: 'Sudeste', desc: 'Ribeirão Preto' }, 17: { uf: 'SP', region: 'Sudeste', desc: 'SJ Rio Preto' }, 18: { uf: 'SP', region: 'Sudeste', desc: 'Pres. Prudente' }, 19: { uf: 'SP', region: 'Sudeste', desc: 'Campinas' },
+            41: { uf: 'PR', region: 'Sul', desc: 'Curitiba' }, 42: { uf: 'PR', region: 'Sul', desc: 'Ponta Grossa' }, 43: { uf: 'PR', region: 'Sul', desc: 'Londrina' }, 44: { uf: 'PR', region: 'Sul', desc: 'Maringá' }, 45: { uf: 'PR', region: 'Sul', desc: 'Foz do Iguaçu' }, 46: { uf: 'PR', region: 'Sul', desc: 'Francisco Beltrão' }, 51: { uf: 'RS', region: 'Sul', desc: 'Porto Alegre' }, 53: { uf: 'RS', region: 'Sul', desc: 'Pelotas' }, 54: { uf: 'RS', region: 'Sul', desc: 'Caxias do Sul' }, 55: { uf: 'RS', region: 'Sul', desc: 'Santa Maria' }, 47: { uf: 'SC', region: 'Sul', desc: 'Joinville' }, 48: { uf: 'SC', region: 'Sul', desc: 'Florianópolis' }, 49: { uf: 'SC', region: 'Sul', desc: 'Chapecó' }
+        };
+
+        // Variáveis globais
+        let allSuppliers = []; 
+        let currentFilteredList = []; 
+        let accumulatedList = new Map(); 
+        let allCategories = new Set(); 
+        let categorySubcategoryMap = {}; 
+        let currentSubcategoriesArray = []; 
+        let currentSubcategoryCounts = {}; 
+        
+        const HEADER_MAP = {
+            CATEGORIAS: "você vende itens", SAUDE: "produtos para saúde", INSTRUMENTAL: "instrumental", MEDICAMENTOS: "medicamentos", OPME: "opme", LABORATORIO: "laboratório", EXPEDIENTE: "material de expediente", GASES: "gases medicinais", EPIS: "epis", NOME_EMPRESA: "nome da empresa", CNPJ: "cnpj da empresa", ENDERECO: "endereço da empresa", EMAIL: "e-mail da tua empresa", TELEFONE: "telefone da tua empresa", REPRESENTANTE: "nome do representante", CELULAR_REP: "celular do representante"
+        };
+
+        // Elementos do DOM
+        const fileInput = document.getElementById('csvFileInput');
+        const uploadBtn = document.getElementById('fornecedoresUploadBtn');
+        const uploadText = document.getElementById('fornecedoresUploadText');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const locationInput = document.getElementById('locationInput'); 
+        
+        const subcatInputs = document.querySelectorAll('.subcategory-input');
+        const subcatSelects = document.querySelectorAll('.subcategory-select');
+        const globalContainers = document.querySelectorAll('.globalSubcategoryContainer');
+        const specificContainers = document.querySelectorAll('.specificSubcategoryContainer');
+
+        const controlsSection = document.getElementById('controlsSection');
+        const dataContainer = document.getElementById('dataContainer');
+        const initialMessage = document.getElementById('initialMessage');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const downloadButton = document.getElementById('downloadButton');
+        const clearFiltersButton = document.getElementById('clearFiltersButton');
+        const filterSummary = document.getElementById('filterSummary');
+        
+        const addToQueueButton = document.getElementById('addToQueueButton');
+        const downloadQueueButton = document.getElementById('downloadQueueButton');
+        const queueCountBadge = document.getElementById('queueCountBadge');
+        const clearQueueBtn = document.getElementById('clearQueueBtn');
+
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const closeModalBtn = document.getElementById('closeModal');
+        const closeModalFooterBtn = document.getElementById('closeModalFooter');
+        
+        const btnCopyText = document.getElementById('btnCopyText');
+        const btnDownloadImage = document.getElementById('btnDownloadImage');
+
+        // --- EVENT LISTENERS ---
+        fileInput.addEventListener('change', handleFileSelect);
+        searchInput.addEventListener('input', applyFilters);
+        locationInput.addEventListener('input', applyFilters); 
+        categoryFilter.addEventListener('change', handleCategoryChange); 
+        
+        subcatInputs.forEach(input => {
+            input.addEventListener('input', (e) => handleSubcategoryInput(e.target));
+            input.addEventListener('focus', (e) => {
+                if (!e.target.disabled) {
+                    renderSubcategoryList(e.target);
+                    document.getElementById(`subcategoryListContainer${e.target.dataset.idx}`).classList.remove('hidden');
+                }
+            });
+        });
+        
+        subcatSelects.forEach(select => select.addEventListener('change', applyFilters));
+
+        document.addEventListener('click', (e) => {
+            subcatInputs.forEach(input => {
+                const listContainer = document.getElementById(`subcategoryListContainer${input.dataset.idx}`);
+                if (!input.contains(e.target) && !listContainer.contains(e.target)) {
+                    listContainer.classList.add('hidden');
+                }
+            });
+        });
+
+        downloadButton.addEventListener('click', () => downloadExcel(currentFilteredList, "contatos_filtrados_chc.xlsx"));
+        clearFiltersButton.addEventListener('click', clearFilters);
+        
+        addToQueueButton.addEventListener('click', addToAccumulator);
+        downloadQueueButton.addEventListener('click', downloadAccumulatedList);
+        clearQueueBtn.addEventListener('click', clearAccumulator);
+
+        closeModalBtn.addEventListener('click', closeModal);
+        closeModalFooterBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        modal.addEventListener('click', handleCopyClick);
+
+        // --- FUNÇÕES ---
+
+        function cleanHeader(header) {
+            return String(header).replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, ' ').trim().replace(/"/g, '').toLowerCase();
+        }
+
+        function extractDDD(text) {
+            if (!text) return null;
+            let str = text.trim();
+            let ddiMatch = str.match(/^(?:\+?55)\s*[\(-\s]?\s*([1-9][0-9])\)?/);
+            if (ddiMatch) return ddiMatch[1];
+            let parenMatch = str.match(/\(([1-9][0-9])\)/);
+            if (parenMatch) return parenMatch[1];
+            let startMatch = str.match(/^([1-9][0-9])\s/);
+            if (startMatch) return startMatch[1];
+            let nums = str.replace(/\D/g, '');
+            if ((nums.length === 12 || nums.length === 13) && nums.startsWith('55')) {
+                let possibleDDD = nums.substring(2, 4);
+                if (parseInt(possibleDDD) >= 11) return possibleDDD;
+            }
+            if (nums.length === 10 || nums.length === 11) {
+                let possibleDDD = nums.substring(0, 2);
+                if (parseInt(possibleDDD) >= 11) return possibleDDD; 
+            }
+            return null;
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            uploadBtn.disabled = true;
+            uploadText.textContent = 'Processando...';
+
+            allSuppliers = []; currentFilteredList = []; accumulatedList.clear(); updateQueueUI();
+            allCategories = new Set(); categorySubcategoryMap = {}; currentSubcategoriesArray = []; currentSubcategoryCounts = {};
+            dataContainer.innerHTML = ''; initialMessage.classList.add('hidden'); loadingMessage.classList.remove('hidden'); errorMessage.classList.add('hidden');
+            controlsSection.classList.add('hidden');
+            downloadButton.classList.add('hidden'); clearFiltersButton.classList.add('hidden'); filterSummary.classList.add('hidden');
+            categoryFilter.innerHTML = '<option value="">Todas as Categorias</option>';
+            locationInput.value = ''; locationInput.disabled = true;
+            
+            subcatInputs.forEach(input => { input.value = ''; input.placeholder = "Carregando..."; input.disabled = true; });
+            subcatSelects.forEach(select => { select.innerHTML = '<option value="">Todas as Subcategorias</option>'; });
+            document.querySelectorAll('.custom-dropdown-list').forEach(list => { list.innerHTML = ''; list.classList.add('hidden'); });
+            globalContainers.forEach(el => el.classList.remove('hidden')); specificContainers.forEach(el => el.classList.add('hidden'));
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const raw_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (raw_data.length < 2) { loadingMessage.classList.add('hidden'); showError("A planilha está vazia ou não tem cabeçalhos."); return; }
+
+                    const headers = raw_data[0].map(h => cleanHeader(h));
+                    const rows = raw_data.slice(1);
+                    const jsonData = rows.map(row => {
+                        const obj = {};
+                        headers.forEach((header, i) => { obj[header] = row[i] !== null && row[i] !== undefined ? row[i] : ""; });
+                        return obj;
+                    });
+                    
+                    loadingMessage.classList.add('hidden');
+                    if (!jsonData.length) { showError("O arquivo está vazio ou não foi possível ler os dados."); return; }
+
+                    processData(jsonData);
+                    populateCategoryFilter();
+                    setupGlobalAutocomplete();
+                    locationInput.disabled = false;
+                    controlsSection.classList.remove('hidden');
+                    applyFilters();
+                    downloadButton.classList.remove('hidden'); clearFiltersButton.classList.remove('hidden');
+                } catch (err) {
+                    console.error("Erro ao ler a planilha:", err);
+                    loadingMessage.classList.add('hidden');
+                    showError("Ocorreu um erro ao processar o arquivo. Verifique se é um formato .xlsx ou .csv válido.");
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadText.textContent = 'Carregar Planilha';
+                    event.target.value = '';
+                }
+            };
+            
+            reader.onerror = function() {
+                loadingMessage.classList.add('hidden');
+                showError("Erro ao tentar ler o arquivo.");
+                uploadBtn.disabled = false;
+                uploadText.textContent = 'Carregar Planilha';
+            };
+
+            reader.readAsBinaryString(file);
+        }
+        
+        function processData(data) {
+            const firstRow = data[0];
+            if (!firstRow) return;
+            const actualKeys = {};
+            const parsedHeaders = Object.keys(firstRow);
+            for (const key in HEADER_MAP) {
+                const targetHeader = HEADER_MAP[key];
+                const foundKey = parsedHeaders.find(h => h.includes(targetHeader));
+                actualKeys[key] = foundKey || undefined;
+            }
+            
+            allSuppliers = data.map(row => {
+                const mainCategoriesStr = row[actualKeys.CATEGORIAS] || "";
+                let mainCategories = splitAndClean(mainCategoriesStr);
+                mainCategories = mainCategories.map(cat => {
+                    const lower = cat.toLowerCase();
+                    if (lower.includes("órtese") && lower.includes("opme")) return "OPME";
+                    return cat;
+                });
+                mainCategories.forEach(cat => allCategories.add(cat));
+
+                const subcategorias = [
+                    { nome: "Produtos para saúde", itens: splitAndClean(row[actualKeys.SAUDE]) },
+                    { nome: "Instrumental", itens: splitAndClean(row[actualKeys.INSTRUMENTAL]) },
+                    { nome: "Medicamentos", itens: splitAndClean(row[actualKeys.MEDICAMENTOS]) },
+                    { nome: "OPME", itens: splitAndClean(row[actualKeys.OPME]) },
+                    { nome: "Laboratório", itens: splitAndClean(row[actualKeys.LABORATORIO]) },
+                    { nome: "Material de expediente", itens: splitAndClean(row[actualKeys.EXPEDIENTE]) },
+                    { nome: "Gases medicinais", itens: splitAndClean(row[actualKeys.GASES]) },
+                    { nome: "EPIs", itens: splitAndClean(row[actualKeys.EPIS]) },
+                ];
+
+                mainCategories.forEach(mainCat => {
+                    const subcatData = subcategorias.find(s => s.nome.toLowerCase() === mainCat.toLowerCase());
+                    if (subcatData && subcatData.itens.length > 0) {
+                        const key = subcatData.nome;
+                        if (!categorySubcategoryMap[key]) categorySubcategoryMap[key] = new Set();
+                        subcatData.itens.forEach(item => categorySubcategoryMap[key].add(item));
+                    }
+                });
+
+                let locationData = null;
+                const phone = row[actualKeys.TELEFONE] || "";
+                const cell = row[actualKeys.CELULAR_REP] || "";
+                const extractedDDD = extractDDD(phone) || extractDDD(cell);
+                if (extractedDDD && DDD_MAP[extractedDDD]) {
+                    locationData = { ddd: extractedDDD, ...DDD_MAP[extractedDDD] };
+                }
+
+                return {
+                    nome: row[actualKeys.NOME_EMPRESA] || "N/A",
+                    cnpj: row[actualKeys.CNPJ] || "N/A",
+                    endereco: row[actualKeys.ENDERECO] || "N/A",
+                    email: row[actualKeys.EMAIL] || "N/A",
+                    telefone: phone,
+                    representante: row[actualKeys.REPRESENTANTE] || "N/A",
+                    celularRep: cell,
+                    categoriasPrincipais: mainCategories,
+                    subcategorias: subcategorias.filter(sub => sub.itens.length > 0),
+                    location: locationData 
+                };
+            });
+        }
+
+        function splitAndClean(str) {
+            if (!str) return [];
+            return str.split(/[;\n\r]+/).map(s => s.replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, ' ').replace(/"/g, '').trim()).filter(s => s.length > 0);
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message; errorMessage.classList.remove('hidden');
+        }
+
+        function populateCategoryFilter() {
+            categoryFilter.innerHTML = '<option value="">Todas as Categorias</option>';
+            Array.from(allCategories).sort().forEach(cat => {
+                const option = document.createElement('option'); option.value = cat; option.textContent = cat; categoryFilter.appendChild(option);
+            });
+        }
+
+        function handleCategoryChange() {
+            const selectedCategory = categoryFilter.value;
+            let mapKey = selectedCategory;
+            if (selectedCategory) {
+                const foundKey = Object.keys(categorySubcategoryMap).find(k => k.toLowerCase() === selectedCategory.toLowerCase());
+                if (foundKey) mapKey = foundKey;
+                globalContainers.forEach(el => el.classList.add('hidden'));
+                specificContainers.forEach(el => el.classList.remove('hidden'));
+                setupSpecificSelect(mapKey);
+                subcatInputs.forEach(input => input.value = '');
+            } else {
+                specificContainers.forEach(el => el.classList.add('hidden'));
+                globalContainers.forEach(el => el.classList.remove('hidden'));
+                setupGlobalAutocomplete();
+                subcatSelects.forEach(select => select.value = '');
+            }
+            applyFilters();
+        }
+
+        function clearFilters() {
+            searchInput.value = ''; categoryFilter.value = ''; locationInput.value = ''; 
+            subcatInputs.forEach(input => input.value = ''); subcatSelects.forEach(select => select.value = '');
+            handleCategoryChange();
+        }
+
+        function calculateSubcategoryCounts(categoryKey = null) {
+            const counts = {};
+            allSuppliers.forEach(supplier => {
+                let itemsToCount = new Set();
+                if (categoryKey) {
+                    const specificList = supplier.subcategorias.find(s => s.nome.toLowerCase() === categoryKey.toLowerCase());
+                    if (specificList) specificList.itens.forEach(i => itemsToCount.add(i));
+                } else {
+                    supplier.subcategorias.forEach(sub => sub.itens.forEach(i => itemsToCount.add(i)));
+                }
+                itemsToCount.forEach(item => { counts[item] = (counts[item] || 0) + 1; });
+            });
+            return counts;
+        }
+
+        function setupGlobalAutocomplete() {
+            subcatInputs.forEach(input => { input.value = ''; document.getElementById(`subcategoryListContainer${input.dataset.idx}`).innerHTML = ''; });
+            currentSubcategoryCounts = calculateSubcategoryCounts(null);
+            let allSubcats = new Set();
+            Object.values(categorySubcategoryMap).forEach(subSet => subSet.forEach(item => allSubcats.add(item)));
+            if (allSubcats.size > 0) {
+                currentSubcategoriesArray = Array.from(allSubcats).sort();
+                subcatInputs.forEach(input => { input.disabled = false; input.placeholder = "Busque em todas as subcategorias..."; });
+            } else {
+                subcatInputs.forEach(input => { input.disabled = true; input.placeholder = "Nenhuma subcategoria disponível"; });
+                currentSubcategoriesArray = [];
+            }
+        }
+
+        function setupSpecificSelect(categoryKey) {
+            subcatSelects.forEach(select => { select.innerHTML = '<option value="">Todas as Subcategorias</option>'; });
+            const counts = calculateSubcategoryCounts(categoryKey);
+            const subcats = categorySubcategoryMap[categoryKey];
+            if (subcats) {
+                Array.from(subcats).sort().forEach(item => {
+                    const count = counts[item] || 0;
+                    subcatSelects.forEach(select => {
+                        const option = document.createElement('option'); option.value = item; option.textContent = `${item} (${count})`; select.appendChild(option);
+                    });
                 });
             }
         }
+
+        function renderSubcategoryList(inputElement) {
+            const filterText = inputElement.value;
+            const listContainer = document.getElementById(`subcategoryListContainer${inputElement.dataset.idx}`);
+            listContainer.innerHTML = '';
+            const filteredOptions = currentSubcategoriesArray.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
+            if (filteredOptions.length === 0) {
+                const noResult = document.createElement('div'); noResult.className = 'px-4 py-2 text-sm text-gray-500'; noResult.textContent = 'Nenhuma subcategoria encontrada.'; listContainer.appendChild(noResult);
+            } else {
+                filteredOptions.forEach(item => {
+                    const count = currentSubcategoryCounts[item] || 0;
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer transition-colors';
+                    div.textContent = `${item} (${count})`;
+                    div.addEventListener('click', () => { inputElement.value = item; listContainer.classList.add('hidden'); applyFilters(); });
+                    listContainer.appendChild(div);
+                });
+            }
+        }
+
+        function handleSubcategoryInput(inputElement) {
+            renderSubcategoryList(inputElement);
+            document.getElementById(`subcategoryListContainer${inputElement.dataset.idx}`).classList.remove('hidden');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            const locationTerm = locationInput.value.toLowerCase(); 
+            let selectedSubcategories = [];
+            let isExactMatch = false;
+
+            if (selectedCategory) {
+                subcatSelects.forEach(select => { if (select.value) selectedSubcategories.push(select.value.toLowerCase()); });
+                isExactMatch = true;
+            } else {
+                subcatInputs.forEach(input => { if (input.value) selectedSubcategories.push(input.value.toLowerCase()); });
+                isExactMatch = false;
+            }
+
+            currentFilteredList = allSuppliers.filter(supplier => {
+                const matchesSearch = supplier.nome.toLowerCase().includes(searchTerm) || supplier.cnpj.toLowerCase().includes(searchTerm);
+                let matchesSubcategory = true;
+                if (selectedSubcategories.length > 0) {
+                    matchesSubcategory = false; 
+                    if (selectedCategory) {
+                        const specificSubcatList = supplier.subcategorias.find(s => s.nome.toLowerCase() === selectedCategory.toLowerCase());
+                        if (specificSubcatList) {
+                             if (isExactMatch) matchesSubcategory = selectedSubcategories.some(selected => specificSubcatList.itens.some(item => item.toLowerCase() === selected));
+                             else matchesSubcategory = selectedSubcategories.some(selected => specificSubcatList.itens.some(item => item.toLowerCase().includes(selected)));
+                        }
+                    } else {
+                        matchesSubcategory = selectedSubcategories.some(selected => supplier.subcategorias.some(sub => sub.itens.some(item => item.toLowerCase().includes(selected))));
+                    }
+                }
+                let matchesCategory = !selectedCategory || supplier.categoriasPrincipais.some(c => c.toLowerCase() === selectedCategory.toLowerCase());
+                if (selectedCategory && selectedSubcategories.length > 0 && matchesSubcategory) matchesCategory = true;
+                let matchesLocation = true;
+                if (locationTerm) {
+                    if (supplier.location) {
+                        const loc = supplier.location;
+                        matchesLocation = loc.ddd.includes(locationTerm) || loc.uf.toLowerCase().includes(locationTerm) || loc.region.toLowerCase().includes(locationTerm) || loc.desc.toLowerCase().includes(locationTerm);
+                    } else matchesLocation = false;
+                }
+                return matchesSearch && matchesCategory && matchesSubcategory && matchesLocation;
+            });
+
+            if (allSuppliers.length > 0) {
+                filterSummary.innerHTML = `Exibindo <span class="font-bold">${currentFilteredList.length}</span> de <span class="font-bold">${allSuppliers.length}</span> empresas`; filterSummary.classList.remove('hidden');
+            } else filterSummary.classList.add('hidden');
+            displayData(currentFilteredList);
+        }
+
+        function displayData(suppliers) {
+            dataContainer.innerHTML = '';
+            if (suppliers.length === 0) {
+                dataContainer.innerHTML = `<div class="h-64 flex flex-col items-center justify-center bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-6 text-center"><i data-lucide="search-x" class="w-10 h-10 text-gray-400 mb-3"></i><p class="text-gray-600">Nenhum fornecedor encontrado com os filtros aplicados.</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+            suppliers.forEach(supplier => {
+                const row = document.createElement('div');
+                row.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col md:flex-row md:items-start md:gap-6';
+                const categoriesHtml = supplier.categoriasPrincipais.map(cat => `<span class="bg-indigo-50 text-indigo-700 text-xs font-semibold mr-2 mb-2 px-2.5 py-1 rounded-md border border-indigo-100">${cat}</span>`).join('');
+                let locationHtml = '';
+                if (supplier.location) {
+                    locationHtml = `<span class="inline-flex items-center text-gray-600 text-sm mt-1" title="${supplier.location.desc}"><i data-lucide="map-pin" class="w-4 h-4 mr-1 text-gray-400"></i> ${supplier.location.uf} - DDD ${supplier.location.ddd} (${supplier.location.region})</span>`;
+                }
+                row.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-gray-900 truncate" title="${supplier.nome}">${supplier.nome}</h3>
+                        <p class="text-xs text-gray-500 font-mono mt-1 mb-2">CNPJ: ${supplier.cnpj}</p>
+                        ${locationHtml}
+                    </div>
+                    <div class="md:flex-[1.5] min-w-0 pt-3 md:pt-0">
+                        <div class="flex flex-wrap">${categoriesHtml || '<span class="text-sm text-gray-400 italic">Sem categorias</span>'}</div>
+                    </div>
+                    <div class="md:flex-shrink-0 mt-4 md:mt-0 self-center">
+                        <button class="w-full md:w-auto bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center">
+                            <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Detalhes
+                        </button>
+                    </div>
+                `;
+                row.querySelector('button').addEventListener('click', () => showModal(supplier));
+                dataContainer.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function handleCopyClick(e) {
+            const copyIcon = e.target.closest('.copy-icon');
+            if (!copyIcon) return;
+            const textToCopy = copyIcon.dataset.copy;
+            if (!textToCopy) return;
+            copyToClipboard(textToCopy, copyIcon);
+        }
+
+        function copyToClipboard(text, triggerElement = null) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; textarea.style.opacity = 0;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                if (triggerElement) {
+                    const tooltip = triggerElement.querySelector('.copy-tooltip');
+                    if (tooltip) {
+                        tooltip.classList.add('visible');
+                        setTimeout(() => tooltip.classList.remove('visible'), 1500);
+                    }
+                } else {
+                    const originalText = btnCopyText.innerHTML;
+                    btnCopyText.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copiado!`;
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        btnCopyText.innerHTML = originalText;
+                        lucide.createIcons();
+                    }, 2000);
+                }
+            } catch (err) { console.error('Falha ao copiar texto: ', err); }
+            document.body.removeChild(textarea);
+        }
+
+        function showModal(supplier) {
+            const svgIconHtml = `<i data-lucide="copy" class="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors"></i>`;
+            const svgWhatsAppIconHtml = `<i data-lucide="message-circle" class="w-4 h-4 outline-none"></i>`;
+
+            let whatsappNumber = String(supplier.celularRep).replace(/\D/g, ''); 
+            if (whatsappNumber.length === 10 || whatsappNumber.length === 11) whatsappNumber = '55' + whatsappNumber;
+
+            const formattedText = `*${supplier.nome}*\n\n*CONTATO DA EMPRESA*\nEmail: ${supplier.email}\nTelefone: ${supplier.telefone}\nEndereço: ${supplier.endereco}\n\n*CONTATO DO REPRESENTANTE*\nNome: ${supplier.representante}\nCelular: ${supplier.celularRep}\n\n*DOCUMENTAÇÃO*\nCNPJ: ${supplier.cnpj}`;
+
+            modalTitle.innerHTML = `${supplier.nome} <span class="copy-icon ml-3 cursor-pointer group" data-copy="${formattedText}" title="Copiar Todos os Dados">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span>`;
+            
+            let locationInfo = '';
+            if (supplier.location) {
+                locationInfo = `<div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200"><h5 class="text-xs font-bold text-green-800 uppercase mb-1">Localização Identificada</h5><p class="text-sm text-green-700"><strong>Região:</strong> ${supplier.location.region} <br><strong>Estado:</strong> ${supplier.location.uf} (DDD ${supplier.location.ddd}) <br><strong>Área:</strong> ${supplier.location.desc}</p></div>`;
+            }
+
+            let modalContentHtml = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div class="space-y-5">
+                        <div>
+                            <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 pb-1 border-b border-gray-100 flex items-center"><i data-lucide="building" class="w-4 h-4 mr-1.5"></i> Contato da Empresa</h4>
+                            <div class="space-y-2 text-sm">
+                                <p class="text-gray-700"><strong class="font-medium">Email:</strong> <a href="mailto:${supplier.email}" class="text-indigo-600 hover:underline">${supplier.email}</a> <span class="copy-icon group" data-copy="${supplier.email}" title="Copiar Email">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span></p>
+                                <p class="text-gray-700"><strong class="font-medium">Telefone:</strong> ${supplier.telefone} <span class="copy-icon group" data-copy="${supplier.telefone}" title="Copiar Telefone">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span></p>
+                                <p class="text-gray-700"><strong class="font-medium">Endereço:</strong> ${supplier.endereco} <span class="copy-icon group" data-copy="${supplier.endereco}" title="Copiar Endereço">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span></p>
+                            </div>
+                            ${locationInfo}
+                        </div>
+                         <div>
+                            <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 pb-1 border-b border-gray-100 flex items-center"><i data-lucide="user" class="w-4 h-4 mr-1.5"></i> Contato do Representante</h4>
+                            <div class="space-y-2 text-sm">
+                                <p class="text-gray-700"><strong class="font-medium">Nome:</strong> ${supplier.representante}</p>
+                                <p class="flex items-center text-gray-700"><strong class="font-medium mr-1">Celular:</strong> ${supplier.celularRep} <span class="copy-icon group" data-copy="${supplier.celularRep}" title="Copiar Celular">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span> <a href="https://wa.me/${whatsappNumber}" target="_blank" rel="noopener noreferrer" class="copy-icon whatsapp-icon text-green-600 ml-2" title="Abrir no WhatsApp">${svgWhatsAppIconHtml}</a></p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 pb-1 border-b border-gray-100">Documentação</h4>
+                            <p class="text-sm text-gray-700"><strong class="font-medium">CNPJ:</strong> <span class="font-mono">${supplier.cnpj}</span> <span class="copy-icon group" data-copy="${supplier.cnpj}" title="Copiar CNPJ">${svgIconHtml}<span class="copy-tooltip">Copiado!</span></span></p>
+                        </div>
+                    </div>
+                    <div class="space-y-5">
+                        <div>
+                            <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-3 flex items-center"><i data-lucide="tag" class="w-4 h-4 mr-1.5"></i> Categorias Principais</h4>
+                            <div class="flex flex-wrap">${supplier.categoriasPrincipais.map(cat => `<span class="bg-indigo-50 text-indigo-700 text-xs font-semibold mr-2 mb-2 px-3 py-1.5 rounded border border-indigo-100">${cat}</span>`).join('') || '<span class="text-sm text-gray-400 italic">Nenhuma</span>'}</div>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-3 flex items-center"><i data-lucide="list" class="w-4 h-4 mr-1.5"></i> Subcategorias Detalhadas</h4>
+                            <div class="space-y-3">
+                                ${supplier.subcategorias.length > 0 ? supplier.subcategorias.map(sub => `<div><strong class="text-sm text-gray-800 block mb-1">${sub.nome}</strong><div class="flex flex-wrap gap-1.5">${sub.itens.map(item => `<span class="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">${item}</span>`).join('')}</div></div>`).join('') : '<p class="text-sm text-gray-400 italic">Nenhuma subcategoria informada.</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modalBody.innerHTML = modalContentHtml;
+            lucide.createIcons();
+            
+            btnCopyText.onclick = () => copyToClipboard(formattedText);
+            
+            btnDownloadImage.onclick = () => {
+                const elementToCapture = document.getElementById('capture-target');
+                const tempTitle = document.createElement('div');
+                tempTitle.innerHTML = `<h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-100 pb-3">${supplier.nome}</h2>`;
+                elementToCapture.prepend(tempTitle);
+
+                html2canvas(elementToCapture, {
+                    backgroundColor: '#ffffff',
+                    scale: 2 
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `fornecedor_${supplier.nome.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    elementToCapture.removeChild(tempTitle);
+                }).catch(err => {
+                    console.error("Erro ao gerar imagem:", err);
+                    alert("Não foi possível gerar a imagem.");
+                    elementToCapture.removeChild(tempTitle);
+                });
+            };
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { modal.classList.add('hidden'); }
+
+        // --- ACUMULADOR E DOWNLOAD ---
+        function addToAccumulator() {
+            if (currentFilteredList.length === 0) {
+                alert("Não há fornecedores na visualização atual.");
+                return;
+            }
+            
+            let addedCount = 0;
+            currentFilteredList.forEach(supplier => {
+                const key = supplier.cnpj && supplier.cnpj !== "N/A" ? supplier.cnpj : supplier.nome;
+                if (!accumulatedList.has(key)) {
+                    accumulatedList.set(key, supplier);
+                    addedCount++;
+                }
+            });
+
+            updateQueueUI();
+            
+            const originalText = addToQueueButton.innerHTML;
+            addToQueueButton.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Adicionado (+${addedCount})`;
+            lucide.createIcons();
+            addToQueueButton.classList.add('bg-indigo-100', 'text-indigo-800');
+            
+            setTimeout(() => { 
+                addToQueueButton.innerHTML = originalText; 
+                lucide.createIcons();
+                addToQueueButton.classList.remove('bg-indigo-100', 'text-indigo-800');
+            }, 1000);
+        }
+
+        function clearAccumulator() {
+            accumulatedList.clear();
+            updateQueueUI();
+        }
+
+        function updateQueueUI() {
+            const count = accumulatedList.size;
+            queueCountBadge.textContent = count;
+            downloadQueueButton.disabled = count === 0;
+            clearQueueBtn.disabled = count === 0;
+        }
+
+        function downloadAccumulatedList() {
+            if (accumulatedList.size === 0) return;
+            const suppliers = Array.from(accumulatedList.values());
+            downloadExcel(suppliers, "lista_unificada_fornecedores.xlsx");
+        }
+
+        function downloadExcel(suppliersList, fileName) {
+            if (suppliersList.length === 0) return;
+
+            const dataToExport = suppliersList.map(supplier => ({
+                "Nome da Empresa": supplier.nome,
+                "Email": supplier.email,
+                "Telefone da Empresa": supplier.telefone,
+                "Nome do Representante": supplier.representante,
+                "Celular do Representante": supplier.celularRep,
+                "Localização (DDD)": supplier.location ? `${supplier.location.uf} (${supplier.location.ddd})` : "",
+                "Categorias": supplier.categoriasPrincipais.join(", "),
+                "CNPJ": supplier.cnpj
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Contatos");
+            XLSX.writeFile(wb, fileName);
+        }
+    
     </script>
 </body>
 </html>
