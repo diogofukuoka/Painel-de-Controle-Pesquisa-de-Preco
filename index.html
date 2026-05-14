@@ -44,19 +44,25 @@
             </p>
         </div>
 
+        <!-- Filter state (Hidden initially) -->
+        <div id="filterState" class="hidden bg-white border border-gray-200 rounded-xl p-6 flex flex-col shadow-sm mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Consultar por CÓD. SIH</h3>
+            <p class="text-sm text-gray-500 mb-4">Cole a lista de Códigos SIH abaixo (um por linha):</p>
+            <textarea id="codesInput" rows="6" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all mb-4 font-mono" placeholder="3180&#10;10080&#10;3209&#10;10081&#10;3202"></textarea>
+            <div class="flex justify-start">
+                <button id="filterBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm flex items-center">
+                    <i data-lucide="search" class="w-4 h-4 mr-2"></i>
+                    Buscar Resultados
+                </button>
+            </div>
+        </div>
+
         <!-- Data table (Hidden initially) -->
         <div id="dataTableContainer" class="hidden bg-white rounded-xl border border-gray-200 shadow-sm flex-col h-full overflow-hidden flex-1">
             <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center space-x-2 text-indigo-700">
                     <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                     <h2 class="font-semibold text-gray-800">Visualização de Dados (<span id="rowCount">0</span> registros)</h2>
-                </div>
-                
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-                    </div>
-                    <input type="text" id="searchInput" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64 md:w-80 outline-none transition-all">
                 </div>
             </div>
 
@@ -76,20 +82,11 @@
                             <th data-key="marca" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
                                 <div class="flex items-center">Marca <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
                             </th>
-                            <th data-key="data" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Data <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="local" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Local <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
                             <th data-key="aprovado" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
                                 <div class="flex items-center justify-center">Aprovado <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
                             </th>
                             <th data-key="reprovado" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
                                 <div class="flex items-center justify-center">Reprovado <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
-                            </th>
-                            <th data-key="parecer" class="sortable px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider group">
-                                <div class="flex items-center">Parecer <i data-lucide="chevron-down" class="w-4 h-4 ml-1 text-gray-300 group-hover:text-gray-500"></i></div>
                             </th>
                         </tr>
                     </thead>
@@ -114,7 +111,8 @@
         let currentSort = { key: null, direction: 'asc' };
 
         document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-        document.getElementById('searchInput').addEventListener('input', handleSearch);
+        
+        document.getElementById('filterBtn').addEventListener('click', handleFilterByCodes);
 
         document.querySelectorAll('th.sortable').forEach(th => {
             th.addEventListener('click', () => {
@@ -181,12 +179,12 @@
                             };
                         }).filter(r => r.codigo || r.descricao);
                         
-                        filteredData = [...appData];
+                        filteredData = []; // Clear old filtered data
                         renderTable();
                         
                         document.getElementById('emptyState').classList.add('hidden');
-                        document.getElementById('dataTableContainer').classList.remove('hidden');
-                        document.getElementById('dataTableContainer').style.display = 'flex';
+                        document.getElementById('filterState').classList.remove('hidden');
+                        document.getElementById('dataTableContainer').classList.add('hidden');
                     }
                 } catch(error) {
                     console.error(error);
@@ -209,19 +207,23 @@
             reader.readAsBinaryString(file);
         }
 
-        function handleSearch(e) {
-            const term = e.target.value.toLowerCase();
-            if (!term) {
-                filteredData = [...appData];
-            } else {
-                filteredData = appData.filter(row => {
-                    return Object.values(row).some(val => 
-                        String(val).toLowerCase().includes(term)
-                    );
-                });
+        function handleFilterByCodes() {
+            const inputVal = document.getElementById('codesInput').value;
+            const codes = inputVal.split('\n').map(c => c.trim()).filter(c => c);
+
+            if (codes.length === 0) {
+                alert("Por favor, cole ao menos um CÓD. SIH.");
+                return;
             }
+
+            // Filter data by codes (comparing as strings)
+            filteredData = appData.filter(row => codes.includes(row.codigo));
+            
             sortData();
             renderTable();
+
+            document.getElementById('dataTableContainer').classList.remove('hidden');
+            document.getElementById('dataTableContainer').style.display = 'flex';
         }
 
         function handleSort(key) {
@@ -297,11 +299,8 @@
                         <td class="px-3 py-2 text-sm text-gray-800 align-top whitespace-normal break-words min-w-[200px] max-w-[300px]">${row.descricao}</td>
                         <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
                         <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[200px]">${row.marca}</td>
-                        <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-nowrap">${row.data}</td>
-                        <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[80px] max-w-[150px]">${row.local}</td>
                         <td class="px-3 py-2 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
                         <td class="px-3 py-2 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
-                        <td class="px-3 py-2 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[250px] max-w-[400px]">${row.parecer}</td>
                     `;
                     tbody.appendChild(tr);
                 });
