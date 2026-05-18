@@ -200,10 +200,10 @@
             </div>
             <div class="flex space-x-2 overflow-x-auto pb-1 sm:pb-0">
                 <button id="navIsoBtn" class="px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
-                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fabricantes e Marcas
+                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fabricantes e Marcas do banco de Marcas
                 </button>
                 <button id="navFornecedoresBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="users" class="w-4 h-4 mr-2 pointer-events-none"></i> Fornecedores
+                    <i data-lucide="users" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo de Fornecedores
                 </button>
                 <button id="navEmailExtractorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="mail" class="w-4 h-4 mr-2 pointer-events-none"></i> Extrair E-mails
@@ -231,7 +231,13 @@
             <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls,.csv" />
             <button onclick="document.getElementById('fileInput').click()" id="isoUploadBtn" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm font-medium shadow-sm">
                 <i data-lucide="upload-cloud" class="w-4 h-4 mr-2"></i>
-                <span id="isoUploadText">Carregar Planilha</span>
+                <span id="isoUploadText">Carregar Banco de Marcas</span>
+            </button>
+            
+            <input type="file" id="fornSihFileInput" class="hidden" accept=".xlsx,.xls,.csv" />
+            <button onclick="document.getElementById('fornSihFileInput').click()" id="isoFornUploadBtn" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm">
+                <i data-lucide="users" class="w-4 h-4 mr-2"></i>
+                <span id="isoFornUploadText">Carregar Planilha SIH Fornecedores</span>
             </button>
         </div>
     </header>
@@ -289,8 +295,11 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button id="exportExcelBtn" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center" title="Exportar Excel Tudo">
-                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Excel Tudo
+                    <button id="exportAllSuppliersGlobalBtn" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors flex items-center" title="Baixar planilha com Fornecedores dos SIH consultados">
+                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Fornecedores por SIH (Excel)
+                    </button>
+                    <button id="exportExcelBtn" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center" title="Exportar Excel Todas as Marcas Aprov e Reprov de Todos os SIH">
+                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Excel Todas as Marcas Aprov e Reprov de Todas os SIH
                     </button>
                     <button id="expandAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Expandir Todos Cards">
                         <i data-lucide="maximize-2" class="w-3.5 h-3.5 mr-1.5"></i> Expandir Todos Cards
@@ -903,12 +912,15 @@
         applyDropZone('emptyState', 'fileInput');
         applyDropZone('initialMessage', 'csvFileInput');
         applyDropZone('isoUploadBtn', 'fileInput');
+        applyDropZone('isoFornUploadBtn', 'fornSihFileInput');
         applyDropZone('fornecedoresUploadBtn', 'csvFileInput');
 
         let appData = [];
         let filteredData = [];
+        let sihFornecedoresMap = {};
 
         document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        document.getElementById('fornSihFileInput').addEventListener('change', handleFornSihFileUpload);
         
         document.getElementById('filterBtn').addEventListener('click', handleFilterByCodes);
 
@@ -928,6 +940,94 @@
             document.querySelectorAll('#groupedResults .toggle-icon').forEach(icon => {
                 icon.classList.remove('rotate-180');
             });
+        });
+
+        document.getElementById('exportAllSuppliersGlobalBtn').addEventListener('click', () => {
+            if (filteredData.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            const uniqueCodesInView = Array.from(new Set(filteredData.map(r => r.codigo))).sort();
+            
+            // Map: Supplier -> Set of SIH codes
+            let supplierToCodesMap = {};
+            
+            // Map: SIH Code -> Set of Suppliers
+            let codesToSupplierMap = {};
+
+            uniqueCodesInView.forEach(code => {
+                const fornecedores = sihFornecedoresMap[code] || [];
+                codesToSupplierMap[code] = new Set();
+                
+                fornecedores.forEach(f => {
+                    const supplierName = f.trim();
+                    if (supplierName !== '') {
+                        codesToSupplierMap[code].add(supplierName);
+                        
+                        if (!supplierToCodesMap[supplierName]) {
+                            supplierToCodesMap[supplierName] = new Set();
+                        }
+                        supplierToCodesMap[supplierName].add(code);
+                    }
+                });
+            });
+
+            if (Object.keys(supplierToCodesMap).length === 0) {
+                alert("Nenhum fornecedor encontrado para os códigos em consulta.");
+                return;
+            }
+
+            // Build Sheet 1 (Por Fornecedor) with dynamic SIH columns
+            const headerRow = ["Fornecedor", "Qtd. de Códigos SIH"];
+            uniqueCodesInView.forEach(() => {
+                headerRow.push("SIH");
+            });
+
+            const aoaData = [headerRow];
+            
+            const sortedSuppliers = Object.keys(supplierToCodesMap).sort((a, b) => {
+                const countA = supplierToCodesMap[a].size;
+                const countB = supplierToCodesMap[b].size;
+                return countB - countA || a.localeCompare(b);
+            });
+            
+            sortedSuppliers.forEach(supplier => {
+                const row = [supplier, supplierToCodesMap[supplier].size];
+                uniqueCodesInView.forEach(code => {
+                    if (supplierToCodesMap[supplier].has(code)) {
+                        row.push(Number(code) || code);
+                    } else {
+                        row.push("");
+                    }
+                });
+                aoaData.push(row);
+            });
+
+            // Create Sheet 2: Por CÓD. SIH as a backup view
+            const codesArray = uniqueCodesInView.map(code => {
+                const suppliers = Array.from(codesToSupplierMap[code] || []).sort();
+                return {
+                    "CÓD. SIH": code,
+                    "Quantidade de Fornecedores": suppliers.length,
+                    "Fornecedores": suppliers.join(';\n')
+                };
+            });
+
+            // Workbook
+            const wb = XLSX.utils.book_new();
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(aoaData);
+            const cols = [{ wch: 60 }, { wch: 20 }];
+            uniqueCodesInView.forEach(() => cols.push({ wch: 15 }));
+            ws1['!cols'] = cols;
+            XLSX.utils.book_append_sheet(wb, ws1, "Por Fornecedor");
+
+            const ws2 = XLSX.utils.json_to_sheet(codesArray);
+            ws2['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 100 }];
+            XLSX.utils.book_append_sheet(wb, ws2, "Por CÓD. SIH");
+
+            XLSX.writeFile(wb, 'Fornecedores_SIH_Consultados.xlsx');
         });
 
         document.getElementById('exportExcelBtn').addEventListener('click', () => {
@@ -1060,6 +1160,116 @@
             reader.readAsBinaryString(file);
         }
 
+        function handleFornSihFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const uploadBtn = document.getElementById('isoFornUploadBtn');
+            const uploadText = document.getElementById('isoFornUploadText');
+            
+            uploadBtn.disabled = true;
+            uploadBtn.classList.add('opacity-50');
+            uploadText.textContent = 'Processando...';
+
+            const reader = new FileReader();
+            const isCsv = file.name.toLowerCase().endsWith('.csv');
+
+            reader.onload = function(event) {
+                try {
+                    let rawData = [];
+                    
+                    if (isCsv) {
+                        const text = event.target.result;
+                        // Helper to parse CSV properly handling quotes and semicolons
+                        const parseCsvLine = (line, delimiter = ';') => {
+                            const result = [];
+                            let current = '';
+                            let inQuotes = false;
+                            for (let i = 0; i < line.length; i++) {
+                                const char = line[i];
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === delimiter && !inQuotes) {
+                                    result.push(current);
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            result.push(current);
+                            return result;
+                        };
+                        
+                        // Check delimiter using the first line
+                        const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+                        let delimiter = ';';
+                        if (lines.length > 0) {
+                            if (lines[0].indexOf(';') === -1 && lines[0].indexOf(',') !== -1) {
+                                delimiter = ',';
+                            }
+                        }
+                        
+                        rawData = lines.map(line => parseCsvLine(line, delimiter));
+                    } else {
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+                    }
+
+                    if (rawData.length > 0) {
+                        sihFornecedoresMap = {};
+                        // Start from 1 if there's a header
+                        for (let i = 1; i < rawData.length; i++) {
+                            const row = rawData[i];
+                            const sihCode = String(row[1] || "").trim(); // coluna B (index 1)
+                            const fornecedor = String(row[40] || "").trim();    // coluna AO (index 40)
+                            
+                            if (sihCode && fornecedor) {
+                                if (!sihFornecedoresMap[sihCode]) {
+                                    sihFornecedoresMap[sihCode] = new Set();
+                                }
+                                sihFornecedoresMap[sihCode].add(fornecedor);
+                            }
+                        }
+                        
+                        // Convert Sets to Arrays
+                        for (const code in sihFornecedoresMap) {
+                            sihFornecedoresMap[code] = Array.from(sihFornecedoresMap[code]);
+                        }
+
+                        alert("Planilha de fornecedores SIH carregada com sucesso.");
+                        if (filteredData.length > 0) {
+                            renderGroupedData();
+                        }
+                    }
+                } catch(error) {
+                    console.error(error);
+                    alert("Erro ao processar o arquivo. Certifique-se de que possui as colunas B e AO.");
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.classList.remove('opacity-50');
+                    uploadText.textContent = 'Carregar Planilha SIH Fornecedores';
+                    e.target.value = ''; // Reset input
+                }
+            };
+
+            reader.onerror = function() {
+                alert("Erro ao tentar ler o arquivo.");
+                uploadBtn.disabled = false;
+                uploadBtn.classList.remove('opacity-50');
+                uploadText.textContent = 'Carregar Planilha SIH Fornecedores';
+            };
+
+            if (isCsv) {
+                // Use ISO-8859-1 for typical Brazilian CSV exports (like from Excel) to handle accents correctly, or change to UTF-8 if needed
+                reader.readAsText(file, 'ISO-8859-1');
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
         function handleFilterByCodes() {
             const inputVal = document.getElementById('codesInput').value;
             const codes = inputVal.split('\n').map(c => c.trim()).filter(c => c);
@@ -1121,15 +1331,37 @@
                     totalAprovadosGlobal += numAprovados;
                     totalReprovadosGlobal += numReprovados;
 
+                    const fornecedores = sihFornecedoresMap[code] || [];
+                    const fornecedoresHtml = fornecedores.length > 0 ? `
+                        <div class="mt-3 pl-9">
+                            <div class="flex items-center bg-emerald-50 border border-emerald-200 rounded-md shadow-sm w-fit transition-colors">
+                                <button class="toggle-fornecedores-btn px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 rounded-l-md transition-colors flex items-center border-r border-emerald-200">
+                                    <i data-lucide="users" class="w-3.5 h-3.5 mr-1.5"></i> 
+                                    Fornecedores Anteriores do CHC-UFPR (${fornecedores.length})
+                                </button>
+                                <button data-fornecedores="-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n${fornecedores.join('\n')}" class="copy-fornecedores-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 rounded-r-md transition-colors flex items-center" title="Copiar estes fornecedores">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5 pointer-events-none"></i>
+                                    <span class="btn-text pointer-events-none sr-only">Copiar</span>
+                                </button>
+                            </div>
+                            <div class="fornecedores-list hidden mt-2 bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+                                <ul class="list-disc list-inside text-sm text-emerald-900 space-y-1">
+                                    ${fornecedores.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    ` : '';
+
                     const card = document.createElement('div');
                     card.className = 'bg-white rounded-xl shadow-md border-2 border-indigo-300 overflow-hidden transition-shadow hover:shadow-lg';
 
                     // Group Header
                     const header = document.createElement('div');
-                    header.className = 'bg-indigo-100 px-4 py-3 border-b-2 border-indigo-300 flex justify-between items-center cursor-pointer hover:bg-indigo-200 transition-colors select-none group';
+                    header.className = 'bg-indigo-50 px-4 py-3 border-b-2 border-indigo-200 flex justify-between items-start cursor-pointer transition-colors select-none group relative';
+                    
                     header.innerHTML = `
-                        <div class="flex flex-col gap-2 w-full">
-                            <div class="flex items-center justify-between w-full flex-wrap gap-2">
+                        <div class="flex flex-col w-full">
+                            <div class="flex flex-wrap items-center justify-between w-full gap-2">
                                 <h3 class="text-indigo-900 font-semibold flex items-center mr-2">
                                     <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-500 mr-2 transition-transform duration-200 transform rotate-180 toggle-icon group-hover:text-indigo-700"></i>
                                     <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md mr-3 font-mono border border-indigo-700 shadow-sm">CÓD. SIH</span>
@@ -1139,19 +1371,28 @@
                                     <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'}</span>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap items-center gap-2 pl-9">
-                                <button class="copy-marcas-aprovadas-btn px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors flex items-center shadow-sm" title="Copiar marcas aprovadas" type="button">
-                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="btn-text pointer-events-none">Marcas Aprovadas (${numAprovados})</span>
-                                </button>
-                                <button class="copy-marcas-reprovadas-btn px-2 py-1 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md hover:bg-rose-100 transition-colors flex items-center shadow-sm" title="Copiar marcas reprovadas" type="button">
-                                    <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="btn-text pointer-events-none">Marcas Reprovadas (${numReprovados})</span>
-                                </button>
-                                <button class="copy-iso-btn px-2 py-1 text-xs font-medium text-indigo-600 bg-white border border-indigo-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center shadow-sm" title="Copiar todos os dados" type="button">
-                                    <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="btn-text pointer-events-none">Copiar todos os dados deste card</span>
-                                </button>
-                                <button class="download-iso-btn px-2 py-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center shadow-sm" title="Baixar planilha Excel" type="button">
-                                    <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="btn-text pointer-events-none">Baixar Planilha</span>
-                                </button>
+                            
+                            ${fornecedoresHtml}
+                            
+                            <div class="flex flex-wrap gap-x-4 gap-y-2 mt-3 pl-9 items-center">
+                                <div class="flex items-center shadow-sm rounded-md" role="group">
+                                    <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar marcas aprovadas" type="button">
+                                        <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-600 pointer-events-none"></i> 
+                                        <span class="btn-text pointer-events-none">Marcas Aprovadas (${numAprovados})</span>
+                                    </button>
+                                    <button class="copy-marcas-reprovadas-btn px-3 py-1.5 text-xs font-medium text-rose-700 bg-white border-t border-b border-rose-200 hover:bg-rose-50 transition-colors flex items-center" title="Copiar marcas reprovadas" type="button">
+                                        <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 text-rose-600 pointer-events-none"></i> 
+                                        <span class="btn-text pointer-events-none">Marcas Reprovadas (${numReprovados})</span>
+                                    </button>
+                                    <button class="copy-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 relative z-10 hover:bg-indigo-50 transition-colors flex items-center" title="Copiar dados da ficha completa" type="button">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
+                                        <span class="btn-text pointer-events-none">Ficha Completa das Marcas deste Item</span>
+                                    </button>
+                                    <button class="download-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 rounded-r-md hover:bg-indigo-50 transition-colors flex items-center" title="Baixar planilha Excel do card" type="button">
+                                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
+                                        <span class="btn-text pointer-events-none">Excel</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1236,6 +1477,15 @@
                             textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
                             textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n\n`;
                         });
+
+                        const fornecedoresThisCode = sihFornecedoresMap[code] || [];
+                        if (fornecedoresThisCode.length > 0) {
+                            textToCopy += `-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n`;
+                            fornecedoresThisCode.forEach(f => {
+                                textToCopy += `${f}\n`;
+                            });
+                            textToCopy += `\n`;
+                        }
                         
                         try {
                             await navigator.clipboard.writeText(textToCopy);
@@ -1268,6 +1518,42 @@
                         XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
                         XLSX.writeFile(workbook, `Resultados_SIH_${code}.xlsx`);
                     });
+
+                    const toggleFornecedoresBtn = header.querySelector('.toggle-fornecedores-btn');
+                    if (toggleFornecedoresBtn) {
+                        toggleFornecedoresBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const fList = header.querySelector('.fornecedores-list');
+                            fList.classList.toggle('hidden');
+                        });
+                    }
+
+                    const copyFornecedoresBtn = header.querySelector('.copy-fornecedores-btn');
+                    if (copyFornecedoresBtn) {
+                        copyFornecedoresBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const fornecedoresText = copyFornecedoresBtn.getAttribute('data-fornecedores');
+                            if (fornecedoresText) {
+                                navigator.clipboard.writeText(fornecedoresText).then(() => {
+                                    const btnText = copyFornecedoresBtn.querySelector('.btn-text');
+                                    const icon = copyFornecedoresBtn.querySelector('i');
+                                    const originalText = btnText.textContent;
+                                    btnText.textContent = 'Copiado!';
+                                    const originalIcon = icon.getAttribute('data-lucide');
+                                    icon.setAttribute('data-lucide', 'check');
+                                    lucide.createIcons({ root: copyFornecedoresBtn });
+                                    
+                                    setTimeout(() => {
+                                        btnText.textContent = originalText;
+                                        icon.setAttribute('data-lucide', originalIcon);
+                                        lucide.createIcons({ root: copyFornecedoresBtn });
+                                    }, 2000);
+                                }).catch(err => {
+                                    console.error("Falha ao copiar: ", err);
+                                });
+                            }
+                        });
+                    }
 
                     // Group Table
                     const tableWrapper = document.createElement('div');
