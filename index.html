@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fabricantes e Marcas do Banco de Marcas</title>
+    <title>Fornecedor, Fabricante e Marca</title>
     <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (via CDN para ler as planilhas do Excel) -->
@@ -200,10 +200,13 @@
             </div>
             <div class="flex space-x-2 overflow-x-auto pb-1 sm:pb-0">
                 <button id="navIsoBtn" class="px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
-                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fabricantes e Marcas do banco de Marcas
+                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fornecedor, Fabricante e Marca
                 </button>
                 <button id="navFornecedoresBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="users" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo de Fornecedores
+                </button>
+                <button id="navSihFornecedorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="list" class="w-4 h-4 mr-2 pointer-events-none"></i> SIH por Fornecedor
                 </button>
                 <button id="navEmailExtractorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="mail" class="w-4 h-4 mr-2 pointer-events-none"></i> Extrair E-mails
@@ -224,7 +227,7 @@
         
         <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Fabricantes e Marcas do Banco de Marcas</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Fornecedor, Fabricante e Marca</h1>
         </div>
 
         <div class="flex items-center space-x-3">
@@ -237,7 +240,7 @@
             <input type="file" id="fornSihFileInput" class="hidden" accept=".xlsx,.xls,.csv" />
             <button onclick="document.getElementById('fornSihFileInput').click()" id="isoFornUploadBtn" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm">
                 <i data-lucide="users" class="w-4 h-4 mr-2"></i>
-                <span id="isoFornUploadText">Carregar Planilha SIH Fornecedores</span>
+                <span id="isoFornUploadText">Carregar Planilha MT15</span>
             </button>
         </div>
     </header>
@@ -282,7 +285,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
                             <i data-lucide="layers" class="w-3.5 h-3.5 mr-1.5 text-indigo-500"></i>
-                            <span id="rowCount" class="font-bold mr-1 text-sm">0</span> registros
+                            <span id="rowCount" class="font-bold mr-1 text-sm">0</span> registros de marcas
                         </div>
                         <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
                             <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-500"></i>
@@ -325,7 +328,82 @@
     </div>
 
 
-    
+    <div id="sihFornecedorView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-[1600px]">
+        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">SIH por Fornecedor (MT15)</h1>
+                <p class="text-sm text-gray-500 mt-1">Fornecedores listados na Planilha MT15 e seus respectivos códigos SIH.</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="document.getElementById('fornSihFileInput').click()" id="sihFornecedorUploadBtn" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm">
+                    <i data-lucide="users" class="w-4 h-4 mr-2"></i>
+                    <span id="sihFornecedorUploadText">Carregar Planilha MT15</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="sihFornEmptyState" class="flex-1 flex flex-col items-center justify-center p-8 bg-white rounded-xl shadow-sm border-2 border-dashed border-gray-200 text-center">
+            <div class="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <i data-lucide="upload" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">Planilha MT15 não carregada</h3>
+            <p class="text-sm text-gray-500 max-w-md mb-4">Carregue a planilha MT15 para visualizar a lista de códigos SIH por fornecedor.</p>
+            <button onclick="document.getElementById('fornSihFileInput').click()" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm">
+                <i data-lucide="upload-cloud" class="w-4 h-4 mr-2 text-emerald-100"></i>
+                Carregar Planilha MT15
+            </button>
+        </div>
+
+        <div id="sihFornContentState" class="hidden flex-1 min-h-0 flex-col">
+            <div class="mb-4 text-sm text-gray-600 bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4">
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                    <div class="flex items-center">
+                        <i data-lucide="info" class="w-5 h-5 text-indigo-500 flex-shrink-0 mr-2"></i>
+                        <span>Mostrando <span id="sihFornCount" class="font-bold text-gray-900 mx-1">0</span> fornecedores. Clique em um fornecedor para ver os códigos.</span>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row items-center gap-3 w-full xl:w-auto">
+                        <div class="relative w-full md:w-64">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                            </div>
+                            <input type="text" id="sihFornSearchInput" placeholder="Buscar fornecedor..." class="w-full pl-9 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <div class="flex items-center space-x-2 whitespace-nowrap">
+                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fornecedores:</span>
+                                <select id="sihFornSupplierSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2">
+                                    <option value="alpha">A-Z</option>
+                                    <option value="countDesc">Qtd SIH (Maior)</option>
+                                    <option value="countAsc">Qtd SIH (Menor)</option>
+                                </select>
+                            </div>
+
+                            <div class="flex items-center space-x-2 whitespace-nowrap">
+                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Itens:</span>
+                                <select id="sihFornSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2">
+                                    <option value="sih">Por SIH (A-Z)</option>
+                                    <option value="desc">Por Desc. (A-Z)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filtrar por inicial:</span>
+                    <div id="sihFornAlphaFilter" class="flex flex-wrap gap-1">
+                        <!-- Letters injected by JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="sihFornResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-4 pb-20 pr-2">
+                <!-- Grouped cards rendered by JS -->
+            </div>
+        </div>
+    </div>
+
+
     <div id="fornecedoresView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
         
         <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -355,7 +433,7 @@
                 </div>
                 <!-- 3. Busca Texto -->
                 <div class="col-span-1">
-                    <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">Buscar Buscar</label>
+                    <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">Buscar</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
@@ -482,11 +560,8 @@
 
             <!-- Footer do Modal (Ações) -->
             <div class="p-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3 z-10">
-                <button id="btnCopyText" class="px-4 py-2.5 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <button id="btnCopyText" class="px-4 py-2.5 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2">
                     <i data-lucide="copy" class="w-4 h-4"></i> Copiar Dados
-                </button>
-                <button id="btnDownloadImage" class="px-4 py-2.5 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="image" class="w-4 h-4"></i> Baixar Imagem
                 </button>
                 <button id="closeModalFooter" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
                     Fechar
@@ -917,7 +992,65 @@
 
         let appData = [];
         let filteredData = [];
+        let searchedCodes = [];
         let sihFornecedoresMap = {};
+        let fornecedorSihMap = {};
+        let sihDescMap = {};
+        let openedSihFornCards = new Set();
+        let sihFornSearchTerm = "";
+        let sihFornAlphaFilterSelected = "";
+
+        document.getElementById('sihFornSortSelect').addEventListener('change', () => {
+            renderSihFornecedorView();
+        });
+
+        document.getElementById('sihFornSupplierSortSelect').addEventListener('change', () => {
+            renderSihFornecedorView();
+        });
+        
+        document.getElementById('sihFornSearchInput').addEventListener('input', (e) => {
+            sihFornSearchTerm = e.target.value.toLowerCase();
+            renderSihFornecedorView();
+        });
+
+        function buildSihFornAlphaFilter() {
+            const container = document.getElementById('sihFornAlphaFilter');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const btnClasses = "px-2.5 py-1 text-xs font-semibold rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1";
+            
+            const createBtn = (label, val) => {
+                const btn = document.createElement('button');
+                btn.textContent = label;
+                if (sihFornAlphaFilterSelected === val) {
+                    btn.className = `${btnClasses} bg-indigo-600 text-white border-indigo-600 shadow-sm`;
+                } else {
+                    btn.className = `${btnClasses} bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900`;
+                }
+                btn.addEventListener('click', () => {
+                    sihFornAlphaFilterSelected = sihFornAlphaFilterSelected === val ? "" : val;
+                    buildSihFornAlphaFilter();
+                    renderSihFornecedorView();
+                });
+                container.appendChild(btn);
+            };
+
+            createBtn("Todos", "");
+            createBtn("0-9", "num");
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                createBtn(letter, letter);
+            }
+        }
+
+        function hideEmptyStateAndShowFilter() {
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('filterState').classList.remove('hidden');
+            if (window.innerWidth < 1024) {  // mobile only
+                document.getElementById('dataTableContainer').classList.add('hidden');
+            }
+        }
 
         document.getElementById('fileInput').addEventListener('change', handleFileUpload);
         document.getElementById('fornSihFileInput').addEventListener('change', handleFornSihFileUpload);
@@ -942,13 +1075,127 @@
             });
         });
 
-        document.getElementById('exportAllSuppliersGlobalBtn').addEventListener('click', () => {
-            if (filteredData.length === 0) {
-                alert("Não há dados para exportar.");
+        document.getElementById('groupedResults').addEventListener('click', (e) => {
+            const btnForn = e.target.closest('.btn-view-fornecedor');
+            if (btnForn) {
+                e.stopPropagation();
+                const fornecedorName = btnForn.getAttribute('data-fornecedor');
+                if (!allSuppliers || allSuppliers.length === 0) {
+                    alert("A base de dados do Catálogo de Fornecedores ainda não foi carregada. Por favor, vá até a aba 'Catálogo de Fornecedores' e carregue a planilha correspondente primeiro.");
+                    return;
+                }
+                const cleanName = (name) => {
+                    return name.trim().toUpperCase()
+                        .replace(/\b(LTDA|ME|EPP|S\/?A|INC|CORP|COMERCIO|DE|MATERIAIS|CIRURGICOS|PRODUTOS|MEDICOS|HOSPITALARES)\b/g, '')
+                        .replace(/[^A-Z0-9]/g, '');
+                };
+                
+                const fNameNorm = cleanName(fornecedorName);
+                
+                let targetSupplier = allSuppliers.find(s => s.nome && cleanName(s.nome.toString()) === fNameNorm);
+                
+                if (!targetSupplier) {
+                    // Try partial match on the cleaned names, needing at least 5 chars to avoid false positives
+                    if (fNameNorm.length >= 5) {
+                        targetSupplier = allSuppliers.find(s => s.nome && (cleanName(s.nome.toString()).includes(fNameNorm) || fNameNorm.includes(cleanName(s.nome.toString()))));
+                    }
+                }
+                
+                if (!targetSupplier) {
+                    // Fallback to original text includes
+                    const origNorm = fornecedorName.trim().toUpperCase();
+                    targetSupplier = allSuppliers.find(s => s.nome && (s.nome.toString().trim().toUpperCase().includes(origNorm) || origNorm.includes(s.nome.toString().trim().toUpperCase())));
+                }
+                
+                if (targetSupplier) {
+                    if (typeof showModal === 'function') {
+                        showModal(targetSupplier);
+                    }
+                } else {
+                    // Mudar para a aba de fornecedores
+                    activateTab('fornecedores');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    const searchInputEl = document.getElementById('searchInput');
+                    if (searchInputEl) {
+                        searchInputEl.value = fornecedorName;
+                        // Acionar a filtragem
+                        applyFilters();
+                    }
+                }
                 return;
             }
 
-            const uniqueCodesInView = Array.from(new Set(filteredData.map(r => r.codigo))).sort();
+            const btnSih = e.target.closest('.btn-view-sih');
+            if (btnSih) {
+                e.stopPropagation();
+                const fornecedorName = btnSih.getAttribute('data-fornecedor');
+                if (!fornecedorSihMap || Object.keys(fornecedorSihMap).length === 0) {
+                    alert("A planilha MT15 ainda não foi carregada. Por favor, carregue-a primeiro na seção SIH por Fornecedor.");
+                    return;
+                }
+                const codes = fornecedorSihMap[fornecedorName];
+                if (codes && codes.length > 0) {
+                    let codesArr = Array.from(codes);
+                    codesArr.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+                    const modalTitleEl = document.getElementById('modalTitle');
+                    const modalBodyEl = document.getElementById('modalBody');
+                    const modalEl = document.getElementById('modal');
+                    
+                    modalTitleEl.innerHTML = `<i data-lucide="package" class="w-5 h-5 mr-2 text-indigo-600 inline-block align-text-bottom"></i> <span class="align-middle">${fornecedorName}</span>`;
+                    
+                    let itemsHtml = codesArr.map(c => {
+                        const desc = sihDescMap[c] || "";
+                        return `
+                        <li class="flex items-center text-sm font-medium py-1">
+                            <span class="bg-indigo-50 shadow-sm border border-indigo-100 text-indigo-700 font-mono px-3 py-1.5 rounded-lg whitespace-nowrap mr-3 w-32 shrink-0 flex items-center">
+                                <span class="text-indigo-400 mr-1 text-xs">SIH</span>${c}
+                            </span>
+                            <span class="text-gray-600 font-normal truncate" title="${desc}">${desc}</span>
+                        </li>
+                        `;
+                    }).join('');
+
+                    modalBodyEl.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
+                                <h3 class="text-gray-900 font-semibold flex items-center">
+                                    Códigos SIH Fornecidos
+                                </h3>
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm whitespace-nowrap">${codesArr.length} ${codesArr.length === 1 ? 'item' : 'itens'} SIH</span>
+                            </div>
+                            <div class="p-4 bg-white border-[3px] border-indigo-500 max-h-96 overflow-y-auto">
+                                <ul class="flex flex-col gap-2 text-sm text-gray-700">
+                                    ${itemsHtml}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const textToCopy = `${fornecedorName} (${codesArr.length} itens SIH)\n${codesArr.map(c => `${c}\t${sihDescMap[c] || ""}`).join('\n')}`;
+                    document.getElementById('btnCopyText').onclick = () => copyToClipboard(textToCopy);
+                    
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons({ root: modalBodyEl });
+                        lucide.createIcons({ root: modalTitleEl });
+                    }
+
+                    modalEl.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    alert("Este fornecedor não possui itens SIH mapeados na planilha MT15 atual.");
+                }
+                return;
+            }
+        });
+
+        document.getElementById('exportAllSuppliersGlobalBtn').addEventListener('click', () => {
+            if (!searchedCodes || searchedCodes.length === 0) {
+                alert("Não há códigos em consulta para exportar.");
+                return;
+            }
+
+            const uniqueCodesInView = Array.from(new Set(searchedCodes)).sort();
             
             // Map: Supplier -> Set of SIH codes
             let supplierToCodesMap = {};
@@ -980,8 +1227,9 @@
 
             // Build Sheet 1 (Por Fornecedor) with dynamic SIH columns
             const headerRow = ["Fornecedor", "Qtd. de Códigos SIH"];
-            uniqueCodesInView.forEach(() => {
-                headerRow.push("SIH");
+            uniqueCodesInView.forEach((code) => {
+                const count = (codesToSupplierMap[code] || new Set()).size;
+                headerRow.push(`SIH (${count})`);
             });
 
             const aoaData = [headerRow];
@@ -1132,12 +1380,19 @@
                             };
                         }).filter(r => r.codigo || r.descricao);
                         
-                        filteredData = []; // Clear old filtered data
-                        renderGroupedData();
+                        filteredData = appData; // Optional, or leave empty until filter is clicked
+                        if (searchedCodes.length > 0) {
+                            filteredData = appData.filter(row => searchedCodes.includes(row.codigo));
+                        } else {
+                            filteredData = []; // Or keep empty initially
+                        }
                         
-                        document.getElementById('emptyState').classList.add('hidden');
-                        document.getElementById('filterState').classList.remove('hidden');
-                        document.getElementById('dataTableContainer').classList.add('hidden');
+                        hideEmptyStateAndShowFilter();
+                        
+                        if (searchedCodes.length > 0) {
+                            renderGroupedData();
+                            document.getElementById('dataTableContainer').classList.remove('hidden');
+                        }
                     }
                 } catch(error) {
                     console.error(error);
@@ -1145,7 +1400,11 @@
                 } finally {
                     uploadBtn.disabled = false;
                     uploadBtn.classList.remove('opacity-50');
-                    uploadText.textContent = 'Carregar Planilha';
+                    if (appData && appData.length > 0) {
+                        uploadText.textContent = 'Carregado Banco de Marcas';
+                    } else {
+                        uploadText.textContent = 'Carregar Banco de Marcas';
+                    }
                     e.target.value = ''; // Reset input
                 }
             };
@@ -1154,7 +1413,7 @@
                 alert("Erro ao tentar ler o arquivo.");
                 uploadBtn.disabled = false;
                 uploadBtn.classList.remove('opacity-50');
-                uploadText.textContent = 'Carregar Planilha';
+                uploadText.textContent = 'Carregar Banco de Marcas';
             };
 
             reader.readAsBinaryString(file);
@@ -1167,9 +1426,18 @@
             const uploadBtn = document.getElementById('isoFornUploadBtn');
             const uploadText = document.getElementById('isoFornUploadText');
             
+            const uploadBtn2 = document.getElementById('sihFornecedorUploadBtn');
+            const uploadText2 = document.getElementById('sihFornecedorUploadText');
+            
             uploadBtn.disabled = true;
             uploadBtn.classList.add('opacity-50');
             uploadText.textContent = 'Processando...';
+            
+            if (uploadBtn2) {
+                uploadBtn2.disabled = true;
+                uploadBtn2.classList.add('opacity-50');
+                uploadText2.textContent = 'Processando...';
+            }
 
             const reader = new FileReader();
             const isCsv = file.name.toLowerCase().endsWith('.csv');
@@ -1220,10 +1488,13 @@
 
                     if (rawData.length > 0) {
                         sihFornecedoresMap = {};
+                        fornecedorSihMap = {};
+                        sihDescMap = {};
                         // Start from 1 if there's a header
                         for (let i = 1; i < rawData.length; i++) {
                             const row = rawData[i];
                             const sihCode = String(row[1] || "").trim(); // coluna B (index 1)
+                            const desc = String(row[2] || "").trim();    // coluna C (index 2)
                             const fornecedor = String(row[40] || "").trim();    // coluna AO (index 40)
                             
                             if (sihCode && fornecedor) {
@@ -1231,17 +1502,32 @@
                                     sihFornecedoresMap[sihCode] = new Set();
                                 }
                                 sihFornecedoresMap[sihCode].add(fornecedor);
+
+                                if (!fornecedorSihMap[fornecedor]) {
+                                    fornecedorSihMap[fornecedor] = new Set();
+                                }
+                                fornecedorSihMap[fornecedor].add(sihCode);
+
+                                if (desc) {
+                                    sihDescMap[sihCode] = desc;
+                                }
                             }
                         }
                         
                         // Convert Sets to Arrays
                         for (const code in sihFornecedoresMap) {
-                            sihFornecedoresMap[code] = Array.from(sihFornecedoresMap[code]);
+                            sihFornecedoresMap[code] = Array.from(sihFornecedoresMap[code]).sort();
+                        }
+                        for (const forn in fornecedorSihMap) {
+                            fornecedorSihMap[forn] = Array.from(fornecedorSihMap[forn]).sort();
                         }
 
                         alert("Planilha de fornecedores SIH carregada com sucesso.");
-                        if (filteredData.length > 0) {
+                        hideEmptyStateAndShowFilter();
+                        renderSihFornecedorView();
+                        if (searchedCodes.length > 0) {
                             renderGroupedData();
+                            document.getElementById('dataTableContainer').classList.remove('hidden');
                         }
                     }
                 } catch(error) {
@@ -1250,7 +1536,21 @@
                 } finally {
                     uploadBtn.disabled = false;
                     uploadBtn.classList.remove('opacity-50');
-                    uploadText.textContent = 'Carregar Planilha SIH Fornecedores';
+                    if (Object.keys(sihFornecedoresMap).length > 0) {
+                        uploadText.textContent = 'Carregado MT15';
+                        if (uploadBtn2) {
+                            uploadBtn2.disabled = false;
+                            uploadBtn2.classList.remove('opacity-50');
+                            uploadText2.textContent = 'Carregado MT15';
+                        }
+                    } else {
+                        uploadText.textContent = 'Carregar Planilha MT15';
+                        if (uploadBtn2) {
+                            uploadBtn2.disabled = false;
+                            uploadBtn2.classList.remove('opacity-50');
+                            uploadText2.textContent = 'Carregar Planilha MT15';
+                        }
+                    }
                     e.target.value = ''; // Reset input
                 }
             };
@@ -1259,7 +1559,12 @@
                 alert("Erro ao tentar ler o arquivo.");
                 uploadBtn.disabled = false;
                 uploadBtn.classList.remove('opacity-50');
-                uploadText.textContent = 'Carregar Planilha SIH Fornecedores';
+                uploadText.textContent = 'Carregar Planilha MT15';
+                if (uploadBtn2) {
+                    uploadBtn2.disabled = false;
+                    uploadBtn2.classList.remove('opacity-50');
+                    uploadText2.textContent = 'Carregar Planilha MT15';
+                }
             };
 
             if (isCsv) {
@@ -1272,15 +1577,15 @@
 
         function handleFilterByCodes() {
             const inputVal = document.getElementById('codesInput').value;
-            const codes = inputVal.split('\n').map(c => c.trim()).filter(c => c);
+            searchedCodes = inputVal.split('\n').map(c => c.trim()).filter(c => c);
 
-            if (codes.length === 0) {
+            if (searchedCodes.length === 0) {
                 alert("Por favor, cole ao menos um CÓD. SIH.");
                 return;
             }
 
             // Filter data by codes (comparing as strings)
-            filteredData = appData.filter(row => codes.includes(row.codigo));
+            filteredData = appData.filter(row => searchedCodes.includes(row.codigo));
             
             renderGroupedData();
 
@@ -1295,27 +1600,37 @@
 
             container.innerHTML = '';
             
-            if (filteredData.length === 0) {
+            // Group the data by codigo
+            const grouped = {};
+            if (searchedCodes && searchedCodes.length > 0) {
+                searchedCodes.forEach(code => {
+                    grouped[code] = [];
+                });
+            }
+
+            filteredData.forEach(row => {
+                const code = row.codigo;
+                if (!grouped[code]) {
+                    grouped[code] = [];
+                }
+                grouped[code].push(row);
+            });
+
+            const activeCodes = Object.keys(grouped).filter(code => {
+                return grouped[code].length > 0 || (sihFornecedoresMap[code] && sihFornecedoresMap[code].length > 0);
+            });
+
+            if (activeCodes.length === 0) {
                 noResults.classList.remove('hidden');
                 container.classList.add('hidden');
             } else {
                 noResults.classList.add('hidden');
                 container.classList.remove('hidden');
-                
-                // Group the data by codigo
-                const grouped = {};
-                filteredData.forEach(row => {
-                    const code = row.codigo;
-                    if (!grouped[code]) {
-                        grouped[code] = [];
-                    }
-                    grouped[code].push(row);
-                });
 
                 let totalAprovadosGlobal = 0;
                 let totalReprovadosGlobal = 0;
 
-                Object.keys(grouped).forEach(code => {
+                activeCodes.forEach(code => {
                     const rows = grouped[code];
 
                     // Calculate summaries first
@@ -1345,8 +1660,20 @@
                                 </button>
                             </div>
                             <div class="fornecedores-list hidden mt-2 bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                                <ul class="list-disc list-inside text-sm text-emerald-900 space-y-1">
-                                    ${fornecedores.map(f => `<li>${f}</li>`).join('')}
+                                <ul class="flex flex-col text-sm text-emerald-900">
+                                    ${fornecedores.map(f => `
+                                        <li class="py-2 border-b border-emerald-100 last:border-0 pl-1 shrink-0 flex flex-col justify-center">
+                                            <div class="font-medium text-emerald-950">${f}</div>
+                                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 text-xs">
+                                                <button class="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center transition-colors btn-view-fornecedor text-left" data-fornecedor="${f.replace(/"/g, '&quot;')}">
+                                                    <i data-lucide="building" class="w-3.5 h-3.5 mr-1.5 shrink-0 flex-none"></i> Dados do Fornecedor
+                                                </button>
+                                                <button class="text-emerald-700 hover:text-emerald-900 hover:underline flex items-center transition-colors btn-view-sih text-left" data-fornecedor="${f.replace(/"/g, '&quot;')}">
+                                                    <i data-lucide="package" class="w-3.5 h-3.5 mr-1.5 shrink-0 flex-none"></i> SIH que fornece
+                                                </button>
+                                            </div>
+                                        </li>
+                                    `).join('')}
                                 </ul>
                             </div>
                         </div>
@@ -1368,12 +1695,13 @@
                                     <span class="text-lg font-bold">${code}</span>
                                 </h3>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'}</span>
+                                    <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'} de marcas</span>
                                 </div>
                             </div>
                             
                             ${fornecedoresHtml}
                             
+                            ${rows.length > 0 ? `
                             <div class="flex flex-wrap gap-x-4 gap-y-2 mt-3 pl-9 items-center">
                                 <div class="flex items-center shadow-sm rounded-md" role="group">
                                     <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar marcas aprovadas" type="button">
@@ -1394,11 +1722,17 @@
                                     </button>
                                 </div>
                             </div>
+                            ` : `
+                            <div class="mt-3 pl-9 text-sm text-gray-500 hidden-if-empty-marks">
+                                Nenhuma informação no Banco de Marcas para este registro.
+                            </div>
+                            `}
                         </div>
                     `;
                     card.appendChild(header);
 
-                    const copyAprovadasBtn = header.querySelector('.copy-marcas-aprovadas-btn');
+                    if (rows.length > 0) {
+                        const copyAprovadasBtn = header.querySelector('.copy-marcas-aprovadas-btn');
                     copyAprovadasBtn.addEventListener('click', async (e) => {
                         e.stopPropagation();
                         const aprovadasRows = rows.filter(r => String(r.aprovado).toUpperCase() === 'VERDADEIRO' || String(r.aprovado).toUpperCase() === 'V' || r.aprovado === true);
@@ -1518,6 +1852,7 @@
                         XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
                         XLSX.writeFile(workbook, `Resultados_SIH_${code}.xlsx`);
                     });
+                    } // close if (rows.length > 0)
 
                     const toggleFornecedoresBtn = header.querySelector('.toggle-fornecedores-btn');
                     if (toggleFornecedoresBtn) {
@@ -1556,63 +1891,65 @@
                     }
 
                     // Group Table
-                    const tableWrapper = document.createElement('div');
-                    tableWrapper.className = 'overflow-x-auto';
-                    
-                    header.addEventListener('click', () => {
-                        const isHidden = tableWrapper.classList.contains('hidden');
-                        const icon = header.querySelector('.toggle-icon');
-                        if (isHidden) {
-                            tableWrapper.classList.remove('hidden');
-                            icon.classList.add('rotate-180');
-                        } else {
-                            tableWrapper.classList.add('hidden');
-                            icon.classList.remove('rotate-180');
-                        }
-                    });
-
-                    const table = document.createElement('table');
-                    table.className = 'w-full text-left border-collapse table-auto';
-                    
-                    const thead = document.createElement('thead');
-                    thead.className = 'bg-gray-50 border-b border-gray-200';
-                    thead.innerHTML = `
-                        <tr class="whitespace-nowrap">
-                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
-                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fabricante (${numFabricantes})</th>
-                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca (${numMarcas})</th>
-                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aprovado (${numAprovados})</th>
-                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Reprovado (${numReprovados})</th>
-                        </tr>
-                    `;
-                    table.appendChild(thead);
-
-                    const tbody = document.createElement('tbody');
-                    tbody.className = 'divide-y divide-gray-100';
-
-                    rows.forEach(row => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-gray-50/80 transition-colors group';
-
-                        const isAprovadoVerdadeiro = String(row.aprovado).toUpperCase() === 'VERDADEIRO' || String(row.aprovado).toUpperCase() === 'V' || row.aprovado === true;
-                        const aprovadoColor = isAprovadoVerdadeiro ? 'text-green-600 font-medium' : 'text-gray-600';
+                    if (rows.length > 0) {
+                        const tableWrapper = document.createElement('div');
+                        tableWrapper.className = 'overflow-x-auto';
                         
-                        const isReprovadoVerdadeiro = String(row.reprovado).toUpperCase() === 'VERDADEIRO' || String(row.reprovado).toUpperCase() === 'V' || row.reprovado === true;
-                        const reprovadoColor = isReprovadoVerdadeiro ? 'text-red-600 font-medium' : 'text-gray-600';
+                        header.addEventListener('click', () => {
+                            const isHidden = tableWrapper.classList.contains('hidden');
+                            const icon = header.querySelector('.toggle-icon');
+                            if (isHidden) {
+                                tableWrapper.classList.remove('hidden');
+                                icon.classList.add('rotate-180');
+                            } else {
+                                tableWrapper.classList.add('hidden');
+                                icon.classList.remove('rotate-180');
+                            }
+                        });
 
-                        tr.innerHTML = `
-                            <td class="px-4 py-3 text-sm text-gray-800 align-top whitespace-normal break-words min-w-[200px] max-w-[400px] group-hover:text-indigo-900 transition-colors">${row.descricao}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[250px]">${row.marca}</td>
-                            <td class="px-4 py-3 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
-                            <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
+                        const table = document.createElement('table');
+                        table.className = 'w-full text-left border-collapse table-auto';
+                        
+                        const thead = document.createElement('thead');
+                        thead.className = 'bg-gray-50 border-b border-gray-200';
+                        thead.innerHTML = `
+                            <tr class="whitespace-nowrap">
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fabricante (${numFabricantes})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca (${numMarcas})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aprovado (${numAprovados})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Reprovado (${numReprovados})</th>
+                            </tr>
                         `;
-                        tbody.appendChild(tr);
-                    });
+                        table.appendChild(thead);
 
-                    table.appendChild(tbody);
-                    tableWrapper.appendChild(table);
-                    card.appendChild(tableWrapper);
+                        const tbody = document.createElement('tbody');
+                        tbody.className = 'divide-y divide-gray-100';
+
+                        rows.forEach(row => {
+                            const tr = document.createElement('tr');
+                            tr.className = 'hover:bg-gray-50/80 transition-colors group';
+
+                            const isAprovadoVerdadeiro = String(row.aprovado).toUpperCase() === 'VERDADEIRO' || String(row.aprovado).toUpperCase() === 'V' || row.aprovado === true;
+                            const aprovadoColor = isAprovadoVerdadeiro ? 'text-green-600 font-medium' : 'text-gray-600';
+                            
+                            const isReprovadoVerdadeiro = String(row.reprovado).toUpperCase() === 'VERDADEIRO' || String(row.reprovado).toUpperCase() === 'V' || row.reprovado === true;
+                            const reprovadoColor = isReprovadoVerdadeiro ? 'text-red-600 font-medium' : 'text-gray-600';
+
+                            tr.innerHTML = `
+                                <td class="px-4 py-3 text-sm text-gray-800 align-top whitespace-normal break-words min-w-[200px] max-w-[400px] group-hover:text-indigo-900 transition-colors">${row.descricao}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[250px]">${row.marca}</td>
+                                <td class="px-4 py-3 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
+                                <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        table.appendChild(tbody);
+                        tableWrapper.appendChild(table);
+                        card.appendChild(tableWrapper);
+                    }
 
                     container.appendChild(card);
                 });
@@ -1622,6 +1959,169 @@
             }
             lucide.createIcons();
         }
+
+        function renderSihFornecedorView() {
+            const container = document.getElementById('sihFornResults');
+            const emptyState = document.getElementById('sihFornEmptyState');
+            const contentState = document.getElementById('sihFornContentState');
+            const countLabel = document.getElementById('sihFornCount');
+            const sortMode = document.getElementById('sihFornSortSelect').value;
+            const supplierSortMode = document.getElementById('sihFornSupplierSortSelect').value;
+
+            let keys = Object.keys(fornecedorSihMap);
+            if (keys.length === 0) {
+                emptyState.classList.remove('hidden');
+                contentState.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            contentState.classList.remove('hidden');
+            contentState.classList.add('flex');
+            
+            if (document.getElementById('sihFornAlphaFilter').children.length === 0) {
+                buildSihFornAlphaFilter();
+            }
+
+            keys = keys.filter(k => {
+                if (sihFornSearchTerm && !k.toLowerCase().includes(sihFornSearchTerm)) return false;
+                if (sihFornAlphaFilterSelected) {
+                    const firstChar = k.charAt(0).toUpperCase();
+                    if (sihFornAlphaFilterSelected === "num") {
+                        if (!/^[0-9]/.test(firstChar)) return false;
+                    } else {
+                        if (firstChar !== sihFornAlphaFilterSelected) return false;
+                    }
+                }
+                return true;
+            });
+
+            countLabel.textContent = keys.length;
+            container.innerHTML = '';
+            
+            // Sort suppliers
+            if (supplierSortMode === 'alpha') {
+                keys.sort((a,b) => a.localeCompare(b));
+            } else if (supplierSortMode === 'countDesc') {
+                keys.sort((a,b) => fornecedorSihMap[b].length - fornecedorSihMap[a].length);
+            } else if (supplierSortMode === 'countAsc') {
+                keys.sort((a,b) => fornecedorSihMap[a].length - fornecedorSihMap[b].length);
+            }
+
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 mt-4"><i data-lucide="search-x" class="w-8 h-8 text-gray-400 mb-2"></i><p class="text-sm text-gray-500 font-medium">Nenhum fornecedor encontrado com os filtros atuais.</p></div>';
+                lucide.createIcons({ root: container });
+                return;
+            }
+
+            keys.forEach(forn => {
+                let codes = Array.from(fornecedorSihMap[forn]);
+                
+                if (sortMode === 'desc') {
+                    codes.sort((a, b) => {
+                        const descA = sihDescMap[a] || "";
+                        const descB = sihDescMap[b] || "";
+                        return descA.localeCompare(descB);
+                    });
+                } else {
+                    codes.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+                }
+
+                const isOpen = openedSihFornCards.has(forn);
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mb-4 transition-shadow hover:shadow-lg';
+
+                const header = document.createElement('div');
+                header.className = 'bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center cursor-pointer transition-colors hover:bg-gray-100 group';
+                header.innerHTML = `
+                    <h3 class="text-gray-900 font-semibold flex items-center">
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 mr-2 transition-transform duration-200 transform ${isOpen ? 'rotate-180' : ''} toggle-icon group-hover:text-gray-700"></i>
+                        ${forn}
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm hidden sm:inline mr-2">${codes.length} ${codes.length === 1 ? 'item' : 'itens'} SIH</span>
+                        <button class="sih-forn-copy-btn bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Copiar lista" type="button">
+                            <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="pointer-events-none">Copiar</span>
+                        </button>
+                        <button class="sih-forn-export-btn bg-emerald-600 border border-transparent text-white hover:bg-emerald-700 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Baixar Excel" type="button">
+                            <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-emerald-100"></i> <span class="pointer-events-none">Baixar</span>
+                        </button>
+                    </div>
+                `;
+
+                const content = document.createElement('div');
+                content.className = `p-4 bg-white ${isOpen ? '' : 'hidden'} border-b-[3px] border-indigo-500`;
+                content.innerHTML = `
+                    <ul class="flex flex-col gap-2 text-sm text-gray-700">
+                        ${codes.map(c => {
+                            const desc = sihDescMap[c] || "";
+                            return `
+                            <li class="flex items-center text-sm font-medium">
+                                <span class="bg-indigo-50 shadow-sm border border-indigo-100 text-indigo-700 font-mono px-3 py-1.5 rounded-lg whitespace-nowrap mr-3 w-32 shrink-0 flex items-center">
+                                    <span class="text-indigo-400 mr-1 text-xs">SIH</span>${c}
+                                </span>
+                                <span class="text-gray-600 font-normal truncate" title="${desc}">${desc}</span>
+                            </li>
+                        `}).join('')}
+                    </ul>
+                `;
+
+                header.addEventListener('click', (e) => {
+                    const isHidden = content.classList.contains('hidden');
+                    const icon = header.querySelector('.toggle-icon');
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                        openedSihFornCards.add(forn);
+                    } else {
+                        content.classList.add('hidden');
+                        icon.classList.remove('rotate-180');
+                        openedSihFornCards.delete(forn);
+                    }
+                });
+
+                const copyBtn = header.querySelector('.sih-forn-copy-btn');
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const text = `${forn} (${codes.length} itens SIH)\n${codes.map(c => `${c}\t${sihDescMap[c] || ""}`).join('\n')}`;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        const originalHtml = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 text-emerald-600"></i> <span class="text-emerald-700">Copiado</span>';
+                        lucide.createIcons({ root: copyBtn });
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHtml;
+                            lucide.createIcons({ root: copyBtn });
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Falha ao copiar:', err);
+                        alert('Falha ao copiar para a área de transferência.');
+                    }
+                });
+
+                const exportBtn = header.querySelector('.sih-forn-export-btn');
+                exportBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dataToExport = [
+                        [{ v: `${forn} (${codes.length} itens SIH)`, t: 's', s: { font: { bold: true } } }, ""]
+                    ];
+                    codes.forEach(c => dataToExport.push([c, sihDescMap[c] || ""]));
+                    
+                    const ws = XLSX.utils.aoa_to_sheet(dataToExport);
+                    // Col width for description
+                    ws['!cols'] = [{ wch: 20 }, { wch: 80 }];
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Códigos SIH");
+                    XLSX.writeFile(wb, `Códigos_SIH_${forn.substring(0,20).replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`);
+                });
+
+                card.appendChild(header);
+                card.appendChild(content);
+                container.appendChild(card);
+            });
+            lucide.createIcons({ root: container });
+        }
     
         
         // Tab switching logic
@@ -1630,13 +2130,23 @@
         const navEmailExtractorBtn = document.getElementById('navEmailExtractorBtn');
         const navCatmatBtn = document.getElementById('navCatmatBtn');
         const navPdfCatmatBtn = document.getElementById('navPdfCatmatBtn');
+        const navSihFornecedorBtn = document.getElementById('navSihFornecedorBtn');
         const isoView = document.getElementById('isoView');
         const fornecedoresView = document.getElementById('fornecedoresView');
         const emailExtractorView = document.getElementById('emailExtractorView');
         const catmatView = document.getElementById('catmatView');
         const pdfCatmatView = document.getElementById('pdfCatmatView');
+        const sihFornecedorView = document.getElementById('sihFornecedorView');
+
+        const scrollPositions = new Map();
 
         function activateTab(tab) {
+            document.querySelectorAll('.overflow-y-auto, .overflow-x-auto').forEach(el => {
+                if (el.offsetParent !== null) { 
+                    scrollPositions.set(el, { top: el.scrollTop, left: el.scrollLeft });
+                }
+            });
+
             const activeClasses = 'px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
             const inactiveClasses = 'px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap';
             
@@ -1645,12 +2155,14 @@
             navEmailExtractorBtn.className = tab === 'emailExtractor' ? activeClasses : inactiveClasses;
             navCatmatBtn.className = tab === 'catmat' ? activeClasses : inactiveClasses;
             navPdfCatmatBtn.className = tab === 'pdfcatmat' ? activeClasses : inactiveClasses;
+            navSihFornecedorBtn.className = tab === 'sihfornecedor' ? activeClasses : inactiveClasses;
             
             const btnChildIso = navIsoBtn.querySelector('svg');
             const btnChildForn = navFornecedoresBtn.querySelector('svg');
             const btnChildEmail = navEmailExtractorBtn.querySelector('svg');
             const btnChildCatmat = navCatmatBtn.querySelector('svg');
             const btnChildPdfCatmat = navPdfCatmatBtn.querySelector('svg');
+            const btnChildSihFornecedor = navSihFornecedorBtn.querySelector('svg');
 
             // Reset icons
             if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 pointer-events-none');
@@ -1658,12 +2170,14 @@
             if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-4 h-4 mr-2 pointer-events-none');
             if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 pointer-events-none');
             if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 pointer-events-none');
+            if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 pointer-events-none');
             
             isoView.style.display = 'none';
             fornecedoresView.style.display = 'none';
             emailExtractorView.style.display = 'none';
             catmatView.style.display = 'none';
             pdfCatmatView.style.display = 'none';
+            sihFornecedorView.style.display = 'none';
 
             if (tab === 'iso') {
                 if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
@@ -1680,7 +2194,20 @@
             } else if (tab === 'pdfcatmat') {
                 if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
                 pdfCatmatView.style.display = 'flex';
+            } else if (tab === 'sihfornecedor') {
+                if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                sihFornecedorView.style.display = 'flex';
             }
+
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.overflow-y-auto, .overflow-x-auto').forEach(el => {
+                    if (el.offsetParent !== null && scrollPositions.has(el)) {
+                        const pos = scrollPositions.get(el);
+                        el.scrollTop = pos.top;
+                        el.scrollLeft = pos.left;
+                    }
+                });
+            });
         }
 
         navIsoBtn.addEventListener('click', () => activateTab('iso'));
@@ -1688,6 +2215,7 @@
         navEmailExtractorBtn.addEventListener('click', () => activateTab('emailExtractor'));
         navCatmatBtn.addEventListener('click', () => activateTab('catmat'));
         navPdfCatmatBtn.addEventListener('click', () => activateTab('pdfcatmat'));
+        navSihFornecedorBtn.addEventListener('click', () => activateTab('sihfornecedor'));
         
         
         lucide.createIcons();
@@ -1748,7 +2276,6 @@
         const closeModalFooterBtn = document.getElementById('closeModalFooter');
         
         const btnCopyText = document.getElementById('btnCopyText');
-        const btnDownloadImage = document.getElementById('btnDownloadImage');
 
         // --- EVENT LISTENERS ---
         fileInput.addEventListener('change', handleFileSelect);
@@ -2237,33 +2764,15 @@
             lucide.createIcons();
             
             btnCopyText.onclick = () => copyToClipboard(formattedText);
-            
-            btnDownloadImage.onclick = () => {
-                const elementToCapture = document.getElementById('capture-target');
-                const tempTitle = document.createElement('div');
-                tempTitle.innerHTML = `<h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-100 pb-3">${supplier.nome}</h2>`;
-                elementToCapture.prepend(tempTitle);
-
-                html2canvas(elementToCapture, {
-                    backgroundColor: '#ffffff',
-                    scale: 2 
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `fornecedor_${supplier.nome.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                    elementToCapture.removeChild(tempTitle);
-                }).catch(err => {
-                    console.error("Erro ao gerar imagem:", err);
-                    alert("Não foi possível gerar a imagem.");
-                    elementToCapture.removeChild(tempTitle);
-                });
-            };
 
             modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() { modal.classList.add('hidden'); }
+        function closeModal() { 
+            modal.classList.add('hidden'); 
+            document.body.style.overflow = '';
+        }
 
         // --- ACUMULADOR E DOWNLOAD ---
         function addToAccumulator() {
