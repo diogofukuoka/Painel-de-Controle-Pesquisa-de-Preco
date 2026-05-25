@@ -253,7 +253,7 @@
         
         <!-- Empty / Error state -->
         <div id="emptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
-            <img src="./logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
+            <img src="/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
         </div>
 
         <!-- Filter state (Hidden initially) -->
@@ -343,7 +343,7 @@
         </header>
 
         <div id="sihFornEmptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
-            <img src="./logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
+            <img src="/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
         </div>
 
         <div id="sihFornContentState" class="hidden flex-1 min-h-0 flex-col">
@@ -514,7 +514,7 @@
         <!-- Área de Exibição -->
         <main id="dataContainer" class="flex-1 overflow-y-auto pb-10 space-y-4">
             <div id="initialMessage" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
-                <img src="./logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
+                <img src="/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
             </div>
         </main>
     </div>
@@ -795,16 +795,24 @@
                     
                     <!-- Filtros Básicos -->
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-gray-500 uppercase">Opções</label>
-                        <div class="flex items-center h-10 gap-3">
+                        <label class="text-xs font-bold text-gray-500 uppercase">UASG</label>
+                        <div class="flex items-center h-10">
                             <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
                                 <input type="checkbox" id="pdf-exclude-uasg" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
                                 Retirar UASG 155902
                             </label>
-                            <select id="pdf-modalidade-select" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9">
-                                <option value="Todas">Todas</option>
-                            </select>
                         </div>
+                    </div>
+
+                    <!-- Modalidade -->
+                    <div class="flex flex-col gap-1">
+                        <label for="pdf-modalidade-select" class="text-xs font-bold text-gray-500 uppercase">Modalidade</label>
+                        <select id="pdf-modalidade-select" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-3 bg-white">
+                            <option value="">Todas (Ignorar este filtro)</option>
+                            <option value="pregão" selected>Pregão</option>
+                            <option value="inexigibilidade">Inexigibilidade</option>
+                            <option value="dispensa">Dispensa</option>
+                        </select>
                     </div>
 
                     <!-- Filtro de Data -->
@@ -3801,7 +3809,7 @@
         let pdf_pdfData = [];
         let pdf_refData = [];
         let pdf_excludeUasg = true;
-        let pdf_selectedModalidade = 'Todas';
+        let pdf_selectedModalidade = 'pregão';
         let pdf_startDate = '';
         let pdf_endDate = '';
         let pdf_useRangeFilter = false;
@@ -3845,10 +3853,10 @@
                 const worksheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 pdf_refData = json.map(row => ({
-                    sih: row[0],
-                    catmat: String(row[1]).trim(),
+                    sih: row[0] !== undefined && row[0] !== null ? String(row[0]).trim() : '',
+                    catmat: row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '',
                     refPrice: row[2]
-                })).filter(item => item.catmat && item.catmat !== 'undefined' && item.catmat !== 'CATMAT');
+                })).filter(item => item.catmat && item.catmat !== 'undefined' && item.catmat !== 'CATMAT' && item.sih);
                 hidePdfError();
                 pdf_updateUI();
             } catch (err) {
@@ -4059,10 +4067,6 @@
                     a.findIndex(t => t._signature === v._signature) === i
                 );
 
-                pdf_modalidadesDisponiveis = ['Todas', ...new Set(pdf_pdfData.map(d => d.modalidade))];
-                const modSelect = document.getElementById('pdf-modalidade-select');
-                modSelect.innerHTML = pdf_modalidadesDisponiveis.map(m => `<option value="${m}">${m}</option>`).join('');
-
                 document.getElementById('pdf-icon-pdf').classList.add('text-indigo-600');
                 document.getElementById('pdf-icon-pdf').setAttribute('data-lucide', 'check-circle');
                 lucide.createIcons();
@@ -4149,7 +4153,11 @@
         function getBaseFiltered() {
             return pdf_pdfData.filter(item => {
                 if (pdf_excludeUasg && item.uasg === '155902') return false;
-                if (pdf_selectedModalidade !== 'Todas' && item.modalidade !== pdf_selectedModalidade) return false;
+                if (pdf_selectedModalidade) {
+                    const entryMod = item.modalidade ? item.modalidade.toLowerCase().trim() : '';
+                    const selMod = pdf_selectedModalidade.toLowerCase().trim();
+                    if (!entryMod.includes(selMod)) return false;
+                }
                 return true;
             });
         }
@@ -4183,7 +4191,7 @@
             // Render catmats list
             const catmatsListHtml = uniqueCatmats.map(c => {
                 const refs = pdf_refData.filter(r => r.catmat === c);
-                const isCompleted = refs.length > 0 && refs.every(r => pdf_savedItems.some(s => s['CATMAT'] === c && s['Cód. SIH'] === r.sih));
+                const isCompleted = refs.length > 0 && refs.every(r => pdf_savedItems.some(s => s['CATMAT'] === c && String(s['Cód. SIH']) === String(r.sih)));
                 const active = pdf_selectedCatmat === c;
                 let bgClass = "text-gray-600 hover:bg-gray-100";
                 if (active) bgClass = "bg-indigo-600 text-white font-bold shadow-md";
@@ -4225,7 +4233,7 @@
                         return v >= min && v <= max;
                     });
                 } else if (pdf_activeSih) {
-                    const ref = refItems.find(r => r.sih === pdf_activeSih);
+                    const ref = refItems.find(r => String(r.sih) === String(pdf_activeSih));
                     if(ref) {
                         const min = pdf_parseFloatPrice(ref.refPrice);
                         visiblePdfs = visiblePdfs.filter(i => pdf_parseFloatPrice(i.preco) >= min);
@@ -4233,15 +4241,17 @@
                 }
 
                 // Render SIHs
-                const activeRef = refItems.find(r => r.sih === pdf_activeSih);
+                const activeRef = refItems.find(r => String(r.sih) === String(pdf_activeSih));
                 document.getElementById('pdf-sih-list').innerHTML = refItems.length > 0 ? refItems.map(r => {
-                    const saved = pdf_savedItems.some(s => s['Cód. SIH'] === r.sih && s['CATMAT'] === pdf_selectedCatmat);
-                    const isActive = pdf_activeSih === r.sih;
+                    const saved = pdf_savedItems.some(s => String(s['Cód. SIH']) === String(r.sih) && s['CATMAT'] === pdf_selectedCatmat);
+                    const isActive = pdf_activeSih !== null && pdf_activeSih !== '' && String(pdf_activeSih) === String(r.sih);
                     let style = "border-transparent hover:bg-gray-50 text-gray-700";
                     if (isActive) style = "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200";
                     else if (saved) style = "bg-green-50 border-green-200 text-green-700";
+                    
+                    const nextActiveSihValue = isActive ? '' : r.sih;
                     return `<li class="flex flex-col items-start gap-1">
-                        <div onclick="pdf_activeSih = '${pdf_activeSih===r.sih ? '' : r.sih}'; pdf_updateUI()" class="flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all w-full border ${style}">
+                        <div onclick="pdf_activeSih = '${nextActiveSihValue}'; pdf_updateUI()" class="flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all w-full border ${style}">
                             <span class="font-mono font-bold px-2 py-0.5 rounded text-sm ${saved ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'}">${r.sih}</span>
                             <span class="text-gray-500 font-medium text-sm bg-yellow-100 px-2 py-0.5 rounded">(${pdf_formatPrice(r.refPrice)})</span>
                             ${saved ? `<i data-lucide="check" class="w-4 h-4 text-green-600 ml-auto"></i>` : ''}
@@ -4254,7 +4264,14 @@
                 // Prices List
                 document.getElementById('pdf-price-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => `<li class="text-sm font-bold text-gray-700">R$ ${i.preco}</li>`).join('') : '<p class="text-sm text-gray-400 italic">Nenhum valor encontrado nesta faixa.</p>';
                 // Dates List
-                document.getElementById('pdf-date-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => `<li class="text-sm text-gray-600 font-medium">${pdf_formatDateStr(i.data)}</li>`).join('') : '<p class="text-sm text-gray-400 italic">-</p>';
+                document.getElementById('pdf-date-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => {
+                    const modLabel = i.modalidade ? i.modalidade.trim() : 'Outras';
+                    return `<li class="text-sm text-gray-600 font-medium flex items-center gap-1.5">
+                        <span>${pdf_formatDateStr(i.data)}</span>
+                        <span>-</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">${modLabel}</span>
+                    </li>`;
+                }).join('') : '<p class="text-sm text-gray-400 italic">-</p>';
 
                 // Save buttons
                 const btnTop = document.getElementById('pdf-save-btn-top');
