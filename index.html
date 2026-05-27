@@ -1093,67 +1093,7 @@
                     alert("A base de dados do Catálogo de Fornecedores ainda não foi carregada. Por favor, vá até a aba 'Catálogo de Fornecedores' e carregue a planilha correspondente primeiro.");
                     return;
                 }
-                const cleanName = (name) => {
-                    return name.trim().toUpperCase()
-                        .replace(/\b(LTDA|ME|EPP|S\/?A|INC|CORP|COMERCIO|DE|MATERIAIS|CIRURGICOS|PRODUTOS|MEDICOS|HOSPITALARES|EIRELI|DISTRIBUIDORA|IMPORTADORA|EXPORTADORA)\b/g, '')
-                        .replace(/[^A-Z0-9]/g, '');
-                };
-                
-                const origNorm = fornecedorName.trim().toUpperCase();
-                const fNameNorm = cleanName(fornecedorName);
-                
-                // 1. Exact match original
-                let targetSupplier = allSuppliers.find(s => s.nome && s.nome.toString().trim().toUpperCase() === origNorm);
-                
-                // 2. Exact match cleaned
-                if (!targetSupplier && fNameNorm.length >= 3) {
-                    targetSupplier = allSuppliers.find(s => s.nome && cleanName(s.nome.toString()) === fNameNorm);
-                }
-                
-                // 3. Fallback to includes original (e.g. "EMPRESA X" includes "EMPRESA X LTDA" or vice-versa)
-                if (!targetSupplier && origNorm.length >= 5) {
-                    const partialMatches = allSuppliers.filter(s => {
-                        if (!s.nome) return false;
-                        const sOrigNorm = s.nome.toString().trim().toUpperCase();
-                        if (sOrigNorm.length >= 8 && origNorm.length >= 8) {
-                            return (sOrigNorm.includes(origNorm) || origNorm.includes(sOrigNorm));
-                        }
-                        return false;
-                    });
-                    
-                    if (partialMatches.length > 0) {
-                        // Priority to the one with the smallest length difference
-                        partialMatches.sort((a, b) => {
-                            const diffA = Math.abs(a.nome.toString().trim().length - origNorm.length);
-                            const diffB = Math.abs(b.nome.toString().trim().length - origNorm.length);
-                            return diffA - diffB;
-                        });
-                        targetSupplier = partialMatches[0];
-                    }
-                }
-                
-                // 4. Last resort: Clean name includes but very strictly (minimum length 10)
-                if (!targetSupplier && fNameNorm.length >= 10) {
-                    const cleanMatches = allSuppliers.filter(s => {
-                        if (!s.nome) return false;
-                        const sNameClean = cleanName(s.nome.toString());
-                        if (sNameClean.length >= 10) {
-                            return sNameClean.includes(fNameNorm) || fNameNorm.includes(sNameClean);
-                        }
-                        return false;
-                    });
-                    
-                    if (cleanMatches.length > 0) {
-                        cleanMatches.sort((a, b) => {
-                            const aClean = cleanName(a.nome.toString());
-                            const bClean = cleanName(b.nome.toString());
-                            const diffA = Math.abs(aClean.length - fNameNorm.length);
-                            const diffB = Math.abs(bClean.length - fNameNorm.length);
-                            return diffA - diffB;
-                        });
-                        targetSupplier = cleanMatches[0];
-                    }
-                }
+                const targetSupplier = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(fornecedorName) : null;
                 
                 if (targetSupplier) {
                     if (typeof showModal === 'function') {
@@ -1194,7 +1134,12 @@
                     const modalBodyEl = document.getElementById('modalBody');
                     const modalEl = document.getElementById('modal');
                     
-                    modalTitleEl.innerHTML = `<i data-lucide="package" class="w-5 h-5 mr-2 text-indigo-600 inline-block align-text-bottom"></i> <span class="align-middle">${fornecedorName}</span>`;
+                    const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(fornecedorName) : null;
+                    const cnpjHtml = supMatchInfo && supMatchInfo.cnpj && supMatchInfo.cnpj !== 'N/A' 
+                        ? `<span class="ml-3 text-sm text-emerald-800 font-mono bg-emerald-100 px-2.5 py-0.5 rounded border border-emerald-200 align-middle" title="CNPJ">CNPJ ${supMatchInfo.cnpj}</span>` 
+                        : '';
+                    
+                    modalTitleEl.innerHTML = `<i data-lucide="package" class="w-5 h-5 mr-2 text-indigo-600 inline-block align-text-bottom"></i> <span class="align-middle">${fornecedorName}</span>${cnpjHtml}`;
                     
                     let itemsHtml = codesArr.map(c => {
                         const desc = sihDescMap[c] || "";
@@ -1306,7 +1251,7 @@
             }
 
             // Build Sheet 1 (Por Fornecedor) with dynamic SIH columns
-            const headerRow = ["Fornecedor", "Qtd. de Códigos SIH"];
+            const headerRow = ["Fornecedor", "Telefones", "Email", "Qtd. de Códigos SIH"];
             uniqueCodesInView.forEach((code) => {
                 const count = (codesToSupplierMap[code] || new Set()).size;
                 headerRow.push(`SIH (${count})`);
@@ -1321,7 +1266,17 @@
             });
             
             sortedSuppliers.forEach(supplier => {
-                const row = [supplier, supplierToCodesMap[supplier].size];
+                const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(supplier) : null;
+                const telefonesArr = [];
+                if (supMatchInfo) {
+                    if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                    if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                }
+                const telefonesStr = telefonesArr.join(" / ");
+                const emailStr = supMatchInfo && supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' 
+                    ? String(supMatchInfo.email).trim() 
+                    : "";
+                const row = [supplier, telefonesStr, emailStr, supplierToCodesMap[supplier].size];
                 uniqueCodesInView.forEach(code => {
                     if (supplierToCodesMap[supplier].has(code)) {
                         row.push(Number(code) || code);
@@ -1346,7 +1301,7 @@
             const wb = XLSX.utils.book_new();
             
             const ws1 = XLSX.utils.aoa_to_sheet(aoaData);
-            const cols = [{ wch: 60 }, { wch: 20 }];
+            const cols = [{ wch: 60 }, { wch: 30 }, { wch: 40 }, { wch: 20 }];
             uniqueCodesInView.forEach(() => cols.push({ wch: 15 }));
             ws1['!cols'] = cols;
             XLSX.utils.book_append_sheet(wb, ws1, "Por Fornecedor");
@@ -1796,11 +1751,9 @@
                                             <div class="font-medium text-emerald-950 flex flex-wrap items-center gap-1">
                                                 ${f}
                                                 ${(() => {
-                                                    if (typeof allSuppliers !== 'undefined' && allSuppliers.length > 0) {
-                                                        const supMatch = allSuppliers.find(sup => String(sup.nome).trim().toLowerCase() === String(f).trim().toLowerCase());
-                                                        if (supMatch && supMatch.cnpj && supMatch.cnpj !== 'N/A') {
-                                                            return `<span class="text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">• ${supMatch.cnpj}</span>`;
-                                                        }
+                                                    const supMatch = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(f) : null;
+                                                    if (supMatch && supMatch.cnpj && supMatch.cnpj !== 'N/A') {
+                                                        return `<span class="text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">CNPJ ${supMatch.cnpj}</span>`;
                                                     }
                                                     return '';
                                                 })()}
@@ -2182,10 +2135,16 @@
 
                 const header = document.createElement('div');
                 header.className = 'bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center cursor-pointer transition-colors hover:bg-gray-100 group';
+                const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(forn) : null;
+                const cnpjHtml = supMatchInfo && supMatchInfo.cnpj && supMatchInfo.cnpj !== 'N/A' 
+                    ? `<span class="ml-2 text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">CNPJ ${supMatchInfo.cnpj}</span>` 
+                    : '';
+
                 header.innerHTML = `
-                    <h3 class="text-gray-900 font-semibold flex items-center">
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 mr-2 transition-transform duration-200 transform ${isOpen ? 'rotate-180' : ''} toggle-icon group-hover:text-gray-700"></i>
+                    <h3 class="text-gray-900 font-semibold flex items-center flex-wrap gap-1">
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 mr-1 sm:mr-2 flex-none transition-transform duration-200 transform ${isOpen ? 'rotate-180' : ''} toggle-icon group-hover:text-gray-700"></i>
                         ${forn}
+                        ${cnpjHtml}
                     </h3>
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm hidden sm:inline mr-2">${codes.length} ${codes.length === 1 ? 'item' : 'itens'} SIH</span>
@@ -2386,6 +2345,73 @@
         let currentSubcategoriesArray = []; 
         let currentSubcategoryCounts = {}; 
         
+        function findGlobalSupplier(fornecedorName) {
+            if (!allSuppliers || allSuppliers.length === 0 || !fornecedorName) return null;
+            
+            const cleanName = (name) => {
+                return name.trim().toUpperCase()
+                    .replace(/\b(LTDA|ME|EPP|S\/?A|INC|CORP|COMERCIO|DE|MATERIAIS|CIRURGICOS|PRODUTOS|MEDICOS|HOSPITALARES|EIRELI|DISTRIBUIDORA|IMPORTADORA|EXPORTADORA)\b/g, '')
+                    .replace(/[^A-Z0-9]/g, '');
+            };
+            
+            const origNorm = String(fornecedorName).trim().toUpperCase();
+            const fNameNorm = cleanName(String(fornecedorName));
+            
+            // 1. Exact match original
+            let targetSupplier = allSuppliers.find(s => s.nome && s.nome.toString().trim().toUpperCase() === origNorm);
+            
+            // 2. Exact match cleaned
+            if (!targetSupplier && fNameNorm.length >= 3) {
+                targetSupplier = allSuppliers.find(s => s.nome && cleanName(s.nome.toString()) === fNameNorm);
+            }
+            
+            // 3. Fallback to includes original
+            if (!targetSupplier && origNorm.length >= 5) {
+                const partialMatches = allSuppliers.filter(s => {
+                    if (!s.nome) return false;
+                    const sOrigNorm = s.nome.toString().trim().toUpperCase();
+                    if (sOrigNorm.length >= 8 && origNorm.length >= 8) {
+                        return (sOrigNorm.includes(origNorm) || origNorm.includes(sOrigNorm));
+                    }
+                    return false;
+                });
+                
+                if (partialMatches.length > 0) {
+                    partialMatches.sort((a, b) => {
+                        const diffA = Math.abs(a.nome.toString().trim().length - origNorm.length);
+                        const diffB = Math.abs(b.nome.toString().trim().length - origNorm.length);
+                        return diffA - diffB;
+                    });
+                    targetSupplier = partialMatches[0];
+                }
+            }
+            
+            // 4. Last resort: Clean name includes but very strictly
+            if (!targetSupplier && fNameNorm.length >= 10) {
+                const cleanMatches = allSuppliers.filter(s => {
+                    if (!s.nome) return false;
+                    const sNameClean = cleanName(s.nome.toString());
+                    if (sNameClean.length >= 10) {
+                        return sNameClean.includes(fNameNorm) || fNameNorm.includes(sNameClean);
+                    }
+                    return false;
+                });
+                
+                if (cleanMatches.length > 0) {
+                    cleanMatches.sort((a, b) => {
+                        const aClean = cleanName(a.nome.toString());
+                        const bClean = cleanName(b.nome.toString());
+                        const diffA = Math.abs(aClean.length - fNameNorm.length);
+                        const diffB = Math.abs(bClean.length - fNameNorm.length);
+                        return diffA - diffB;
+                    });
+                    targetSupplier = cleanMatches[0];
+                }
+            }
+            
+            return targetSupplier;
+        }
+
         const HEADER_MAP = {
             CATEGORIAS: "você vende itens", SAUDE: "produtos para saúde", INSTRUMENTAL: "instrumental", MEDICAMENTOS: "medicamentos", OPME: "opme", LABORATORIO: "laboratório", EXPEDIENTE: "material de expediente", GASES: "gases medicinais", EPIS: "epis", NOME_EMPRESA: "nome da empresa", CNPJ: "cnpj da empresa", ENDERECO: "endereço da empresa", EMAIL: "e-mail da tua empresa", TELEFONE: "telefone da tua empresa", REPRESENTANTE: "nome do representante", CELULAR_REP: "celular do representante"
         };
