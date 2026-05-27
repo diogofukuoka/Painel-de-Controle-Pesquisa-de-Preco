@@ -1210,19 +1210,47 @@
 
                     modalBodyEl.innerHTML = `
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
-                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
-                                <h3 class="text-gray-900 font-semibold flex items-center">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex flex-col sm:flex-row justify-between sm:items-center flex-wrap gap-3">
+                                <h3 class="text-gray-900 font-semibold flex items-center shrink-0">
                                     Códigos SIH Fornecidos
                                 </h3>
-                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm whitespace-nowrap">${codesArr.length} ${codesArr.length === 1 ? 'item' : 'itens'} SIH</span>
+                                <div class="flex items-center gap-3 w-full sm:w-auto overflow-hidden">
+                                    <div class="relative flex-1 sm:w-56">
+                                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                                        </div>
+                                        <input type="text" id="modalSihSearchInput" class="block w-full pl-9 pr-3 py-1.5 text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Pesquisar SIH ou Desc...">
+                                    </div>
+                                    <span id="modalSihCountBadge" class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm whitespace-nowrap shrink-0">${codesArr.length} ${codesArr.length === 1 ? 'item' : 'itens'} SIH</span>
+                                </div>
                             </div>
                             <div class="p-4 bg-white border-[3px] border-indigo-500 max-h-96 overflow-y-auto">
-                                <ul class="flex flex-col gap-2 text-sm text-gray-700">
+                                <ul id="modalSihList" class="flex flex-col gap-2 text-sm text-gray-700">
                                     ${itemsHtml}
                                 </ul>
                             </div>
                         </div>
                     `;
+                    
+                    const modalSihSearchInput = document.getElementById('modalSihSearchInput');
+                    const modalSihList = document.getElementById('modalSihList');
+                    const modalSihCountBadge = document.getElementById('modalSihCountBadge');
+                    
+                    modalSihSearchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        let visibleCount = 0;
+                        const listItems = modalSihList.querySelectorAll('li');
+                        listItems.forEach(li => {
+                            const text = li.textContent.toLowerCase();
+                            if (text.includes(searchTerm)) {
+                                li.style.display = '';
+                                visibleCount++;
+                            } else {
+                                li.style.display = 'none';
+                            }
+                        });
+                        modalSihCountBadge.textContent = visibleCount + (visibleCount === 1 ? ' item SIH' : ' itens SIH');
+                    });
                     
                     const textToCopy = `${fornecedorName} (${codesArr.length} itens SIH)\n${codesArr.map(c => `${c}\t${sihDescMap[c] || ""}`).join('\n')}`;
                     document.getElementById('btnCopyText').onclick = () => copyToClipboard(textToCopy);
@@ -1354,18 +1382,24 @@
                 const rows = groupedForExport[code];
                 sumFabricantes += new Set(rows.map(r => r.fabricante).filter(f => f && String(f).trim() !== "")).size;
                 sumMarcas += new Set(rows.map(r => r.marca).filter(m => m && String(m).trim() !== "")).size;
-                sumAprovados += rows.filter(r => String(r.aprovado).toUpperCase() === 'VERDADEIRO' || String(r.aprovado).toUpperCase() === 'V' || r.aprovado === true).length;
-                sumReprovados += rows.filter(r => String(r.reprovado).toUpperCase() === 'VERDADEIRO' || String(r.reprovado).toUpperCase() === 'V' || r.reprovado === true).length;
+                sumAprovados += rows.filter(r => formatAprovado(r.aprovado) === 'Aprovado').length;
+                sumReprovados += rows.filter(r => {
+                    const isA = formatAprovado(r.aprovado) === 'Aprovado';
+                    return formatReprovado(r.reprovado, isA) === 'Reprovado';
+                }).length;
             });
 
-            const exportData = filteredData.map(row => ({
-                "Cód. SIH": row.codigo,
-                "Descrição": row.descricao,
-                [`Fabricante (${sumFabricantes})`]: row.fabricante,
-                [`Marca (${sumMarcas})`]: row.marca,
-                [`Aprovado (${sumAprovados})`]: formatAprovado(row.aprovado),
-                [`Reprovado (${sumReprovados})`]: formatReprovado(row.reprovado)
-            }));
+            const exportData = filteredData.map(row => {
+                const isA = formatAprovado(row.aprovado) === 'Aprovado';
+                return {
+                    "Cód. SIH": row.codigo,
+                    "Descrição": row.descricao,
+                    [`Fabricante (${sumFabricantes})`]: row.fabricante,
+                    [`Marca (${sumMarcas})`]: row.marca,
+                    [`Aprovado (${sumAprovados})`]: formatAprovado(row.aprovado),
+                    [`Reprovado (${sumReprovados})`]: formatReprovado(row.reprovado, isA)
+                };
+            });
 
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
@@ -1375,14 +1409,15 @@
         });
 
         function formatAprovado(val) {
-            const strVal = String(val).toUpperCase();
+            const strVal = String(val).trim().toUpperCase();
             if (val === true || strVal === 'VERDADEIRO' || strVal === 'V') return 'Aprovado';
             if (val === false || strVal === 'FALSO' || strVal === 'F') return '';
             return val || '';
         }
 
-        function formatReprovado(val) {
-            const strVal = String(val).toUpperCase();
+        function formatReprovado(val, isAprovadoVerdadeiro = false) {
+            if (isAprovadoVerdadeiro) return '';
+            const strVal = String(val).trim().toUpperCase();
             if (val === true || strVal === 'VERDADEIRO' || strVal === 'V') return 'Reprovado';
             if (val === false || strVal === 'FALSO' || strVal === 'F') return '';
             return val || '';
@@ -1708,8 +1743,11 @@
                     const uniqueMarcas = new Set(rows.map(r => r.marca).filter(m => m && String(m).trim() !== ""));
                     const numMarcas = uniqueMarcas.size;
                     
-                    const numAprovados = rows.filter(r => String(r.aprovado).toUpperCase() === 'VERDADEIRO' || String(r.aprovado).toUpperCase() === 'V' || r.aprovado === true).length;
-                    const numReprovados = rows.filter(r => String(r.reprovado).toUpperCase() === 'VERDADEIRO' || String(r.reprovado).toUpperCase() === 'V' || r.reprovado === true).length;
+                    const numAprovados = rows.filter(r => formatAprovado(r.aprovado) === 'Aprovado').length;
+                    const numReprovados = rows.filter(r => {
+                        const isA = formatAprovado(r.aprovado) === 'Aprovado';
+                        return formatReprovado(r.reprovado, isA) === 'Reprovado';
+                    }).length;
 
                     totalAprovadosGlobal += numAprovados;
                     totalReprovadosGlobal += numReprovados;
@@ -1755,7 +1793,18 @@
                                 <ul class="flex flex-col text-sm text-emerald-900">
                                     ${fornecedores.map(f => `
                                         <li class="py-2 border-b border-emerald-100 last:border-0 pl-1 shrink-0 flex flex-col justify-center">
-                                            <div class="font-medium text-emerald-950">${f}</div>
+                                            <div class="font-medium text-emerald-950 flex flex-wrap items-center gap-1">
+                                                ${f}
+                                                ${(() => {
+                                                    if (typeof allSuppliers !== 'undefined' && allSuppliers.length > 0) {
+                                                        const supMatch = allSuppliers.find(sup => String(sup.nome).trim().toLowerCase() === String(f).trim().toLowerCase());
+                                                        if (supMatch && supMatch.cnpj && supMatch.cnpj !== 'N/A') {
+                                                            return `<span class="text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">• ${supMatch.cnpj}</span>`;
+                                                        }
+                                                    }
+                                                    return '';
+                                                })()}
+                                            </div>
                                             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 text-xs">
                                                 <button class="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center transition-colors btn-view-fornecedor text-left" data-fornecedor="${f.replace(/"/g, '&quot;')}">
                                                     <i data-lucide="building" class="w-3.5 h-3.5 mr-1.5 shrink-0 flex-none"></i> Dados do Fornecedor
@@ -1827,7 +1876,7 @@
                         const copyAprovadasBtn = header.querySelector('.copy-marcas-aprovadas-btn');
                     copyAprovadasBtn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        const aprovadasRows = rows.filter(r => String(r.aprovado).toUpperCase() === 'VERDADEIRO' || String(r.aprovado).toUpperCase() === 'V' || r.aprovado === true);
+                        const aprovadasRows = rows.filter(r => formatAprovado(r.aprovado) === 'Aprovado');
                         if(aprovadasRows.length === 0) {
                             alert("Não há registros de marcas aprovadas para copiar.");
                             return;
@@ -1860,7 +1909,10 @@
                     const copyReprovadasBtn = header.querySelector('.copy-marcas-reprovadas-btn');
                     copyReprovadasBtn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        const reprovadasRows = rows.filter(r => String(r.reprovado).toUpperCase() === 'VERDADEIRO' || String(r.reprovado).toUpperCase() === 'V' || r.reprovado === true);
+                        const reprovadasRows = rows.filter(r => {
+                            const isA = formatAprovado(r.aprovado) === 'Aprovado';
+                            return formatReprovado(r.reprovado, isA) === 'Reprovado';
+                        });
                         if(reprovadasRows.length === 0) {
                             alert("Não há registros de marcas reprovadas para copiar.");
                             return;
@@ -1896,12 +1948,13 @@
                         let textToCopy = `CÓD. SIH: ${code}\n`;
                         textToCopy += `Registros: ${rows.length}\n\n`;
                         rows.forEach((r, i) => {
+                            const isA = formatAprovado(r.aprovado) === 'Aprovado';
                             textToCopy += `-- Registro ${i + 1} --\n`;
                             textToCopy += `Descrição: ${r.descricao || '-'}\n`;
                             textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
                             textToCopy += `Marca: ${r.marca || '-'}\n`;
                             textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
-                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n\n`;
+                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado, isA)}\n\n`;
                         });
 
                         const fornecedoresThisCode = sihFornecedoresMap[code] || [];
@@ -1931,14 +1984,17 @@
                     const downloadBtn = header.querySelector('.download-iso-btn');
                     downloadBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const exportCardData = rows.map(row => ({
-                            "Cód. SIH": code,
-                            "Descrição": row.descricao,
-                            [`Fabricante (${numFabricantes})`]: row.fabricante,
-                            [`Marca (${numMarcas})`]: row.marca,
-                            [`Aprovado (${numAprovados})`]: formatAprovado(row.aprovado),
-                            [`Reprovado (${numReprovados})`]: formatReprovado(row.reprovado)
-                        }));
+                        const exportCardData = rows.map(row => {
+                            const isA = formatAprovado(row.aprovado) === 'Aprovado';
+                            return {
+                                "Cód. SIH": code,
+                                "Descrição": row.descricao,
+                                [`Fabricante (${numFabricantes})`]: row.fabricante,
+                                [`Marca (${numMarcas})`]: row.marca,
+                                [`Aprovado (${numAprovados})`]: formatAprovado(row.aprovado),
+                                [`Reprovado (${numReprovados})`]: formatReprovado(row.reprovado, isA)
+                            };
+                        });
                         const worksheet = XLSX.utils.json_to_sheet(exportCardData);
                         const workbook = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
@@ -2022,10 +2078,10 @@
                             const tr = document.createElement('tr');
                             tr.className = 'hover:bg-gray-50/80 transition-colors group';
 
-                            const isAprovadoVerdadeiro = String(row.aprovado).toUpperCase() === 'VERDADEIRO' || String(row.aprovado).toUpperCase() === 'V' || row.aprovado === true;
+                            const isAprovadoVerdadeiro = formatAprovado(row.aprovado) === 'Aprovado';
                             const aprovadoColor = isAprovadoVerdadeiro ? 'text-green-600 font-medium' : 'text-gray-600';
                             
-                            const isReprovadoVerdadeiro = String(row.reprovado).toUpperCase() === 'VERDADEIRO' || String(row.reprovado).toUpperCase() === 'V' || row.reprovado === true;
+                            const isReprovadoVerdadeiro = formatReprovado(row.reprovado, isAprovadoVerdadeiro) === 'Reprovado';
                             const reprovadoColor = isReprovadoVerdadeiro ? 'text-red-600 font-medium' : 'text-gray-600';
 
                             tr.innerHTML = `
@@ -2033,7 +2089,7 @@
                                 <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[150px] max-w-[250px]">${row.fabricante}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[250px]">${row.marca}</td>
                                 <td class="px-4 py-3 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
-                                <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado)}</td>
+                                <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado, isAprovadoVerdadeiro)}</td>
                             `;
                             tbody.appendChild(tr);
                         });
