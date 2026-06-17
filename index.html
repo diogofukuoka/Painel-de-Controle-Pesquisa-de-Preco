@@ -221,6 +221,9 @@
                 <button id="navSihFornecedorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="list" class="w-4 h-4 mr-2 pointer-events-none"></i> SIH por Fornecedor
                 </button>
+                <button id="navCatalogoSpiaBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="globe" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo Spia
+                </button>
                 <button id="navEmailExtractorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="mail" class="w-4 h-4 mr-2 pointer-events-none"></i> Extrair E-mails
                 </button>
@@ -392,6 +395,22 @@
             <div id="sihFornResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-4 pb-20 pr-2">
                 <!-- Grouped cards rendered by JS -->
             </div>
+        </div>
+    </div>
+
+
+    <div id="catalogoSpiaView" style="display: none;" class="flex-1 min-h-0 flex-col container mx-auto max-w-full h-full p-4 pb-12">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 h-[calc(100vh-150px)] w-full overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 flex-shrink-0">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i data-lucide="globe" class="text-indigo-600"></i>
+                    Catálogo Spia
+                </h2>
+                <a href="https://catalogo-spia.ebserh.gov.br/" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium transition-colors">
+                    <i data-lucide="external-link" class="w-4 h-4"></i> Abrir em nova aba
+                </a>
+            </div>
+            <iframe src="https://catalogo-spia.ebserh.gov.br/" class="w-full h-full flex-1 border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
         </div>
     </div>
 
@@ -590,7 +609,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         1. Selecione a planilha dos códigos SIH, CATMAT e Últimos valores pagos (.xlsx)
                     </label>
-                    <div id="drop-zone-xlsx" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="document.getElementById('file-input-xlsx').click()">
+                    <div id="drop-zone-xlsx" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-xlsx').click()">
                         <div class="space-y-1 text-center">
                             <i data-lucide="file-spreadsheet" class="mx-auto h-12 w-12 text-gray-400"></i>
                             <div class="flex text-sm text-gray-600 justify-center">
@@ -610,7 +629,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         2. Selecione a planilha de Cotação xxx-xxxx gerada no site Compras Net (.csv)
                     </label>
-                    <div id="drop-zone-csv" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="document.getElementById('file-input-csv').click()">
+                    <div id="drop-zone-csv" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-csv').click()">
                         <div class="space-y-1 text-center">
                             <i data-lucide="file-text" class="mx-auto h-12 w-12 text-gray-400"></i>
                             <div class="flex text-sm text-gray-600 justify-center">
@@ -1290,10 +1309,32 @@
             // Create Sheet 2: Por CÓD. SIH as a backup view
             const codesArray = uniqueCodesInView.map(code => {
                 const suppliers = Array.from(codesToSupplierMap[code] || []).sort();
+                
+                const suppliersWithContact = suppliers.map(supplier => {
+                    const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(supplier) : null;
+                    const telefonesArr = [];
+                    if (supMatchInfo) {
+                        if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                        if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                    }
+                    const telefonesStr = telefonesArr.join(" / ");
+                    const emailStr = supMatchInfo && supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' ? String(supMatchInfo.email).trim() : "";
+                    
+                    let result = supplier;
+                    if (telefonesStr || emailStr) {
+                        result += " (";
+                        if (telefonesStr) result += "Tel: " + telefonesStr;
+                        if (telefonesStr && emailStr) result += ", ";
+                        if (emailStr) result += "Email: " + emailStr;
+                        result += ")";
+                    }
+                    return result;
+                });
+
                 return {
                     "CÓD. SIH": code,
                     "Quantidade de Fornecedores": suppliers.length,
-                    "Fornecedores": suppliers.join(';\n')
+                    "Fornecedores": suppliersWithContact.join(';\n')
                 };
             });
 
@@ -1739,9 +1780,11 @@
                                     <i data-lucide="users" class="w-3.5 h-3.5 mr-1.5"></i> 
                                     Fornecedores Anteriores do CHC-UFPR (${fornecedores.length})
                                 </button>
-                                <button data-fornecedores="-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n${fornecedores.join('\n')}" class="copy-fornecedores-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 rounded-r-md transition-colors flex items-center" title="Copiar estes fornecedores">
+                                <button data-fornecedores="-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n${fornecedores.join('\n')}" class="copy-fornecedores-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 border-r border-emerald-200 transition-colors flex items-center" title="Copiar estes fornecedores">
                                     <i data-lucide="copy" class="w-3.5 h-3.5 pointer-events-none"></i>
-                                    <span class="btn-text pointer-events-none sr-only">Copiar</span>
+                                </button>
+                                <button class="download-forn-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 rounded-r-md transition-colors flex items-center" title="Baixar contatos do fornecedor em Excel">
+                                    <i data-lucide="download" class="w-3.5 h-3.5 pointer-events-none"></i>
                                 </button>
                             </div>
                             <div class="fornecedores-list hidden mt-2 bg-emerald-50 border border-emerald-100 rounded-lg p-3">
@@ -1795,28 +1838,7 @@
                             
                             ${fornecedoresHtml}
                             
-                            ${rows.length > 0 ? `
-                            <div class="flex flex-wrap gap-x-4 gap-y-2 mt-3 pl-9 items-center">
-                                <div class="flex items-center shadow-sm rounded-md" role="group">
-                                    <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar marcas aprovadas" type="button">
-                                        <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-600 pointer-events-none"></i> 
-                                        <span class="btn-text pointer-events-none">Marcas Aprovadas (${numAprovados})</span>
-                                    </button>
-                                    <button class="copy-marcas-reprovadas-btn px-3 py-1.5 text-xs font-medium text-rose-700 bg-white border-t border-b border-rose-200 hover:bg-rose-50 transition-colors flex items-center" title="Copiar marcas reprovadas" type="button">
-                                        <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 text-rose-600 pointer-events-none"></i> 
-                                        <span class="btn-text pointer-events-none">Marcas Reprovadas (${numReprovados})</span>
-                                    </button>
-                                    <button class="copy-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 relative z-10 hover:bg-indigo-50 transition-colors flex items-center" title="Copiar dados da ficha completa" type="button">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
-                                        <span class="btn-text pointer-events-none">Ficha Completa das Marcas deste Item</span>
-                                    </button>
-                                    <button class="download-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 rounded-r-md hover:bg-indigo-50 transition-colors flex items-center" title="Baixar planilha Excel do card" type="button">
-                                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
-                                        <span class="btn-text pointer-events-none">Excel</span>
-                                    </button>
-                                </div>
-                            </div>
-                            ` : `
+                            ${rows.length > 0 ? '' : `
                             <div class="mt-3 pl-9 text-sm text-gray-500 hidden-if-empty-marks">
                                 Nenhuma informação no Banco de Marcas para este registro.
                             </div>
@@ -1825,135 +1847,6 @@
                     `;
                     card.appendChild(header);
 
-                    if (rows.length > 0) {
-                        const copyAprovadasBtn = header.querySelector('.copy-marcas-aprovadas-btn');
-                    copyAprovadasBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const aprovadasRows = rows.filter(r => formatAprovado(r.aprovado) === 'Aprovado');
-                        if(aprovadasRows.length === 0) {
-                            alert("Não há registros de marcas aprovadas para copiar.");
-                            return;
-                        }
-                        let textToCopy = `CÓD. SIH: ${code}\n`;
-                        textToCopy += `Registros Aprovados: ${aprovadasRows.length}\n\n`;
-                        aprovadasRows.forEach((r, i) => {
-                            textToCopy += `-- Registro ${i + 1} --\n`;
-                            textToCopy += `Descrição: ${r.descricao || '-'}\n`;
-                            textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
-                            textToCopy += `Marca: ${r.marca || '-'}\n`;
-                            textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
-                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n\n`;
-                        });
-                        try {
-                            await navigator.clipboard.writeText(textToCopy);
-                            const originalHTML = copyAprovadasBtn.innerHTML;
-                            copyAprovadasBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-emerald-600"></i> <span class="text-emerald-700 font-semibold pointer-events-none">Copiado!</span>`;
-                            lucide.createIcons();
-                            setTimeout(() => {
-                                copyAprovadasBtn.innerHTML = originalHTML;
-                                lucide.createIcons();
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Falha ao copiar:', err);
-                            alert('Erro ao copiar.');
-                        }
-                    });
-
-                    const copyReprovadasBtn = header.querySelector('.copy-marcas-reprovadas-btn');
-                    copyReprovadasBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const reprovadasRows = rows.filter(r => {
-                            const isA = formatAprovado(r.aprovado) === 'Aprovado';
-                            return formatReprovado(r.reprovado, isA) === 'Reprovado';
-                        });
-                        if(reprovadasRows.length === 0) {
-                            alert("Não há registros de marcas reprovadas para copiar.");
-                            return;
-                        }
-                        let textToCopy = `CÓD. SIH: ${code}\n`;
-                        textToCopy += `Registros Reprovados: ${reprovadasRows.length}\n\n`;
-                        reprovadasRows.forEach((r, i) => {
-                            textToCopy += `-- Registro ${i + 1} --\n`;
-                            textToCopy += `Descrição: ${r.descricao || '-'}\n`;
-                            textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
-                            textToCopy += `Marca: ${r.marca || '-'}\n`;
-                            textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
-                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n\n`;
-                        });
-                        try {
-                            await navigator.clipboard.writeText(textToCopy);
-                            const originalHTML = copyReprovadasBtn.innerHTML;
-                            copyReprovadasBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-rose-600"></i> <span class="text-rose-700 font-semibold pointer-events-none">Copiado!</span>`;
-                            lucide.createIcons();
-                            setTimeout(() => {
-                                copyReprovadasBtn.innerHTML = originalHTML;
-                                lucide.createIcons();
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Falha ao copiar:', err);
-                            alert('Erro ao copiar.');
-                        }
-                    });
-
-                    const copyBtn = header.querySelector('.copy-iso-btn');
-                    copyBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        let textToCopy = `CÓD. SIH: ${code}\n`;
-                        textToCopy += `Registros: ${rows.length}\n\n`;
-                        rows.forEach((r, i) => {
-                            const isA = formatAprovado(r.aprovado) === 'Aprovado';
-                            textToCopy += `-- Registro ${i + 1} --\n`;
-                            textToCopy += `Descrição: ${r.descricao || '-'}\n`;
-                            textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
-                            textToCopy += `Marca: ${r.marca || '-'}\n`;
-                            textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
-                            textToCopy += `Reprovado: ${formatReprovado(r.reprovado, isA)}\n\n`;
-                        });
-
-                        const fornecedoresThisCode = sihFornecedoresMap[code] || [];
-                        if (fornecedoresThisCode.length > 0) {
-                            textToCopy += `-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n`;
-                            fornecedoresThisCode.forEach(f => {
-                                textToCopy += `${f}\n`;
-                            });
-                            textToCopy += `\n`;
-                        }
-                        
-                        try {
-                            await navigator.clipboard.writeText(textToCopy);
-                            const originalHTML = copyBtn.innerHTML;
-                            copyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-green-600"></i> <span class="text-green-600 font-semibold pointer-events-none">Copiado!</span>`;
-                            lucide.createIcons();
-                            setTimeout(() => {
-                                copyBtn.innerHTML = originalHTML;
-                                lucide.createIcons();
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Falha ao copiar:', err);
-                            alert('Erro ao copiar.');
-                        }
-                    });
-
-                    const downloadBtn = header.querySelector('.download-iso-btn');
-                    downloadBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const exportCardData = rows.map(row => {
-                            const isA = formatAprovado(row.aprovado) === 'Aprovado';
-                            return {
-                                "Cód. SIH": code,
-                                "Descrição": row.descricao,
-                                [`Fabricante (${numFabricantes})`]: row.fabricante,
-                                [`Marca (${numMarcas})`]: row.marca,
-                                [`Aprovado (${numAprovados})`]: formatAprovado(row.aprovado),
-                                [`Reprovado (${numReprovados})`]: formatReprovado(row.reprovado, isA)
-                            };
-                        });
-                        const worksheet = XLSX.utils.json_to_sheet(exportCardData);
-                        const workbook = XLSX.utils.book_new();
-                        XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
-                        XLSX.writeFile(workbook, `Resultados_SIH_${code}.xlsx`);
-                    });
-                    } // close if (rows.length > 0)
 
                     const toggleFornecedoresBtn = header.querySelector('.toggle-fornecedores-btn');
                     if (toggleFornecedoresBtn) {
@@ -1971,16 +1864,12 @@
                             const fornecedoresText = copyFornecedoresBtn.getAttribute('data-fornecedores');
                             if (fornecedoresText) {
                                 navigator.clipboard.writeText(fornecedoresText).then(() => {
-                                    const btnText = copyFornecedoresBtn.querySelector('.btn-text');
                                     const icon = copyFornecedoresBtn.querySelector('i');
-                                    const originalText = btnText.textContent;
-                                    btnText.textContent = 'Copiado!';
                                     const originalIcon = icon.getAttribute('data-lucide');
                                     icon.setAttribute('data-lucide', 'check');
                                     lucide.createIcons({ root: copyFornecedoresBtn });
                                     
                                     setTimeout(() => {
-                                        btnText.textContent = originalText;
                                         icon.setAttribute('data-lucide', originalIcon);
                                         lucide.createIcons({ root: copyFornecedoresBtn });
                                     }, 2000);
@@ -1991,19 +1880,234 @@
                         });
                     }
 
+                    const downloadFornBtn = header.querySelector('.download-forn-btn');
+                    if (downloadFornBtn) {
+                        downloadFornBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const fornecedoresThisCode = fornecedores || []; // using the local array
+                            if (fornecedoresThisCode.length > 0) {
+                                const exportFornData = fornecedoresThisCode.map(f => {
+                                    const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(f) : null;
+                                    const telefonesArr = [];
+                                    if (supMatchInfo) {
+                                        if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                                        if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                                    }
+                                    const telefonesStr = telefonesArr.join(" / ");
+                                    const emailStr = supMatchInfo && supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' ? String(supMatchInfo.email).trim() : "";
+                                    
+                                    return {
+                                        "Fornecedor": f,
+                                        "CNPJ": supMatchInfo && supMatchInfo.cnpj && supMatchInfo.cnpj !== 'N/A' ? supMatchInfo.cnpj : "",
+                                        "Telefones": telefonesStr,
+                                        "Email": emailStr
+                                    };
+                                });
+                                const wsForn = XLSX.utils.json_to_sheet(exportFornData);
+                                const workbook = XLSX.utils.book_new();
+                                XLSX.utils.book_append_sheet(workbook, wsForn, "Fornecedores");
+                                XLSX.writeFile(workbook, `Fornecedores_SIH_${code}.xlsx`);
+                            }
+                        });
+                    }
+
                     // Group Table
                     if (rows.length > 0) {
+                        const tableContentWrapper = document.createElement('div');
+                        
+                        const actionToolbar = document.createElement('div');
+                        actionToolbar.className = 'bg-white border-t border-gray-100 flex flex-wrap gap-x-4 gap-y-2 px-4 py-2 items-center';
+                        actionToolbar.innerHTML = `
+                            <div class="flex items-center shadow-sm rounded-md" role="group">
+                                <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar marcas aprovadas" type="button">
+                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-600 pointer-events-none"></i> 
+                                    <span class="btn-text pointer-events-none">Marcas Aprovadas (${numAprovados})</span>
+                                </button>
+                                <button class="copy-marcas-reprovadas-btn px-3 py-1.5 text-xs font-medium text-rose-700 bg-white border-t border-b border-rose-200 hover:bg-rose-50 transition-colors flex items-center" title="Copiar marcas reprovadas" type="button">
+                                    <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 text-rose-600 pointer-events-none"></i> 
+                                    <span class="btn-text pointer-events-none">Marcas Reprovadas (${numReprovados})</span>
+                                </button>
+                                <button class="copy-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 relative z-10 hover:bg-indigo-50 transition-colors flex items-center" title="Copiar dados da ficha completa" type="button">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
+                                    <span class="btn-text pointer-events-none">Ficha Completa das Marcas deste Item</span>
+                                </button>
+                                <button class="download-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 rounded-r-md hover:bg-indigo-50 transition-colors flex items-center" title="Baixar planilha Excel do card" type="button">
+                                    <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
+                                    <span class="btn-text pointer-events-none">Excel</span>
+                                </button>
+                            </div>
+                        `;
+
+                        const copyAprovadasBtn = actionToolbar.querySelector('.copy-marcas-aprovadas-btn');
+                        copyAprovadasBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const aprovadasRows = rows.filter(r => formatAprovado(r.aprovado) === 'Aprovado');
+                            if(aprovadasRows.length === 0) {
+                                alert("Não há registros de marcas aprovadas para copiar.");
+                                return;
+                            }
+                            let textToCopy = `CÓD. SIH: ${code}\n`;
+                            textToCopy += `Registros Aprovados: ${aprovadasRows.length}\n\n`;
+                            aprovadasRows.forEach((r, i) => {
+                                textToCopy += `-- Registro ${i + 1} --\n`;
+                                textToCopy += `Descrição: ${r.descricao || '-'}\n`;
+                                textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
+                                textToCopy += `Marca: ${r.marca || '-'}\n`;
+                                textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
+                                textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n`;
+                                if (r.parecer) textToCopy += `Parecer: ${r.parecer}\n`;
+                                textToCopy += `\n`;
+                            });
+                            try {
+                                await navigator.clipboard.writeText(textToCopy);
+                                const originalHTML = copyAprovadasBtn.innerHTML;
+                                copyAprovadasBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-emerald-600"></i> <span class="text-emerald-700 font-semibold pointer-events-none">Copiado!</span>`;
+                                lucide.createIcons();
+                                setTimeout(() => {
+                                    copyAprovadasBtn.innerHTML = originalHTML;
+                                    lucide.createIcons();
+                                }, 2000);
+                            } catch (err) {
+                                console.error('Falha ao copiar:', err);
+                                alert('Erro ao copiar.');
+                            }
+                        });
+
+                        const copyReprovadasBtn = actionToolbar.querySelector('.copy-marcas-reprovadas-btn');
+                        copyReprovadasBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const reprovadasRows = rows.filter(r => {
+                                const isA = formatAprovado(r.aprovado) === 'Aprovado';
+                                return formatReprovado(r.reprovado, isA) === 'Reprovado';
+                            });
+                            if(reprovadasRows.length === 0) {
+                                alert("Não há registros de marcas reprovadas para copiar.");
+                                return;
+                            }
+                            let textToCopy = `CÓD. SIH: ${code}\n`;
+                            textToCopy += `Registros Reprovados: ${reprovadasRows.length}\n\n`;
+                            reprovadasRows.forEach((r, i) => {
+                                textToCopy += `-- Registro ${i + 1} --\n`;
+                                textToCopy += `Descrição: ${r.descricao || '-'}\n`;
+                                textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
+                                textToCopy += `Marca: ${r.marca || '-'}\n`;
+                                textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
+                                textToCopy += `Reprovado: ${formatReprovado(r.reprovado)}\n`;
+                                if (r.parecer) textToCopy += `Parecer: ${r.parecer}\n`;
+                                textToCopy += `\n`;
+                            });
+                            try {
+                                await navigator.clipboard.writeText(textToCopy);
+                                const originalHTML = copyReprovadasBtn.innerHTML;
+                                copyReprovadasBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-rose-600"></i> <span class="text-rose-700 font-semibold pointer-events-none">Copiado!</span>`;
+                                lucide.createIcons();
+                                setTimeout(() => {
+                                    copyReprovadasBtn.innerHTML = originalHTML;
+                                    lucide.createIcons();
+                                }, 2000);
+                            } catch (err) {
+                                console.error('Falha ao copiar:', err);
+                                alert('Erro ao copiar.');
+                            }
+                        });
+
+                        const copyBtn = actionToolbar.querySelector('.copy-iso-btn');
+                        copyBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            let textToCopy = `CÓD. SIH: ${code}\n`;
+                            textToCopy += `Registros: ${rows.length}\n\n`;
+                            rows.forEach((r, i) => {
+                                const isA = formatAprovado(r.aprovado) === 'Aprovado';
+                                textToCopy += `-- Registro ${i + 1} --\n`;
+                                textToCopy += `Descrição: ${r.descricao || '-'}\n`;
+                                textToCopy += `Fabricante: ${r.fabricante || '-'}\n`;
+                                textToCopy += `Marca: ${r.marca || '-'}\n`;
+                                textToCopy += `Aprovado: ${formatAprovado(r.aprovado)}\n`;
+                                textToCopy += `Reprovado: ${formatReprovado(r.reprovado, isA)}\n`;
+                                if (r.parecer) textToCopy += `Parecer: ${r.parecer}\n`;
+                                textToCopy += `\n`;
+                            });
+
+                            const fornecedoresThisCode = sihFornecedoresMap[code] || [];
+                            if (fornecedoresThisCode.length > 0) {
+                                textToCopy += `-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\n`;
+                                fornecedoresThisCode.forEach(f => {
+                                    textToCopy += `${f}\n`;
+                                });
+                                textToCopy += `\n`;
+                            }
+                            
+                            try {
+                                await navigator.clipboard.writeText(textToCopy);
+                                const originalHTML = copyBtn.innerHTML;
+                                copyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-green-600"></i> <span class="text-green-600 font-semibold pointer-events-none">Copiado!</span>`;
+                                lucide.createIcons();
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = originalHTML;
+                                    lucide.createIcons();
+                                }, 2000);
+                            } catch (err) {
+                                console.error('Falha ao copiar:', err);
+                                alert('Erro ao copiar.');
+                            }
+                        });
+
+                        const downloadBtn = actionToolbar.querySelector('.download-iso-btn');
+                        downloadBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const exportCardData = rows.map(row => {
+                                const isA = formatAprovado(row.aprovado) === 'Aprovado';
+                                return {
+                                    "Cód. SIH": code,
+                                    "Descrição": row.descricao,
+                                    [`Fabricante (${numFabricantes})`]: row.fabricante,
+                                    [`Marca (${numMarcas})`]: row.marca,
+                                    [`Aprovado (${numAprovados})`]: formatAprovado(row.aprovado),
+                                    [`Reprovado (${numReprovados})`]: formatReprovado(row.reprovado, isA),
+                                    "Parecer": row.parecer || ''
+                                };
+                            });
+                            const worksheet = XLSX.utils.json_to_sheet(exportCardData);
+                            const workbook = XLSX.utils.book_new();
+                            XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+
+                            const fornecedoresThisCode = sihFornecedoresMap[code] || [];
+                            if (fornecedoresThisCode.length > 0) {
+                                const exportFornData = fornecedoresThisCode.map(f => {
+                                    const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(f) : null;
+                                    const telefonesArr = [];
+                                    if (supMatchInfo) {
+                                        if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                                        if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                                    }
+                                    const telefonesStr = telefonesArr.join(" / ");
+                                    const emailStr = supMatchInfo && supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' ? String(supMatchInfo.email).trim() : "";
+                                    
+                                    return {
+                                        "Fornecedor": f,
+                                        "CNPJ": supMatchInfo && supMatchInfo.cnpj && supMatchInfo.cnpj !== 'N/A' ? supMatchInfo.cnpj : "",
+                                        "Telefones": telefonesStr,
+                                        "Email": emailStr
+                                    };
+                                });
+                                const wsForn = XLSX.utils.json_to_sheet(exportFornData);
+                                XLSX.utils.book_append_sheet(workbook, wsForn, "Fornecedores");
+                            }
+
+                            XLSX.writeFile(workbook, `Resultados_SIH_${code}.xlsx`);
+                        });
+
                         const tableWrapper = document.createElement('div');
                         tableWrapper.className = 'overflow-x-auto';
                         
                         header.addEventListener('click', () => {
-                            const isHidden = tableWrapper.classList.contains('hidden');
+                            const isHidden = tableContentWrapper.classList.contains('hidden');
                             const icon = header.querySelector('.toggle-icon');
                             if (isHidden) {
-                                tableWrapper.classList.remove('hidden');
+                                tableContentWrapper.classList.remove('hidden');
                                 icon.classList.add('rotate-180');
                             } else {
-                                tableWrapper.classList.add('hidden');
+                                tableContentWrapper.classList.add('hidden');
                                 icon.classList.remove('rotate-180');
                             }
                         });
@@ -2020,6 +2124,7 @@
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca (${numMarcas})</th>
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aprovado (${numAprovados})</th>
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Reprovado (${numReprovados})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Parecer</th>
                             </tr>
                         `;
                         table.appendChild(thead);
@@ -2043,13 +2148,16 @@
                                 <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[120px] max-w-[250px]">${row.marca}</td>
                                 <td class="px-4 py-3 text-sm align-top text-center ${aprovadoColor}">${formatAprovado(row.aprovado)}</td>
                                 <td class="px-4 py-3 text-sm align-top text-center ${reprovadoColor}">${formatReprovado(row.reprovado, isAprovadoVerdadeiro)}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600 align-top whitespace-normal break-words min-w-[200px] max-w-[400px]">${row.parecer || ''}</td>
                             `;
                             tbody.appendChild(tr);
                         });
 
                         table.appendChild(tbody);
                         tableWrapper.appendChild(table);
-                        card.appendChild(tableWrapper);
+                        tableContentWrapper.appendChild(actionToolbar);
+                        tableContentWrapper.appendChild(tableWrapper);
+                        card.appendChild(tableContentWrapper);
                     }
 
                     container.appendChild(card);
@@ -2210,8 +2318,25 @@
                 const exportBtn = header.querySelector('.sih-forn-export-btn');
                 exportBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(forn) : null;
+                    let contactStr = "-";
+                    if (supMatchInfo) {
+                        const telefonesArr = [];
+                        if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                        if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                        const telefonesStr = telefonesArr.join(" / ");
+                        const emailStr = supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' ? String(supMatchInfo.email).trim() : "";
+                        if (telefonesStr || emailStr) {
+                            contactStr = "";
+                            if (telefonesStr) contactStr += `Telefones: ${telefonesStr}`;
+                            if (telefonesStr && emailStr) contactStr += " | ";
+                            if (emailStr) contactStr += `Email: ${emailStr}`;
+                        }
+                    }
+
                     const dataToExport = [
-                        [{ v: `${forn} (${codes.length} itens SIH)`, t: 's', s: { font: { bold: true } } }, ""]
+                        [{ v: `${forn} (${codes.length} itens SIH)`, t: 's', s: { font: { bold: true } } }, ""],
+                        [{ v: `Contato: ${contactStr}`, t: 's', s: { font: { italic: true } } }, ""]
                     ];
                     codes.forEach(c => dataToExport.push([c, sihDescMap[c] || ""]));
                     
@@ -2238,12 +2363,14 @@
         const navCatmatBtn = document.getElementById('navCatmatBtn');
         const navPdfCatmatBtn = document.getElementById('navPdfCatmatBtn');
         const navSihFornecedorBtn = document.getElementById('navSihFornecedorBtn');
+        const navCatalogoSpiaBtn = document.getElementById('navCatalogoSpiaBtn');
         const isoView = document.getElementById('isoView');
         const fornecedoresView = document.getElementById('fornecedoresView');
         const emailExtractorView = document.getElementById('emailExtractorView');
         const catmatView = document.getElementById('catmatView');
         const pdfCatmatView = document.getElementById('pdfCatmatView');
         const sihFornecedorView = document.getElementById('sihFornecedorView');
+        const catalogoSpiaView = document.getElementById('catalogoSpiaView');
 
         const scrollPositions = new Map();
 
@@ -2263,6 +2390,7 @@
             navCatmatBtn.className = tab === 'catmat' ? activeClasses : inactiveClasses;
             navPdfCatmatBtn.className = tab === 'pdfcatmat' ? activeClasses : inactiveClasses;
             navSihFornecedorBtn.className = tab === 'sihfornecedor' ? activeClasses : inactiveClasses;
+            navCatalogoSpiaBtn.className = tab === 'catalogospia' ? activeClasses : inactiveClasses;
             
             const btnChildIso = navIsoBtn.querySelector('svg');
             const btnChildForn = navFornecedoresBtn.querySelector('svg');
@@ -2270,6 +2398,7 @@
             const btnChildCatmat = navCatmatBtn.querySelector('svg');
             const btnChildPdfCatmat = navPdfCatmatBtn.querySelector('svg');
             const btnChildSihFornecedor = navSihFornecedorBtn.querySelector('svg');
+            const btnChildCatalogoSpia = navCatalogoSpiaBtn.querySelector('svg');
 
             // Reset icons
             if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 pointer-events-none');
@@ -2278,6 +2407,7 @@
             if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 pointer-events-none');
             if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 pointer-events-none');
             if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 pointer-events-none');
+            if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 pointer-events-none');
             
             isoView.style.display = 'none';
             fornecedoresView.style.display = 'none';
@@ -2285,6 +2415,7 @@
             catmatView.style.display = 'none';
             pdfCatmatView.style.display = 'none';
             sihFornecedorView.style.display = 'none';
+            catalogoSpiaView.style.display = 'none';
 
             if (tab === 'iso') {
                 if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
@@ -2304,6 +2435,9 @@
             } else if (tab === 'sihfornecedor') {
                 if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
                 sihFornecedorView.style.display = 'flex';
+            } else if (tab === 'catalogospia') {
+                if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                catalogoSpiaView.style.display = 'flex';
             }
 
             requestAnimationFrame(() => {
@@ -2323,6 +2457,7 @@
         navCatmatBtn.addEventListener('click', () => activateTab('catmat'));
         navPdfCatmatBtn.addEventListener('click', () => activateTab('pdfcatmat'));
         navSihFornecedorBtn.addEventListener('click', () => activateTab('sihfornecedor'));
+        navCatalogoSpiaBtn.addEventListener('click', () => activateTab('catalogospia'));
         
         
         lucide.createIcons();
@@ -3686,6 +3821,15 @@
             }
 
             filteredEntries.forEach(entry => {
+                const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(entry.nomeFornecedor) : null;
+                const telefonesArr = [];
+                if (supMatchInfo) {
+                    if (supMatchInfo.telefone && String(supMatchInfo.telefone).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.telefone).trim());
+                    if (supMatchInfo.celularRep && String(supMatchInfo.celularRep).trim() !== 'N/A') telefonesArr.push(String(supMatchInfo.celularRep).trim());
+                }
+                const telefonesStr = telefonesArr.join(" / ");
+                const emailStr = supMatchInfo && supMatchInfo.email && String(supMatchInfo.email).trim() !== 'N/A' ? String(supMatchInfo.email).trim() : "";
+                
                 catmat_savedResults.push({
                     'Cod. CATMAT': catmat,
                     'Cod. SIH': catmat_activeCodItemFilter,
@@ -3695,6 +3839,8 @@
                     'Número da Compra': entry.numeroCompra,
                     'Modalidade': entry.modalidade || '',
                     'Nome do Fornecedor / Identificação da Fonte': entry.nomeFornecedor,
+                    'Telefones': telefonesStr,
+                    'Email': emailStr,
                     'UASG': entry.uasg
                 });
             });
