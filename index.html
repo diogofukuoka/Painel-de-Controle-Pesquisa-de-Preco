@@ -4834,7 +4834,7 @@
 
 ${input1}
 
-Quais destes abaixo se aproxima mais do meu descritivo acima em Aplicação, Tipo, Componentes Adicionais e tamanhos?
+Quais destes abaixo se aproxima mais do meu descritivo acima em Aplicação, Tipo, Componentes Adicionais e tamanhos? Me retorne os 10 primeiros descritivos que mais se aproximam do meu descritivo, caso houver:
 
 ${formattedInput2}`;
 
@@ -4871,40 +4871,36 @@ ${formattedInput2}`;
                     }, 2000);
                 };
 
-                const handleError = (err) => {
-                    console.error("Falha ao copiar texto: ", err);
-                    alert("Falha ao copiar texto.");
-                };
-
-                const fallbackCopyTextToClipboard = (text) => {
+                // Synchronous fallback first to respect transient user activation
+                let fallbackSuccess = false;
+                try {
                     const textArea = document.createElement("textarea");
-                    textArea.value = text;
+                    textArea.value = textToCopy;
+                    // Avoid scrolling to bottom
                     textArea.style.top = "0";
                     textArea.style.left = "0";
                     textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
                     document.body.appendChild(textArea);
                     textArea.focus();
                     textArea.select();
-                    try {
-                        const successful = document.execCommand('copy');
-                        if (successful) {
-                            handleSuccess();
-                        } else {
-                            handleError(new Error('Fallback copy failed'));
-                        }
-                    } catch (err) {
-                        handleError(err);
-                    }
+                    fallbackSuccess = document.execCommand('copy');
                     document.body.removeChild(textArea);
-                };
+                } catch (err) {
+                    console.warn("Fallback copy failed", err);
+                }
 
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(textToCopy).then(handleSuccess).catch((err) => {
-                        console.warn("Clipboard API failed, trying fallback...", err);
-                        fallbackCopyTextToClipboard(textToCopy);
-                    });
+                if (fallbackSuccess) {
+                    handleSuccess();
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(handleSuccess)
+                        .catch(err => {
+                            console.error("Falha ao copiar texto: ", err);
+                            alert("Falha ao copiar texto.");
+                        });
                 } else {
-                    fallbackCopyTextToClipboard(textToCopy);
+                    alert("Seu navegador não suporta a cópia automática.");
                 }
             }
         });
