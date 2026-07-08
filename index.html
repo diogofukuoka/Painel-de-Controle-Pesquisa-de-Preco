@@ -787,10 +787,14 @@
                 </div>
             </div>
 
-            <div class="flex justify-center mb-8">
+            <div class="flex justify-center mb-8 gap-4">
                 <button id="iaDescGenerateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all flex items-center gap-2 transform hover:scale-[1.02]">
                     <i data-lucide="zap" class="w-5 h-5"></i>
                     Gerar Texto Formatado
+                </button>
+                <button id="iaDescClearBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-8 rounded-lg shadow-sm transition-all flex items-center gap-2 border border-gray-300">
+                    <i data-lucide="trash-2" class="w-5 h-5 text-gray-500"></i>
+                    Limpar Campos
                 </button>
             </div>
 
@@ -4838,14 +4842,20 @@ ${formattedInput2}`;
             resultContainer.classList.remove('hidden');
         });
 
+        document.getElementById('iaDescClearBtn').addEventListener('click', () => {
+            document.getElementById('iaDescInput1').value = '';
+            document.getElementById('iaDescInput2').value = '';
+            document.getElementById('iaDescResult').value = '';
+            document.getElementById('iaDescResultContainer').classList.add('hidden');
+        });
+
         document.getElementById('iaDescCopyBtn').addEventListener('click', (e) => {
             const textToCopy = document.getElementById('iaDescResult').value;
             const btn = e.currentTarget;
             if (textToCopy) {
-                navigator.clipboard.writeText(textToCopy).then(() => {
+                const handleSuccess = () => {
                     const icon = btn.querySelector('i');
-                    const originalIcon = icon.getAttribute('data-lucide');
-                    const originalText = btn.textContent;
+                    const originalIcon = icon.getAttribute('data-lucide') || 'copy';
                     
                     icon.setAttribute('data-lucide', 'check');
                     btn.classList.add('text-green-600', 'bg-green-100', 'border-green-300');
@@ -4859,10 +4869,43 @@ ${formattedInput2}`;
                         btn.innerHTML = `<i data-lucide="${originalIcon}" class="w-4 h-4 mr-1.5 pointer-events-none"></i> Copiar Texto`;
                         lucide.createIcons({ root: btn });
                     }, 2000);
-                }).catch(err => {
+                };
+
+                const handleError = (err) => {
                     console.error("Falha ao copiar texto: ", err);
                     alert("Falha ao copiar texto.");
-                });
+                };
+
+                const fallbackCopyTextToClipboard = (text) => {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            handleSuccess();
+                        } else {
+                            handleError(new Error('Fallback copy failed'));
+                        }
+                    } catch (err) {
+                        handleError(err);
+                    }
+                    document.body.removeChild(textArea);
+                };
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textToCopy).then(handleSuccess).catch((err) => {
+                        console.warn("Clipboard API failed, trying fallback...", err);
+                        fallbackCopyTextToClipboard(textToCopy);
+                    });
+                } else {
+                    fallbackCopyTextToClipboard(textToCopy);
+                }
             }
         });
 
