@@ -436,88 +436,88 @@
             <span id="ipcaApiBannerText">Carregando série histórica do Banco Central...</span>
         </div>
 
-        <!-- Layout Principal (Center Area + Right Panel) -->
-        <div class="flex-1 flex min-h-0 overflow-hidden">
-            <!-- Área Central (Inputs topo + Tabela de Dados baixo) -->
-            <div class="flex-1 flex flex-col min-h-0 overflow-hidden p-4 md:p-6 gap-4">
-                
-                <!-- Área de Inputs (Topo) -->
-                <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-4 md:p-5 shrink-0">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                        
-                        <!-- Textarea de Dados Brutos -->
-                        <div class="lg:col-span-8 flex flex-col">
-                            <label for="ipcaRawInput" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5" title="Insira os itens a serem atualizados pelo IPCA (Código SIH, Mês/Ano inicial e Último Preço).">
-                                <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
-                                Dados Brutos: SIH | Último Mês de Entrada | Último Preço
+        <!-- Layout Principal (Left Panel + Center Table + Right Panel) -->
+        <div class="flex-1 flex min-h-0 overflow-hidden p-4 md:p-5 gap-4 bg-slate-50">
+            
+            <!-- Painel Lateral Esquerdo: Dados Brutos & Configurações -->
+            <div class="w-80 md:w-80 lg:w-96 shrink-0 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50 shrink-0" title="Área de entrada de dados brutos e parâmetros de cálculo do IPCA.">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Entrada de dados brutos para processamento.">
+                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                        Dados Brutos: SIH | Mês | Preço
+                    </h2>
+                </div>
+
+                <div class="flex-1 p-4 overflow-y-auto space-y-4">
+                    <!-- Textarea de Dados Brutos -->
+                    <div class="flex flex-col">
+                        <label for="ipcaRawInput" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" title="Insira os itens a serem atualizados pelo IPCA (Código SIH, Mês/Ano inicial e Último Preço).">
+                            Cole os dados brutos abaixo
+                        </label>
+                        <textarea id="ipcaRawInput" rows="10" disabled class="w-full border border-slate-300 rounded-lg p-3 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs resize-y disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed placeholder:text-slate-400" title="Campo para colar a lista de itens copiados do Excel ou em formato texto (Exemplo: 10030 05/2021 1.200,50)." placeholder="Exemplo:&#10;10030   05/2021   1.200,50&#10;10031   01/2020   50,00"></textarea>
+                        <span class="text-[11px] text-slate-500 mt-1 block" title="Suporta colagem de dados copiados diretamente de células do Microsoft Excel ou arquivos CSV.">Cole aqui do Excel os dados (separados por espaço ou tabulação).</span>
+                    </div>
+
+                    <!-- Form Controls (Data Final + Botões) -->
+                    <div class="space-y-3 pt-2 border-t border-slate-100">
+                        <div>
+                            <label for="ipcaFinalDate" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5" title="Mês e ano limite para o cálculo da variação acumulada do IPCA.">
+                                <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
+                                Data Final (Mês/Ano)
                             </label>
-                            <textarea id="ipcaRawInput" rows="3" disabled class="w-full border border-slate-300 rounded-lg p-3 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs resize-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed placeholder:text-slate-400" title="Campo para colar a lista de itens copiados do Excel ou em formato texto (Exemplo: 10030 05/2021 1.200,50)." placeholder="Exemplo:&#10;10030   05/2021   1.200,50&#10;10031   01/2020   50,00"></textarea>
-                            <span class="text-[11px] text-slate-500 mt-1" title="Suporta colagem de dados copiados diretamente de células do Microsoft Excel ou arquivos CSV.">Cole aqui do Excel os dados (separados por espaço ou tabulação).</span>
+                            <input type="month" id="ipcaFinalDate" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" title="Selecione o mês e ano final de referência. Por padrão, é selecionado automaticamente o último mês oficial disponível do Banco Central." />
                         </div>
 
-                        <!-- Form Controls (Data Final + Botões) -->
-                        <div class="lg:col-span-4 flex flex-col gap-3">
-                            <div>
-                                <label for="ipcaFinalDate" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5" title="Mês e ano limite para o cálculo da variação acumulada do IPCA.">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
-                                    Data Final (Mês/Ano)
-                                </label>
-                                <input type="month" id="ipcaFinalDate" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" title="Selecione o mês e ano final de referência. Por padrão, é selecionado automaticamente o último mês oficial disponível do Banco Central." />
-                            </div>
-
-                            <!-- Botões -->
-                            <div class="flex flex-col sm:flex-row gap-2 mt-1">
-                                <button id="ipcaProcessBtn" disabled class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed" title="Clique para calcular a correção monetária acumulada pelo IPCA e atualizar o valor de todos os itens informados.">
-                                    <i data-lucide="play" class="w-4 h-4"></i>
-                                    Processar Dados
-                                </button>
-                                <button id="ipcaExportBtn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2" title="Gera e faz o download de uma planilha Excel (.xlsx) contendo a tabela completa com os preços reajustados.">
-                                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                                    Baixar Resultados em Excel
-                                </button>
-                            </div>
+                        <!-- Botões -->
+                        <div class="flex flex-col gap-2 pt-1">
+                            <button id="ipcaProcessBtn" disabled class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed cursor-pointer" title="Clique para calcular a correção monetária acumulada pelo IPCA e atualizar o valor de todos os itens informados.">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                                Processar Dados
+                            </button>
+                            <button id="ipcaExportBtn" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer" title="Gera e faz o download de uma planilha Excel (.xlsx) contendo a tabela completa com os preços reajustados.">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                Baixar Resultados em Excel
+                            </button>
                         </div>
-
                     </div>
                 </div>
-
-                <!-- Tabela de Dados (Baixo, com rolagem) -->
-                <div class="flex-1 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden">
-                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 shrink-0" title="Resultados da atualização monetária processada pelo IPCA.">
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Tabela consolidada com os preços originais, variações do IPCA e preços reajustados.">
-                            <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i>
-                            Tabela de Resultados
-                        </h2>
-                        <span id="ipcaRowCount" class="text-xs text-slate-500 font-medium" title="Número total de registros processados na lista atual.">0 registros</span>
-                    </div>
-
-                    <div class="flex-1 overflow-auto">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead class="bg-slate-100 text-slate-600 uppercase font-semibold text-[11px] sticky top-0 z-10 border-b border-slate-200 shadow-2xs">
-                                <tr>
-                                    <th class="py-2.5 px-3 w-12 text-center" title="Número sequencial do item.">#</th>
-                                    <th class="py-2.5 px-3" title="Código de identificação do produto ou insumo hospitalar no Sistema de Informações Hospitalares (SIH).">SIH</th>
-                                    <th class="py-2.5 px-3" title="Mês e ano da última entrada ou valor base de referência para o reajuste.">Último Mês de Entrada</th>
-                                    <th class="py-2.5 px-3 text-right" title="Preço unitário original do item na data base de entrada.">Último Preço</th>
-                                    <th class="py-2.5 px-3 text-right" title="Percentual acumulado do IPCA no período, calculado mês a mês com a precisão oficial da Calculadora do Cidadão do Banco Central.">IPCA (%)</th>
-                                    <th class="py-2.5 px-3 text-right" title="Preço atualizado reajustado pela inflação acumulada do IPCA no período (formatado com 4 casas decimais).">Preço Corrigido</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ipcaTableBody" class="divide-y divide-slate-100 font-mono">
-                                <tr>
-                                    <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs" title="Cole os dados acima e clique no botão 'Processar Dados' para gerar a tabela.">
-                                        Nenhum dado processado. Cole a lista acima e clique em "Processar Dados".
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Painel Lateral Direito (Aside) -->
-            <aside class="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 min-h-0 overflow-hidden" title="Painel lateral com estatísticas detalhadas e métricas do item selecionado na tabela.">
+            <!-- Coluna Central: Tabela de Resultados (Meio) -->
+            <div class="flex-1 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 shrink-0" title="Resultados da atualização monetária processada pelo IPCA.">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Tabela consolidada com os preços originais, variações do IPCA e preços reajustados.">
+                        <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i>
+                        Tabela de Resultados
+                    </h2>
+                    <span id="ipcaRowCount" class="text-xs text-slate-500 font-medium" title="Número total de registros processados na lista atual.">0 registros</span>
+                </div>
+
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-100 text-slate-600 uppercase font-semibold text-[11px] sticky top-0 z-10 border-b border-slate-200 shadow-2xs">
+                            <tr>
+                                <th class="py-2.5 px-3 w-12 text-center" title="Número sequencial do item.">#</th>
+                                <th class="py-2.5 px-3" title="Código de identificação do produto ou insumo hospitalar no Sistema de Informações Hospitalares (SIH).">SIH</th>
+                                <th class="py-2.5 px-3" title="Mês e ano da última entrada ou valor base de referência para o reajuste.">Último Mês de Entrada</th>
+                                <th class="py-2.5 px-3 text-right" title="Preço unitário original do item na data base de entrada.">Último Preço</th>
+                                <th class="py-2.5 px-3 text-right" title="Percentual acumulado do IPCA no período, calculated mês a mês com a precisão oficial da Calculadora do Cidadão do Banco Central.">IPCA (%)</th>
+                                <th class="py-2.5 px-3 text-right" title="Preço atualizado reajustado pela inflação acumulada do IPCA no período (formatado com 4 casas decimais).">Preço Corrigido</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ipcaTableBody" class="divide-y divide-slate-100 font-mono">
+                            <tr>
+                                <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs" title="Cole os dados ao lado e clique no botão 'Processar Dados' para gerar a tabela.">
+                                    Nenhum dado processado. Cole a lista ao lado e clique em "Processar Dados".
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Painel Lateral Direito: Painel de Análise (Direita) -->
+            <aside class="w-80 shrink-0 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden" title="Painel lateral com estatísticas detalhadas e métricas do item selecionado na tabela.">
                 <div class="p-4 border-b border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between" title="Resumo e métricas do item selecionado.">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Painel analítico com detalhamento completo de reajuste.">
                         <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i>
