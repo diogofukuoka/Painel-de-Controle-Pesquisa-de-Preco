@@ -47,6 +47,12 @@
         #available-catmats-list::-webkit-scrollbar-track { background: transparent; }
         #available-catmats-list::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
 
+        /* Scrollbar customizada e discreta para navegação de abas */
+        .tab-scroll-container::-webkit-scrollbar { height: 4px; }
+        .tab-scroll-container::-webkit-scrollbar-track { background: transparent; }
+        .tab-scroll-container::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.25); border-radius: 4px; }
+        .tab-scroll-container::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+
         /* Extrator de E-mails */
         .email-ext-container {
             max-width: 1200px; 
@@ -194,7 +200,7 @@
     <!-- Navbar -->
     <nav class="bg-indigo-800 text-white shadow-md z-50 w-full mb-6 sticky top-0">
         <!-- Top row: Brand and Upload -->
-        <div class="container mx-auto max-w-[1600px] px-4 py-3 flex items-center justify-between">
+        <div class="w-full px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <i data-lucide="layers" class="w-6 h-6 text-indigo-300"></i>
                 <span class="text-xl font-bold tracking-tight shadow-sm">Painel Operacional UPDE</span>
@@ -211,33 +217,33 @@
 
         <!-- Bottom row: Tabs -->
         <div class="w-full bg-indigo-900 border-t border-indigo-700">
-            <div class="container mx-auto max-w-[1600px] px-4 py-2 flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-transparent">
-                <button id="navIsoBtn" class="px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
-                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-indigo-300 pointer-events-none"></i> Fornecedor, Fabricante e Marca
+            <div class="w-full px-2 sm:px-4 py-1.5 flex items-center justify-start lg:justify-center gap-1 xl:gap-1.5 overflow-x-auto tab-scroll-container">
+                <button id="navIsoBtn" title="Consulta de marcas aprovadas e reprovadas, fabricantes e fornecedores cadastrados por Código SIH." class="px-2.5 py-1.5 lg:px-3 lg:py-2 bg-indigo-700 text-white text-xs lg:text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none"></i> Fornecedor, Fabricante e Marca
                 </button>
-                <button id="navFornecedoresBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="users" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo de Fornecedores
+                <button id="navFornecedoresBtn" title="Consulta e filtragem do Catálogo de Fornecedores, empresas cadastradas, categorias e contatos do hospital." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Catálogo de Fornecedores
                 </button>
-                <button id="navSihFornecedorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="list" class="w-4 h-4 mr-2 pointer-events-none"></i> SIH por Fornecedor
+                <button id="navSihFornecedorBtn" title="Consulta de códigos e materiais hospitalares (SIH) agrupados por empresa fornecedora." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="list" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> SIH por Fornecedor
                 </button>
-                <button id="navIpcaBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="calculator" class="w-4 h-4 mr-2 pointer-events-none"></i> Calculadora IPCA
+                <button id="navIpcaBtn" title="Calculadora de reajuste e correção monetária de preços pelo IPCA acumulado do Banco Central (SGS 433)." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Calculadora IPCA
                 </button>
-                <button id="navCatalogoSpiaBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="globe" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo Spia
+                <button id="navCatalogoSpiaBtn" title="Consulta unificada ao Catálogo SPIA do CHC-UFPR." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Catálogo Spia
                 </button>
-                <button id="navEmailExtractorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="mail" class="w-4 h-4 mr-2 pointer-events-none"></i> Extrair E-mails
+                <button id="navEmailExtractorBtn" title="Ferramenta para extrair, padronizar em minúsculas e desduplicar endereços de e-mail a partir de qualquer texto." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="mail" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Extrair E-mails
                 </button>
-                <button id="navCatmatBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="search" class="w-4 h-4 mr-2 pointer-events-none"></i> Filtrar Preços Compras Net
+                <button id="navCatmatBtn" title="Análise e filtragem de preços do Compras Net e cotações por código CATMAT e SIH." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Filtrar Preços Compras Net
                 </button>
-                <button id="navIaDescP4Btn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="bot" class="w-4 h-4 mr-2 pointer-events-none"></i> IA Desc P4
+                <button id="navIaDescP4Btn" title="Gerador de prompt formatado para comparação de descritivos hospitalares do CHC-UFPR com a lista do P4 utilizando IA." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="bot" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> IA Desc P4
                 </button>
-                <button id="navPdfCatmatBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="file-text" class="w-4 h-4 mr-2 pointer-events-none"></i> Filtrar preços P4
+                <button id="navPdfCatmatBtn" title="Filtragem e cruzamento de preços do relatório em PDF do Painel de Preços (P4) com a planilha SIH de referência." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Filtrar preços P4
                 </button>
             </div>
         </div>
@@ -247,9 +253,9 @@
     
     <div id="isoView" style="display: flex;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col">
         
-        <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4" title="Painel principal de Fornecedores, Fabricantes e Marcas Aprovadas/Reprovadas por Código SIH.">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Fornecedor, Fabricante e Marca</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight" title="Consulta unificada do Banco de Marcas e Histórico de Fornecedores do CHC-UFPR.">Fornecedor, Fabricante e Marca</h1>
         </div>
 
         <div class="flex items-center space-x-3">
@@ -261,17 +267,17 @@
     <main class="flex-1 min-h-0 container mx-auto max-w-[1600px] h-full flex flex-col">
         
         <!-- Empty / Error state -->
-        <div id="emptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
+        <div id="emptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full" title="Aguardando carregamento ou consulta de Códigos SIH.">
             <img src="./public/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
         </div>
 
         <!-- Filter state (Hidden initially) -->
-        <div id="filterState" class="hidden bg-white border border-gray-200 rounded-xl p-6 flex flex-col shadow-sm mb-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Consultar por CÓD. SIH</h3>
-            <p class="text-sm text-gray-500 mb-4">Cole a lista de Códigos SIH abaixo (um por linha):</p>
-            <textarea id="codesInput" rows="6" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all mb-4 font-mono" placeholder="3180&#10;10080&#10;3209&#10;10081&#10;3202"></textarea>
+        <div id="filterState" class="hidden bg-white border border-gray-200 rounded-xl p-6 flex flex-col shadow-sm mb-6" title="Caixa de pesquisa para consulta em lote de Códigos SIH.">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2" title="Insira um ou vários códigos SIH para filtrar fabricantes e marcas associadas.">Consultar por CÓD. SIH</h3>
+            <p class="text-sm text-gray-500 mb-4" title="Cole os códigos numéricos dos insumos hospitalares (ex: 3180, 10080), um por linha.">Cole a lista de Códigos SIH abaixo (um por linha):</p>
+            <textarea id="codesInput" rows="6" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all mb-4 font-mono" title="Campo para colar a lista de códigos SIH (um código por linha)." placeholder="3180&#10;10080&#10;3209&#10;10081&#10;3202"></textarea>
             <div class="flex justify-start">
-                <button id="filterBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm flex items-center">
+                <button id="filterBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm flex items-center" title="Clique para realizar a busca das marcas, fornecedores e pareceres para os códigos SIH informados.">
                     <i data-lucide="search" class="w-4 h-4 mr-2"></i>
                     Buscar Resultados
                 </button>
@@ -280,44 +286,44 @@
 
         <!-- Data table (Hidden initially) -->
         <div id="dataTableContainer" class="hidden flex-col h-full overflow-hidden flex-1 space-y-6">
-            <div class="p-4 border border-gray-200 bg-white shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4 rounded-xl">
+            <div class="p-4 border border-gray-200 bg-white shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4 rounded-xl" title="Barra de ferramentas e resumo de marcas encontradas.">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div class="flex items-center space-x-2 text-indigo-700">
+                    <div class="flex items-center space-x-2 text-indigo-700" title="Resumo geral de marcas consultadas.">
                         <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
-                        <h2 class="font-semibold text-gray-800">Todos os Dados</h2>
+                        <h2 class="font-semibold text-gray-800" title="Resultados consolidados de todas as marcas e pareceres do banco de dados.">Todos os Dados</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <div class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
+                        <div class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm" title="Total de registros de marcas encontradas para os SIH pesquisados.">
                             <i data-lucide="layers" class="w-3.5 h-3.5 mr-1.5 text-indigo-500"></i>
                             <span id="rowCount" class="font-bold mr-1 text-sm">0</span> registros de marcas
                         </div>
-                        <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
+                        <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm" title="Total de marcas com parecer APROVADO para os itens consultados.">
                             <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-500"></i>
                             <span id="totalAprovadosBadge" class="font-bold mr-1 text-sm">0</span> <span class="hidden sm:inline">Marcas</span>&nbsp;Aprovadas
                         </div>
-                        <div class="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm">
+                        <div class="bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-md text-xs font-medium flex items-center shadow-sm" title="Total de marcas com parecer REPROVADO para os itens consultados.">
                             <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 text-rose-500"></i>
                             <span id="totalReprovadosBadge" class="font-bold mr-1 text-sm">0</span> <span class="hidden sm:inline">Marcas</span>&nbsp;Reprovadas
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button id="exportAllSuppliersGlobalBtn" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors flex items-center" title="Baixar planilha com Fornecedores dos SIH consultados">
+                    <button id="exportAllSuppliersGlobalBtn" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors flex items-center" title="Gera e faz o download de uma planilha Excel (.xlsx) contendo a lista de fornecedores dos SIH consultados.">
                         <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Fornecedores por SIH (Excel)
                     </button>
-                    <button id="exportExcelBtn" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center" title="Exportar Excel Todas as Marcas Aprov e Reprov de Todos os SIH">
-                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Excel Todas as Marcas Aprov e Reprov de Todas os SIH
+                    <button id="exportExcelBtn" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex items-center" title="Exporta uma planilha Excel (.xlsx) completa com todas as marcas Aprovadas e Reprovadas de todos os SIH consultados.">
+                        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Exportar Excel Todas as Marcas Aprov e Reprov de Todos os SIH
                     </button>
-                    <select id="sortFornecedoresSelect" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-8 ml-2">
+                    <select id="sortFornecedoresSelect" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-8 ml-2" title="Selecione a ordenação da lista de fornecedores (ordem alfabética ou quantidade de itens fornecidos).">
                         <option value="alpha_asc">Fornecedores: A-Z</option>
                         <option value="alpha_desc">Fornecedores: Z-A</option>
                         <option value="qtd_desc">Fornecedores: Mais SIH fornecidos</option>
                         <option value="qtd_asc">Fornecedores: Menos SIH fornecidos</option>
                     </select>
-                    <button id="expandAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Expandir Todos Cards">
+                    <button id="expandAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Expande todos os cards de Códigos SIH para visualizar todas as tabelas de marcas de uma só vez.">
                         <i data-lucide="maximize-2" class="w-3.5 h-3.5 mr-1.5"></i> Expandir Todos Cards
                     </button>
-                    <button id="collapseAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Recolher Todos Cards">
+                    <button id="collapseAllBtn" class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors flex items-center" title="Recolhe todos os cards deixando apenas o cabeçalho de cada Código SIH visível.">
                         <i data-lucide="minimize-2" class="w-3.5 h-3.5 mr-1.5"></i> Recolher Todos Cards
                     </button>
                 </div>
@@ -339,26 +345,26 @@
 
 
     <div id="sihFornecedorView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-[1600px]">
-        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4" title="Painel de consulta de itens hospitalares (SIH) agrupados pelas empresas fornecedoras do CHC-UFPR.">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">SIH por Fornecedor (MT15)</h1>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight" title="Lista de códigos e itens SIH vinculados a cada empresa fornecedora (Planilha MT15).">SIH por Fornecedor (MT15)</h1>
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="document.getElementById('globalFileInput').click()" id="sihFornecedorUploadBtn" class="hidden flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm">
+                <button onclick="document.getElementById('globalFileInput').click()" id="sihFornecedorUploadBtn" class="hidden flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium shadow-sm" title="Carregar nova planilha MT15 para atualizar a relação de fornecedores e itens fornecidos.">
                     <i data-lucide="users" class="w-4 h-4 mr-2"></i>
                     <span id="sihFornecedorUploadText">Carregar Planilha MT15</span>
                 </button>
             </div>
         </header>
 
-        <div id="sihFornEmptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
+        <div id="sihFornEmptyState" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full" title="Aguardando carregamento da base de dados de SIH por Fornecedor.">
             <img src="./public/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
         </div>
 
         <div id="sihFornContentState" class="hidden flex-1 min-h-0 flex-col">
-            <div class="mb-4 text-sm text-gray-600 bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4">
+            <div class="mb-4 text-sm text-gray-600 bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4" title="Barra de busca, filtros e ordenação do catálogo de SIH por Fornecedor.">
                 <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                    <div class="flex items-center">
+                    <div class="flex items-center" title="Quantidade total de empresas fornecedoras exibidas na lista.">
                         <i data-lucide="info" class="w-5 h-5 text-indigo-500 flex-shrink-0 mr-2"></i>
                         <span>Mostrando <span id="sihFornCount" class="font-bold text-gray-900 mx-1">0</span> fornecedores. Clique em um fornecedor para ver os códigos.</span>
                     </div>
@@ -368,22 +374,22 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                             </div>
-                            <input type="text" id="sihFornSearchInput" placeholder="Buscar fornecedor..." class="w-full pl-9 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="text" id="sihFornSearchInput" placeholder="Buscar fornecedor..." class="w-full pl-9 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" title="Digite a razão social ou nome da empresa fornecedora para filtrar a lista.">
                         </div>
                         
                         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <div class="flex items-center space-x-2 whitespace-nowrap">
+                            <div class="flex items-center space-x-2 whitespace-nowrap" title="Escolha a ordenação das empresas fornecedoras.">
                                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Fornecedores:</span>
-                                <select id="sihFornSupplierSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2">
+                                <select id="sihFornSupplierSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2" title="Ordenar a lista de fornecedores em ordem alfabética ou por quantidade de códigos SIH fornecidos.">
                                     <option value="alpha">A-Z</option>
                                     <option value="countDesc">Qtd SIH (Maior)</option>
                                     <option value="countAsc">Qtd SIH (Menor)</option>
                                 </select>
                             </div>
 
-                            <div class="flex items-center space-x-2 whitespace-nowrap">
+                            <div class="flex items-center space-x-2 whitespace-nowrap" title="Escolha a ordenação dos itens dentro dos cards de cada fornecedor.">
                                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Itens:</span>
-                                <select id="sihFornSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2">
+                                <select id="sihFornSortSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5 px-2" title="Ordenar os materiais dentro de cada fornecedor por descrição alfabética ou por número do código SIH.">
                                     <option value="desc">Por Desc. (A-Z)</option>
                                     <option value="sih">Por SIH (A-Z)</option>
                                 </select>
@@ -391,14 +397,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filtrar por inicial:</span>
-                    <div id="sihFornAlphaFilter" class="flex flex-wrap gap-1">
+                <div class="flex flex-col gap-2" title="Filtro rápido alfabético por letra inicial do nome da empresa.">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider" title="Clique em uma letra para exibir somente fornecedores que começam com ela.">Filtrar por inicial:</span>
+                    <div id="sihFornAlphaFilter" class="flex flex-wrap gap-1" title="Botões de filtro alfabético (A-Z e numérico).">
                         <!-- Letters injected by JS -->
                     </div>
                 </div>
             </div>
-            <div id="sihFornResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-4 pb-20 pr-2">
+            <div id="sihFornResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-4 pb-20 pr-2" title="Lista de fornecedores e seus respectivos materiais hospitalares vinculados.">
                 <!-- Grouped cards rendered by JS -->
             </div>
         </div>
@@ -407,22 +413,22 @@
     <!-- View: Calculadora IPCA da UPDE -->
     <div id="ipcaView" style="display: none;" class="flex-1 min-h-0 flex flex-col bg-slate-50 overflow-hidden w-full h-full border-t border-slate-200">
         <!-- Cabeçalho (Header): h-14, fundo branco, borda inferior -->
-        <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-10 shadow-2xs">
+        <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-10 shadow-2xs" title="Calculadora oficial da UPDE para atualização e reajuste de preços de insumos hospitalares pelo IPCA.">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm" title="Módulo Calculadora de Inflação (IPCA)">
                     C
                 </div>
-                <h1 class="text-base md:text-lg font-bold text-slate-800 tracking-tight">Calculadora IPCA da UPDE</h1>
+                <h1 class="text-base md:text-lg font-bold text-slate-800 tracking-tight" title="Calculadora do IPCA - UPDE">Calculadora IPCA da UPDE</h1>
             </div>
             
-            <div id="ipcaHeaderStatus" class="flex items-center gap-2 text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+            <div id="ipcaHeaderStatus" class="flex items-center gap-2 text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1 rounded-full border border-slate-200" title="Status da conexão direta com a API pública do Banco Central do Brasil (Série SGS 433).">
                 <span id="ipcaHeaderLed" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                 <span id="ipcaHeaderStatusText">Carregando API...</span>
             </div>
         </header>
 
         <!-- Banner Alert Area (Top of view if API loading/error) -->
-        <div id="ipcaApiBanner" class="bg-indigo-50 border-b border-indigo-100 px-6 py-2.5 text-xs text-indigo-800 font-medium flex items-center gap-2 shrink-0">
+        <div id="ipcaApiBanner" class="bg-indigo-50 border-b border-indigo-100 px-6 py-2.5 text-xs text-indigo-800 font-medium flex items-center gap-2 shrink-0" title="Aviso de conexão e sincronização de dados históricos do IPCA junto ao Banco Central.">
             <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-indigo-600"></i>
             <span id="ipcaApiBannerText">Carregando série histórica do Banco Central...</span>
         </div>
@@ -438,31 +444,31 @@
                         
                         <!-- Textarea de Dados Brutos -->
                         <div class="lg:col-span-8 flex flex-col">
-                            <label for="ipcaRawInput" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                            <label for="ipcaRawInput" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5" title="Insira os itens a serem atualizados pelo IPCA (Código SIH, Mês/Ano inicial e Último Preço).">
                                 <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
                                 Dados Brutos: SIH | Último Mês de Entrada | Último Preço
                             </label>
-                            <textarea id="ipcaRawInput" rows="3" disabled class="w-full border border-slate-300 rounded-lg p-3 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs resize-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed placeholder:text-slate-400" placeholder="Exemplo:&#10;10030   05/2021   1.200,50&#10;10031   01/2020   50,00"></textarea>
-                            <span class="text-[11px] text-slate-500 mt-1">Cole aqui do Excel os dados (separados por espaço ou tabulação).</span>
+                            <textarea id="ipcaRawInput" rows="3" disabled class="w-full border border-slate-300 rounded-lg p-3 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs resize-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed placeholder:text-slate-400" title="Campo para colar a lista de itens copiados do Excel ou em formato texto (Exemplo: 10030 05/2021 1.200,50)." placeholder="Exemplo:&#10;10030   05/2021   1.200,50&#10;10031   01/2020   50,00"></textarea>
+                            <span class="text-[11px] text-slate-500 mt-1" title="Suporta colagem de dados copiados diretamente de células do Microsoft Excel ou arquivos CSV.">Cole aqui do Excel os dados (separados por espaço ou tabulação).</span>
                         </div>
 
                         <!-- Form Controls (Data Final + Botões) -->
                         <div class="lg:col-span-4 flex flex-col gap-3">
                             <div>
-                                <label for="ipcaFinalDate" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                                <label for="ipcaFinalDate" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5" title="Mês e ano limite para o cálculo da variação acumulada do IPCA.">
                                     <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
                                     Data Final (Mês/Ano)
                                 </label>
-                                <input type="month" id="ipcaFinalDate" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
+                                <input type="month" id="ipcaFinalDate" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" title="Selecione o mês e ano final de referência. Por padrão, é selecionado automaticamente o último mês oficial disponível do Banco Central." />
                             </div>
 
                             <!-- Botões -->
                             <div class="flex flex-col sm:flex-row gap-2 mt-1">
-                                <button id="ipcaProcessBtn" disabled class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed">
+                                <button id="ipcaProcessBtn" disabled class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed" title="Clique para calcular a correção monetária acumulada pelo IPCA e atualizar o valor de todos os itens informados.">
                                     <i data-lucide="play" class="w-4 h-4"></i>
                                     Processar Dados
                                 </button>
-                                <button id="ipcaExportBtn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2">
+                                <button id="ipcaExportBtn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2" title="Gera e faz o download de uma planilha Excel (.xlsx) contendo a tabela completa com os preços reajustados.">
                                     <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                                     Baixar Resultados em Excel
                                 </button>
@@ -474,29 +480,29 @@
 
                 <!-- Tabela de Dados (Baixo, com rolagem) -->
                 <div class="flex-1 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden">
-                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 shrink-0">
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 shrink-0" title="Resultados da atualização monetária processada pelo IPCA.">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Tabela consolidada com os preços originais, variações do IPCA e preços reajustados.">
                             <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i>
                             Tabela de Resultados
                         </h2>
-                        <span id="ipcaRowCount" class="text-xs text-slate-500 font-medium">0 registros</span>
+                        <span id="ipcaRowCount" class="text-xs text-slate-500 font-medium" title="Número total de registros processados na lista atual.">0 registros</span>
                     </div>
 
                     <div class="flex-1 overflow-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-slate-100 text-slate-600 uppercase font-semibold text-[11px] sticky top-0 z-10 border-b border-slate-200 shadow-2xs">
                                 <tr>
-                                    <th class="py-2.5 px-3 w-12 text-center">#</th>
-                                    <th class="py-2.5 px-3">SIH</th>
-                                    <th class="py-2.5 px-3">Último Mês de Entrada</th>
-                                    <th class="py-2.5 px-3 text-right">Último Preço</th>
-                                    <th class="py-2.5 px-3 text-right">IPCA (%)</th>
-                                    <th class="py-2.5 px-3 text-right">Preço Corrigido</th>
+                                    <th class="py-2.5 px-3 w-12 text-center" title="Número sequencial do item.">#</th>
+                                    <th class="py-2.5 px-3" title="Código de identificação do produto ou insumo hospitalar no Sistema de Informações Hospitalares (SIH).">SIH</th>
+                                    <th class="py-2.5 px-3" title="Mês e ano da última entrada ou valor base de referência para o reajuste.">Último Mês de Entrada</th>
+                                    <th class="py-2.5 px-3 text-right" title="Preço unitário original do item na data base de entrada.">Último Preço</th>
+                                    <th class="py-2.5 px-3 text-right" title="Percentual acumulado do IPCA no período, calculado mês a mês com a precisão oficial da Calculadora do Cidadão do Banco Central.">IPCA (%)</th>
+                                    <th class="py-2.5 px-3 text-right" title="Preço atualizado reajustado pela inflação acumulada do IPCA no período (formatado com 4 casas decimais).">Preço Corrigido</th>
                                 </tr>
                             </thead>
                             <tbody id="ipcaTableBody" class="divide-y divide-slate-100 font-mono">
                                 <tr>
-                                    <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs">
+                                    <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs" title="Cole os dados acima e clique no botão 'Processar Dados' para gerar a tabela.">
                                         Nenhum dado processado. Cole a lista acima e clique em "Processar Dados".
                                     </td>
                                 </tr>
@@ -508,9 +514,9 @@
             </div>
 
             <!-- Painel Lateral Direito (Aside) -->
-            <aside class="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 min-h-0 overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <aside class="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 min-h-0 overflow-hidden" title="Painel lateral com estatísticas detalhadas e métricas do item selecionado na tabela.">
+                <div class="p-4 border-b border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between" title="Resumo e métricas do item selecionado.">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2" title="Painel analítico com detalhamento completo de reajuste.">
                         <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i>
                         Painel de Análise
                     </h3>
@@ -519,61 +525,61 @@
                 <!-- Aside Content Area -->
                 <div id="ipcaAnalysisContent" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
                     <!-- Estado Vazio -->
-                    <div id="ipcaAnalysisEmpty" class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 my-auto">
+                    <div id="ipcaAnalysisEmpty" class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 my-auto" title="Instrução: Clique em uma linha da tabela ao lado para visualizar os detalhes deste registro.">
                         <i data-lucide="mouse-pointer-click" class="w-8 h-8 mb-2 text-slate-300"></i>
-                        <p class="font-sans text-xs">Select a row in the table to view detailed execution metrics.</p>
+                        <p class="font-sans text-xs">Clique em uma linha da tabela para visualizar o detalhamento completo de reajuste.</p>
                     </div>
 
                     <!-- Detail View (Hidden initially) -->
                     <div id="ipcaAnalysisDetail" class="hidden space-y-4">
                         <!-- Bloco 1 (Preço) -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2" title="Valor unitário atualizado corrigido com 4 casas decimais para alta precisão em orçamentos e licitações.">
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Preço Corrigido</span>
-                                <span id="ipcaDetailStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">SUCCESS</span>
+                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" title="Preço atualizado reajustado pelo IPCA.">Preço Corrigido</span>
+                                <span id="ipcaDetailStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700" title="Status do processamento do cálculo.">SUCCESS</span>
                             </div>
-                            <div id="ipcaDetailPrice" class="text-2xl font-extrabold text-slate-800 font-mono">R$ 0,0000</div>
-                            <div class="text-[11px] text-slate-500 flex justify-between border-t border-slate-200 pt-2 mt-1">
+                            <div id="ipcaDetailPrice" class="text-2xl font-extrabold text-slate-800 font-mono" title="Preço final reajustado em Reais (R$).">R$ 0,0000</div>
+                            <div class="text-[11px] text-slate-500 flex justify-between border-t border-slate-200 pt-2 mt-1" title="Comparativo entre o preço base original e o preço reajustado.">
                                 <span>Valor Base Original:</span>
-                                <span id="ipcaDetailBasePrice" class="font-bold font-mono text-slate-700">R$ 0,00</span>
+                                <span id="ipcaDetailBasePrice" class="font-bold font-mono text-slate-700" title="Preço original cadastrado antes do reajuste.">R$ 0,00</span>
                             </div>
                         </div>
 
                         <!-- Bloco 2 (IPCA) -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2" title="Índice de variação acumulada da inflação (IPCA) aplicada no período selecionado.">
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">IPCA Acumulado</span>
-                                <span id="ipcaDetailIpcaBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">HIGH</span>
+                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider" title="Variação percentual total do IPCA.">IPCA Acumulado</span>
+                                <span id="ipcaDetailIpcaBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700" title="Indicador da magnitude de variação do IPCA.">HIGH</span>
                             </div>
-                            <div id="ipcaDetailIpcaValue" class="text-2xl font-extrabold text-slate-800 font-mono">+0.000000%</div>
-                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mt-2">
+                            <div id="ipcaDetailIpcaValue" class="text-2xl font-extrabold text-slate-800 font-mono" title="Taxa percentual exata da variação do IPCA acumulada.">+0.000000%</div>
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mt-2" title="Barra visual de intensidade do IPCA acumulado.">
                                 <div id="ipcaDetailBar" class="bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                             </div>
                         </div>
 
                         <!-- Bloco 3 (Details) -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
-                            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block border-b border-slate-200 pb-1.5">Detalhes da Execução</span>
-                            <div class="flex justify-between items-center text-slate-600">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5" title="Resumo dos parâmetros técnicos e fonte do cálculo.">
+                            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block border-b border-slate-200 pb-1.5" title="Informações do item e intervalo de aplicação.">Detalhes da Execução</span>
+                            <div class="flex justify-between items-center text-slate-600" title="Código SIH do produto selecionado.">
                                 <span>Código SIH:</span>
                                 <span id="ipcaDetailSih" class="font-bold font-mono text-slate-800">--</span>
                             </div>
-                            <div class="flex justify-between items-center text-slate-600">
+                            <div class="flex justify-between items-center text-slate-600" title="Intervalo de meses (Mês/Ano inicial até Mês/Ano final) considerado para a capitalização composta do IPCA.">
                                 <span>Período de Ajuste:</span>
                                 <span id="ipcaDetailPeriod" class="font-mono text-slate-800 text-[11px]">-- -> --</span>
                             </div>
-                            <div class="flex justify-between items-center text-slate-600">
+                            <div class="flex justify-between items-center text-slate-600" title="Fonte dos dados oficiais de inflação.">
                                 <span>Data Source:</span>
-                                <span class="font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-[10px]">BCB SGS 433</span>
+                                <span class="font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-[10px]" title="Série de dados 433 do Banco Central do Brasil.">BCB SGS 433</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Rodapé Aside -->
-                <div class="p-3 border-t border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between text-[11px] text-slate-500">
-                    <span class="font-medium">BCB SGS 433</span>
-                    <div id="ipcaSyncLedContainer" class="flex items-center gap-1.5 font-semibold">
+                <div class="p-3 border-t border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between text-[11px] text-slate-500" title="Fonte dos dados: Banco Central do Brasil - Sistema Gerenciador de Séries Temporais (SGS 433).">
+                    <span class="font-medium" title="Série 433: Índice nacional de preços ao consumidor-amplo (IPCA) - variação % mensal.">BCB SGS 433</span>
+                    <div id="ipcaSyncLedContainer" class="flex items-center gap-1.5 font-semibold" title="Estado de conexão e sincronização com a API pública do Banco Central.">
                         <span id="ipcaSyncLedDot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                         <span id="ipcaSyncLedText" class="text-slate-400">Offline</span>
                     </div>
@@ -601,9 +607,9 @@
 
     <div id="fornecedoresView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
         
-        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4" title="Painel de consulta e gestão do catálogo de empresas fornecedoras do hospital.">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Visualizador de Fornecedores</h1>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight" title="Catálogo unificado de fornecedores com informações de contato, localização e categorias de produtos.">Visualizador de Fornecedores</h1>
             </div>
             <div class="flex items-center space-x-3">
                 <!-- 1. Upload -->
@@ -612,92 +618,92 @@
         </header>
 
         <!-- Seção de Controles -->
-        <div id="controlsSection" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6 hidden">
+        <div id="controlsSection" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6 hidden" title="Painel de filtros de pesquisa de fornecedores por categoria, palavra-chave, localização e subcategorias.">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- 2. Categoria -->
                 <div class="col-span-1">
-                    <label for="categoryFilter" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Categoria Principal</label>
-                    <select id="categoryFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <label for="categoryFilter" class="block text-sm font-semibold text-gray-700 mb-2" title="Filtre os fornecedores selecionando uma categoria principal de produtos/serviços.">Filtrar por Categoria Principal</label>
+                    <select id="categoryFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" title="Selecione uma categoria principal de insumos para filtrar os fornecedores cadastrados.">
                         <option value="">Todas as Categorias</option>
                     </select>
                 </div>
                 <!-- 3. Busca Texto -->
                 <div class="col-span-1">
-                    <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">Buscar</label>
+                    <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2" title="Digite o nome da empresa ou número do CNPJ para pesquisar.">Buscar</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                         </div>
-                        <input type="text" id="searchInput" placeholder="Nome ou CNPJ..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="searchInput" placeholder="Nome ou CNPJ..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" title="Digite a razão social, nome fantasia ou CNPJ do fornecedor.">
                     </div>
                 </div>
                 <!-- 4. Localização -->
                 <div class="col-span-1">
-                    <label for="locationInput" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Localização</label>
-                    <input type="text" id="locationInput" placeholder="Ex: PR, Sul, Curitiba, Rua..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400" disabled>
+                    <label for="locationInput" class="block text-sm font-semibold text-gray-700 mb-2" title="Filtre os fornecedores por Estado (UF), DDD, Região ou Cidade.">Filtrar por Localização</label>
+                    <input type="text" id="locationInput" placeholder="Ex: PR, Sul, Curitiba, Rua..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400" disabled title="Digite a sigla da UF (ex: PR, SP), código DDD ou nome da região/cidade do fornecedor.">
                 </div>
                 <!-- Ações -->
                 <div class="col-span-1 flex flex-col justify-end">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Ações</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" title="Ações para limpar filtros ou baixar os contatos visíveis.">Ações</label>
                     <div class="flex gap-2">
-                        <button id="clearFiltersButton" class="w-1/3 bg-gray-100 text-gray-600 border border-gray-300 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors hidden" title="Limpar Filtros">
+                        <button id="clearFiltersButton" class="w-1/3 bg-gray-100 text-gray-600 border border-gray-300 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors hidden" title="Limpa todos os filtros aplicados e reexibe a lista completa de empresas.">
                             Limpar
                         </button>
-                        <button id="downloadButton" class="flex-1 bg-green-600 border border-transparent text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors hidden flex justify-center items-center" title="Baixar Contatos Atuais">
+                        <button id="downloadButton" class="flex-1 bg-green-600 border border-transparent text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors hidden flex justify-center items-center" title="Gera e faz o download de uma planilha Excel (.xlsx) contendo todas as empresas atualmente filtradas e seus contatos completos.">
                             <i data-lucide="download" class="w-4 h-4 mr-2"></i> Baixar Atual
                         </button>
                     </div>
                 </div>
 
                 <!-- Subcategorias (1, 2, 3) -->
-                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup1">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 1</label>
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup1" title="Filtro secundário por Subcategoria nível 1.">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" title="Filtre por subcategoria primária específica do insumo.">Subcategoria 1</label>
                     <div class="globalSubcategoryContainer relative">
-                        <input type="text" id="subcategoryInput1" data-idx="1" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <input type="text" id="subcategoryInput1" data-idx="1" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400" title="Digite o nome de uma subcategoria para filtrar.">
                         <div id="subcategoryListContainer1" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
                     </div>
                     <div class="specificSubcategoryContainer hidden relative">
-                        <select id="subcategorySelect1" data-idx="1" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                        <select id="subcategorySelect1" data-idx="1" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" title="Selecione a subcategoria desejada."><option value="">Todas</option></select>
                     </div>
                 </div>
 
-                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 2</label>
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup2" title="Filtro secundário por Subcategoria nível 2.">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" title="Filtre por subcategoria secundária específica do insumo.">Subcategoria 2</label>
                     <div class="globalSubcategoryContainer relative">
-                        <input type="text" id="subcategoryInput2" data-idx="2" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <input type="text" id="subcategoryInput2" data-idx="2" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400" title="Digite o nome de uma subcategoria de nível 2.">
                         <div id="subcategoryListContainer2" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
                     </div>
                     <div class="specificSubcategoryContainer hidden relative">
-                        <select id="subcategorySelect2" data-idx="2" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                        <select id="subcategorySelect2" data-idx="2" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" title="Selecione a subcategoria desejada."><option value="">Todas</option></select>
                     </div>
                 </div>
 
-                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Subcategoria 3</label>
+                <div class="col-span-1 relative subcat-filter-group" id="subcatGroup3" title="Filtro secundário por Subcategoria nível 3.">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" title="Filtre por subcategoria de nível 3.">Subcategoria 3</label>
                     <div class="globalSubcategoryContainer relative">
-                        <input type="text" id="subcategoryInput3" data-idx="3" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400">
+                        <input type="text" id="subcategoryInput3" data-idx="3" placeholder="Busque em todas..." disabled autocomplete="off" class="subcategory-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white disabled:bg-gray-100 disabled:text-gray-400" title="Digite o nome de uma subcategoria de nível 3.">
                         <div id="subcategoryListContainer3" class="hidden absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto custom-dropdown-list"></div>
                     </div>
                     <div class="specificSubcategoryContainer hidden relative">
-                        <select id="subcategorySelect3" data-idx="3" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"><option value="">Todas</option></select>
+                        <select id="subcategorySelect3" data-idx="3" class="subcategory-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" title="Selecione a subcategoria desejada."><option value="">Todas</option></select>
                     </div>
                 </div>
 
                 <!-- Lista unificada card -->
-                <div class="col-span-1 w-full bg-indigo-50 rounded-xl border border-indigo-100 p-4">
+                <div class="col-span-1 w-full bg-indigo-50 rounded-xl border border-indigo-100 p-4" title="Caixa do acumulador para criar uma lista unificada contendo contatos de múltiplos filtros de fornecedores.">
                     <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-sm font-semibold text-indigo-900">Lista Unificada</h4>
-                        <span class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded-full" id="queueCountBadge">0</span>
+                        <h4 class="text-sm font-semibold text-indigo-900" title="Contador de contatos acumulados na lista unificada atual.">Lista Unificada</h4>
+                        <span class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded-full" id="queueCountBadge" title="Número de empresas acumuladas para exportação na lista unificada.">0</span>
                     </div>
                     <div id="accumulatorActions" class="flex flex-col gap-2">
-                        <button id="addToQueueButton" class="w-full bg-white text-indigo-700 border border-indigo-300 px-3 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 text-sm">
+                        <button id="addToQueueButton" class="w-full bg-white text-indigo-700 border border-indigo-300 px-3 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 text-sm" title="Adiciona as empresas resultantes do filtro atual à lista unificada acumulativa.">
                             <i data-lucide="plus" class="w-4 h-4"></i> Adicionar à Lista
                         </button>
                         <div class="flex gap-2">
-                            <button id="downloadQueueButton" class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled>
+                            <button id="downloadQueueButton" class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled title="Gera e faz o download de uma planilha Excel (.xlsx) contendo todos os fornecedores adicionados à lista unificada.">
                                 <i data-lucide="download" class="w-4 h-4"></i> Baixar Unificada
                             </button>
-                            <button id="clearQueueBtn" class="bg-white border border-red-200 text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled title="Limpar Lista">
+                            <button id="clearQueueBtn" class="bg-white border border-red-200 text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled title="Limpa e esvazia todos os registros acumulados na lista unificada.">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -706,7 +712,7 @@
 
             </div>
             
-            <div id="filterSummary" class="mt-4 text-sm text-indigo-600 font-medium hidden"></div>
+            <div id="filterSummary" class="mt-4 text-sm text-indigo-600 font-medium hidden" title="Resumo do total de empresas encontradas com os filtros atuais."></div>
         </div>
 
         <p id="loadingMessage" class="text-center text-indigo-600 mt-4 hidden font-medium flex justify-center items-center">
@@ -715,8 +721,8 @@
         <p id="errorMessage" class="text-center text-red-600 mt-4 hidden font-medium"></p>
 
         <!-- Área de Exibição -->
-        <main id="dataContainer" class="flex-1 overflow-y-auto pb-10 space-y-4">
-            <div id="initialMessage" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full">
+        <main id="dataContainer" class="flex-1 overflow-y-auto pb-10 space-y-4" title="Área de exibição das empresas fornecedoras cadastradas.">
+            <div id="initialMessage" class="flex flex-col items-center justify-center h-[75vh] mt-2 w-full" title="Banner principal da UPDE Analytics.">
                 <img src="./public/logo-upde.png" alt="UPDE Analytics" class="w-full max-w-[90%] md:max-w-5xl max-h-full object-contain mix-blend-multiply opacity-90 transition-opacity" />
             </div>
         </main>
@@ -724,11 +730,11 @@
 
     <!-- Modal para Detalhes do Fornecedor -->
     <div id="modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 sm:p-6 z-[60] hidden">
-        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" title="Janela de detalhes e contatos completos da empresa fornecedora.">
             <!-- Header do Modal -->
             <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-white">
-                <h2 id="modalTitle" class="text-xl md:text-2xl font-bold text-gray-800 pr-4 flex items-center gap-2">Detalhes do Fornecedor</h2>
-                <button id="closeModal" class="text-gray-400 hover:bg-gray-100 hover:text-gray-600 p-2 rounded-full focus:outline-none transition-colors">
+                <h2 id="modalTitle" class="text-xl md:text-2xl font-bold text-gray-800 pr-4 flex items-center gap-2" title="Nome completo da empresa fornecedora.">Detalhes do Fornecedor</h2>
+                <button id="closeModal" class="text-gray-400 hover:bg-gray-100 hover:text-gray-600 p-2 rounded-full focus:outline-none transition-colors" title="Fechar modal de detalhes do fornecedor.">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -743,10 +749,10 @@
 
             <!-- Footer do Modal (Ações) -->
             <div class="p-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3 z-10">
-                <button id="btnCopyText" class="px-4 py-2.5 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2">
+                <button id="btnCopyText" class="px-4 py-2.5 bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-200 transition-colors flex items-center justify-center gap-2" title="Copia todas as informações e contatos da empresa para a área de transferência.">
                     <i data-lucide="copy" class="w-4 h-4"></i> Copiar Dados
                 </button>
-                <button id="closeModalFooter" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                <button id="closeModalFooter" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors" title="Fechar modal de detalhes do fornecedor.">
                     Fechar
                 </button>
             </div>
@@ -754,24 +760,24 @@
     </div>
 
     <!-- View: Extrair E-mails -->
-    <div id="emailExtractorView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
+    <div id="emailExtractorView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Extrator automático de e-mails com remoção de duplicatas e divisão em lotes.">
         <div class="email-ext-container mt-4 mb-10 w-full">
-            <h1 class="text-2xl font-bold mb-2">Extrator de E-mails</h1>
-            <p class="text-gray-600 mb-4 text-sm">Cole seu texto na caixa abaixo. Os e-mails serão convertidos para minúsculas, as duplicatas serão removidas e listas de no máximo 400 e-mails serão geradas.</p>
+            <h1 class="text-2xl font-bold mb-2" title="Ferramenta de extração, filtragem e organização de listas de e-mail.">Extrator de E-mails</h1>
+            <p class="text-gray-600 mb-4 text-sm" title="Instruções de uso: cole o texto bruto, clique em Extrair E-mails e obtenha listas limpas de até 400 contatos.">Cole seu texto na caixa abaixo. Os e-mails serão convertidos para minúsculas, as duplicatas serão removidas e listas de no máximo 400 e-mails serão geradas.</p>
             
-            <textarea id="textoEntrada" class="email-textarea" placeholder="Cole seu texto aqui..."></textarea>
+            <textarea id="textoEntrada" class="email-textarea" title="Cole aqui o texto contendo os e-mails que deseja extrair." placeholder="Cole seu texto aqui..."></textarea>
             
-            <div class="botoes-acao">
-                <button onclick="colarTexto()" class="email-btn btn-secundario">Colar</button>
-                <button onclick="extrairEmails()" class="email-btn btn-principal">Extrair E-mails</button>
-                <button onclick="limparCampos()" class="email-btn btn-secundario">Limpar Tudo</button>
+            <div class="botoes-acao" title="Ações principais para colar texto, extrair e-mails ou limpar os campos.">
+                <button onclick="colarTexto()" class="email-btn btn-secundario" title="Cola o conteúdo da área de transferência diretamente no campo de texto.">Colar</button>
+                <button onclick="extrairEmails()" class="email-btn btn-principal" title="Extrai os e-mails do texto, remove duplicatas e gera lotes organizados.">Extrair E-mails</button>
+                <button onclick="limparCampos()" class="email-btn btn-secundario" title="Limpa o campo de entrada e apaga as listas de e-mails geradas.">Limpar Tudo</button>
             </div>
             
-            <div id="email-resultado">
-                <div id="resumoTotal">
+            <div id="email-resultado" title="Área de exibição dos resultados da extração de e-mails.">
+                <div id="resumoTotal" title="Resumo estatístico do total de e-mails únicos extraídos.">
                     <h2>Aguardando extração...</h2>
                 </div>
-                <div id="containerListas">
+                <div id="containerListas" title="Listas de e-mails divididas em lotes de até 400 endereços cada.">
                     <!-- As listas separadas aparecerão aqui lado a lado -->
                 </div>
             </div>
@@ -779,25 +785,25 @@
     </div>
 
     <!-- View: Filtrar Preços Compras Net -->
-    <div id="catmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
+    <div id="catmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Módulo de cruzamento de dados de cotações do Compras Net (.csv) com o histórico de valores do hospital (.xlsx).">
         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
             <div class="text-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Compras Net - Filtragem de preços</h1>
-                <p class="text-gray-500 mt-2">Carregue as planilhas e selecione um CATMAT para filtrar preços a cada cód. SIH.</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800" title="Sistema de análise de preços públicos e cotações do Compras Net para cálculo de valores de referência.">Compras Net - Filtragem de preços</h1>
+                <p class="text-gray-500 mt-2" title="Guia rápido: 1. Selecione a planilha .xlsx do hospital; 2. Selecione a cotações .csv do Compras Net; 3. Escolha o CATMAT e analise os preços.">Carregue as planilhas e selecione um CATMAT para filtrar preços a cada cód. SIH.</p>
             </div>
 
             <!-- Seção de Entradas -->
             <div class="space-y-6">
                 <!-- Passo 1: Planilha de Referência (.xlsx) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                <div title="Passo 1: Seleção do arquivo Excel contendo os códigos e dados do hospital.">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" title="Planilha do hospital com os códigos SIH, CATMAT correspondente e último valor pago registrado.">
                         1. Selecione a planilha dos códigos SIH, CATMAT e Últimos valores pagos (.xlsx)
                     </label>
-                    <div id="drop-zone-xlsx" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-xlsx').click()">
+                    <div id="drop-zone-xlsx" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-xlsx').click()" title="Clique aqui ou arraste e solte o arquivo Excel (.xlsx) contendo a relação SIH x CATMAT.">
                         <div class="space-y-1 text-center">
                             <i data-lucide="file-spreadsheet" class="mx-auto h-12 w-12 text-gray-400"></i>
                             <div class="flex text-sm text-gray-600 justify-center">
-                                <label class="relative bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                                <label class="relative bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500" title="Clique para abrir o seletor de arquivos Excel (.xlsx)">
                                     <span>Carregar arquivo .xlsx</span>
                                     <input id="file-input-xlsx" name="file-input-xlsx" type="file" class="sr-only" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                 </label>
@@ -809,15 +815,15 @@
                 </div>
 
                 <!-- Passo 2: Planilha de Consulta (.csv) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                <div title="Passo 2: Seleção do arquivo CSV exportado diretamente do site Compras Net.">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" title="Arquivo de cotação gerado no Compras Net em formato CSV com histórico de contratações públicas.">
                         2. Selecione a planilha de Cotação xxx-xxxx gerada no site Compras Net (.csv)
                     </label>
-                    <div id="drop-zone-csv" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-csv').click()">
+                    <div id="drop-zone-csv" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 cursor-pointer" onclick="if(event.target.tagName !== 'INPUT' && !event.target.closest('label')) document.getElementById('file-input-csv').click()" title="Clique aqui ou arraste e solte o arquivo CSV baixado no Compras Net.">
                         <div class="space-y-1 text-center">
                             <i data-lucide="file-text" class="mx-auto h-12 w-12 text-gray-400"></i>
                             <div class="flex text-sm text-gray-600 justify-center">
-                                <label class="relative bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                                <label class="relative bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500" title="Clique para abrir o seletor de arquivos CSV (.csv)">
                                     <span>Carregar arquivo .csv</span>
                                     <input id="file-input-csv" name="file-input-csv" type="file" class="sr-only" accept=".csv">
                                 </label>
@@ -829,60 +835,60 @@
                 </div>
                 
                 <!-- Passo 3: Filtros -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">
+                <div title="Passo 3: Configuração opcional de filtros por período, modalidade e intervalo de valores.">
+                    <label class="block text-sm font-medium text-gray-700" title="Filtros para refinamento dos resultados das cotações.">
                         3. Filtros (Opcional)
                     </label>
                     <div class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div>
+                        <div title="Defina a data inicial para considerar apenas compras a partir do dia informado.">
                             <label for="start-date" class="block text-xs font-medium text-gray-500">Data Inicial</label>
-                            <input type="date" id="start-date" name="start-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="date" id="start-date" name="start-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" title="Selecione a data inicial do período de pesquisa.">
                         </div>
-                        <div>
+                        <div title="Defina a data final para considerar apenas compras até o dia informado.">
                             <label for="end-date" class="block text-xs font-medium text-gray-500">Data Final</label>
-                            <input type="date" id="end-date" name="end-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="date" id="end-date" name="end-date" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" title="Selecione a data final do período de pesquisa.">
                         </div>
                     </div>
                     <div class="mt-2 flex items-center space-x-2">
-                        <button id="btn-since-2024" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors">Desde 01/01/2024</button>
-                        <button id="btn-last-180-days" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors">Últimos 180 dias</button>
+                        <button id="btn-since-2024" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors" title="Preenche automaticamente a data inicial com 01/01/2024.">Desde 01/01/2024</button>
+                        <button id="btn-last-180-days" class="text-xs bg-gray-100 border border-gray-200 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-md transition-colors" title="Define o intervalo de datas para abranger os últimos 180 dias.">Últimos 180 dias</button>
                     </div>
                     <div class="mt-4 flex flex-col sm:flex-row sm:items-start sm:space-x-6 space-y-4 sm:space-y-0">
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start" title="Caixa de seleção para ignorar ou incluir compras da UASG 155902 (CHC-UFPR).">
                             <div class="flex h-5 items-center">
-                                <input id="exclude-uasg-checkbox" name="exclude-uasg" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                                <input id="exclude-uasg-checkbox" name="exclude-uasg" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked title="Ative para ignorar os registros do próprio hospital (UASG 155902).">
                             </div>
                             <div class="ml-3 text-sm">
-                                <label for="exclude-uasg-checkbox" class="font-medium text-gray-700">Retirar preços da UASG 155902</label>
+                                <label for="exclude-uasg-checkbox" class="font-medium text-gray-700 cursor-pointer" title="Desmarca ou marca a exclusão de compras da UASG do hospital.">Retirar preços da UASG 155902</label>
                             </div>
                         </div>
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start" title="Ativa a inserção manual de faixa de valores mínimos e máximos.">
                             <div class="flex h-5 items-center">
-                                <input id="manual-price-checkbox" name="manual-price" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <input id="manual-price-checkbox" name="manual-price" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" title="Marque para definir manualmente um valor mínimo e máximo em Reais (R$).">
                             </div>
                             <div class="ml-3 text-sm">
-                                <label for="manual-price-checkbox" class="font-medium text-gray-700">Meu filtro de valor mínimo</label>
+                                <label for="manual-price-checkbox" class="font-medium text-gray-700 cursor-pointer" title="Ativa os campos de valor mínimo e máximo customizados.">Meu filtro de valor mínimo</label>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-4 max-w-sm">
-                        <label for="modalidade-select" class="block text-xs font-medium text-gray-700 mb-1">Modalidade</label>
-                        <select id="modalidade-select" name="modalidade-select" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 bg-white">
+                    <div class="mt-4 max-w-sm" title="Filtro por modalidade de licitação do Compras Net.">
+                        <label for="modalidade-select" class="block text-xs font-medium text-gray-700 mb-1" title="Selecione a modalidade contratual para filtrar os registros do CSV.">Modalidade</label>
+                        <select id="modalidade-select" name="modalidade-select" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 bg-white" title="Escolha entre Pregão, Inexigibilidade, Dispensa ou Todas.">
                             <option value="">Todas (Ignorar este filtro)</option>
                             <option value="pregão" selected>Pregão</option>
                             <option value="inexigibilidade">Inexigibilidade</option>
                             <option value="dispensa">Dispensa</option>
                         </select>
                     </div>
-                     <div id="manual-price-container" class="mt-4 hidden p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                     <div id="manual-price-container" class="mt-4 hidden p-4 bg-gray-50 border border-gray-200 rounded-lg" title="Campos de entrada para definir limites de valores financeiros em R$.">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label for="manual-price-min-input" class="block text-xs font-medium text-gray-600">Valor mínimo para todos os Cód. SIH</label>
-                                <input type="text" id="manual-price-min-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 500,00">
+                                <input type="text" id="manual-price-min-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 500,00" title="Digite o valor mínimo aceitável em Reais (R$).">
                             </div>
                             <div>
                                 <label for="manual-price-max-input" class="block text-xs font-medium text-gray-600">Valor máximo para todos os Cód. SIH</label>
-                                <input type="text" id="manual-price-max-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 1000,00">
+                                <input type="text" id="manual-price-max-input" class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3" placeholder="Ex: 1000,00" title="Digite o valor máximo aceitável em Reais (R$).">
                             </div>
                         </div>
                     </div>
@@ -890,10 +896,10 @@
 
                 <!-- Botões de Ação -->
                 <div class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                     <button id="clear-catmat-filters-button" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 items-center">
+                     <button id="clear-catmat-filters-button" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 items-center" title="Reseta todos os arquivos carregados, campos de datas e filtros deste módulo.">
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2 text-gray-500"></i> Limpar Tudo
                     </button>
-                    <button id="download-saved-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 items-center">
+                    <button id="download-saved-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 items-center" title="Gera o arquivo Excel (.xlsx) contendo todos os dados e preços filtrados que foram salvos.">
                         <i data-lucide="download" class="w-4 h-4 mr-2"></i> Baixar Planilha Salva
                     </button>
                 </div>
@@ -903,41 +909,41 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Coluna Esquerda: Banner de CATMATs da Cotação -->
-                <div id="available-catmats-banner" class="bg-gray-100 border border-gray-200 p-4 rounded-md hidden lg:col-span-1 self-start sticky top-6">
+                <div id="available-catmats-banner" class="bg-gray-100 border border-gray-200 p-4 rounded-md hidden lg:col-span-1 self-start sticky top-6" title="Lista de códigos CATMAT identificados no arquivo do Compras Net.">
                      <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-bold text-gray-800">CATMATs da Planilha de<br>Cotação:</p>
-                            <p class="text-xs text-gray-500 mt-1">Clique em um CATMAT para consultar. Os<br>Cód. SIH salvos aparecerão ao lado.</p>
+                            <p class="font-bold text-gray-800" title="Códigos CATMAT encontrados no CSV de cotação do Compras Net.">CATMATs da Planilha de<br>Cotação:</p>
+                            <p class="text-xs text-gray-500 mt-1" title="Clique no botão do CATMAT para selecionar e filtrar os itens correspondentes.">Clique em um CATMAT para consultar. Os<br>Cód. SIH salvos aparecerão ao lado.</p>
                         </div>
-                         <button id="clear-saved-data-button" class="ml-2 flex-shrink-0 bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors">
+                         <button id="clear-saved-data-button" class="ml-2 flex-shrink-0 bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded text-xs transition-colors" title="Apaga da memória os itens salvos até o momento.">
                             Limpar Salvos
                         </button>
                     </div>
-                     <div id="available-catmats-list" class="mt-4 flex flex-col items-start gap-2 max-h-[calc(100vh-20rem)] overflow-y-auto pr-2">
+                     <div id="available-catmats-list" class="mt-4 flex flex-col items-start gap-2 max-h-[calc(100vh-20rem)] overflow-y-auto pr-2" title="Lista interativa de CATMATs e SIH salvos.">
                         <!-- Botões de CATMAT e SIH salvos/vazios serão inseridos aqui -->
                      </div>
                 </div>
         
                 <!-- Coluna Direita: Seção de Resultados -->
-                <div id="results-section" class="text-gray-800 p-2 hidden lg:col-span-2">
-                     <div id="results-container" class="space-y-4">
+                <div id="results-section" class="text-gray-800 p-2 hidden lg:col-span-2" title="Área de exibição das cotações e valores para o CATMAT selecionado.">
+                     <div id="results-container" class="space-y-4" title="Detalhes das cotações e opções de salvamento.">
                         <!-- Os resultados serão inseridos aqui -->
                     </div>
                 </div>
             </div>
 
             <!-- Banner de Fornecedores -->
-            <div id="suppliers-banner" class="bg-indigo-50 border border-indigo-100 rounded-xl shadow-sm p-6 mt-6 hidden">
+            <div id="suppliers-banner" class="bg-indigo-50 border border-indigo-100 rounded-xl shadow-sm p-6 mt-6 hidden" title="Relação das empresas e fornecedores encontrados nas cotações.">
                  <div class="flex justify-between items-center mb-4">
-                    <h3 id="suppliers-title" class="font-bold text-indigo-900 flex items-center">
+                    <h3 id="suppliers-title" class="font-bold text-indigo-900 flex items-center" title="Empresas fornecedoras listadas no CSV do Compras Net.">
                         <i data-lucide="users" class="w-5 h-5 mr-2 text-indigo-600"></i> Fornecedores do processo
                     </h3>
-                    <button id="copy-suppliers-button" class="py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 flex items-center transition-colors">
+                    <button id="copy-suppliers-button" class="py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 flex items-center transition-colors" title="Copia a lista formatada de fornecedores para colar no ChatGPT ou Gemini.">
                         <i data-lucide="copy" class="w-4 h-4 mr-1.5"></i> Copiar para IA
                     </button>
                 </div>
-                <p class="font-medium italic text-indigo-600/70 mb-3 text-sm">Lista de nomes recuperados do CSV:</p>
-                 <div id="suppliers-list" class="text-sm text-gray-700 space-y-1.5 max-h-[400px] overflow-y-auto bg-white p-4 rounded-lg border border-indigo-200/50">
+                <p class="font-medium italic text-indigo-600/70 mb-3 text-sm" title="Fornecedores participantes extraídos da planilha do Compras Net.">Lista de nomes recuperados do CSV:</p>
+                 <div id="suppliers-list" class="text-sm text-gray-700 space-y-1.5 max-h-[400px] overflow-y-auto bg-white p-4 rounded-lg border border-indigo-200/50" title="Razões sociais das empresas fornecedoras.">
                     <!-- Lista de fornecedores -->
                  </div>
             </div>
@@ -946,79 +952,79 @@
     </div>
 
     <!-- View: IA Desc P4 -->
-    <div id="iaDescP4View" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
+    <div id="iaDescP4View" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Módulo de formatação de prompt para análise de equivalência técnica entre itens do CHC-UFPR e multicódigos do P4 com IA.">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto" title="Painel principal do gerador de descritivos formatados.">
             <div class="text-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2" title="Formatador de descritivos técnicos de materiais para análise com Inteligência Artificial.">
                     <i data-lucide="bot" class="w-8 h-8 text-indigo-600"></i> IA Desc P4
                 </h1>
-                <p class="text-gray-500 mt-2">Formate textos para analisar descritivos de itens do CHC-UPR comparado ao P4.</p>
+                <p class="text-gray-500 mt-2" title="Instruções: insira o item do hospital e os itens multicódigos do P4 para montar um prompt pronto para colar na IA.">Formate textos para analisar descritivos de itens do CHC-UPR comparado ao P4.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <!-- Box 1 -->
-                <div>
-                    <label for="iaDescInput1" class="block text-sm font-medium text-gray-700 mb-2">O CATMAT e descritivo completo do item do CHC-UPR</label>
-                    <textarea id="iaDescInput1" rows="12" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono shadow-sm" placeholder="Ex:\nCATÉTER BALÃO VALVOPLASTIA MITRAL 26-30M\nCATETER BALÃO PARA VALVOPLASTIA..."></textarea>
+                <div title="Entrada 1: Informações e especificação do material do hospital.">
+                    <label for="iaDescInput1" class="block text-sm font-medium text-gray-700 mb-2" title="Insira o código CATMAT e a descrição técnica detalhada do item do CHC-UFPR.">O CATMAT e descritivo completo do item do CHC-UPR</label>
+                    <textarea id="iaDescInput1" rows="12" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono shadow-sm" placeholder="Ex:\nCATÉTER BALÃO VALVOPLASTIA MITRAL 26-30M\nCATETER BALÃO PARA VALVOPLASTIA..." title="Cole aqui a especificação técnica e o CATMAT do item cadastrado no hospital."></textarea>
                 </div>
                 <!-- Box 2 -->
-                <div>
-                    <label for="iaDescInput2" class="block text-sm font-medium text-gray-700 mb-2">Os CATMAT e descritivos dos CATMATs multicódigos do P4</label>
-                    <textarea id="iaDescInput2" rows="12" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono shadow-sm" placeholder="Ex:\n459236 CATETER BALÃO VALVOPLASTIA, APLICAçãO: PULMONAR...\n459241 CATETER BALÃO VALVOPLASTIA, APLICAçãO: PULMONAR..."></textarea>
+                <div title="Entrada 2: Lista de materiais e multicódigos obtidos do P4.">
+                    <label for="iaDescInput2" class="block text-sm font-medium text-gray-700 mb-2" title="Insira os códigos CATMAT e descritivos multicódigos retirados da planilha/relatório do P4.">Os CATMAT e descritivos dos CATMATs multicódigos do P4</label>
+                    <textarea id="iaDescInput2" rows="12" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono shadow-sm" placeholder="Ex:\n459236 CATETER BALÃO VALVOPLASTIA, APLICAçãO: PULMONAR...\n459241 CATETER BALÃO VALVOPLASTIA, APLICAçãO: PULMONAR..." title="Cole aqui os códigos e descrições dos multicódigos P4 que deseja comparar."></textarea>
                 </div>
             </div>
 
-            <div class="flex justify-center mb-8 gap-4">
-                <button id="iaDescGenerateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all flex items-center gap-2 transform hover:scale-[1.02]">
+            <div class="flex justify-center mb-8 gap-4" title="Ações para montagem ou limpeza dos campos de texto.">
+                <button id="iaDescGenerateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all flex items-center gap-2 transform hover:scale-[1.02]" title="Processa os textos e gera o prompt formatado solicitando à IA os 10 itens mais próximos em aplicação, tipo e componentes.">
                     <i data-lucide="zap" class="w-5 h-5"></i>
                     Gerar Texto Formatado
                 </button>
-                <button id="iaDescClearBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-8 rounded-lg shadow-sm transition-all flex items-center gap-2 border border-gray-300">
+                <button id="iaDescClearBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-8 rounded-lg shadow-sm transition-all flex items-center gap-2 border border-gray-300" title="Limpa as caixas de texto e esconde a área do resultado.">
                     <i data-lucide="trash-2" class="w-5 h-5 text-gray-500"></i>
                     Limpar Campos
                 </button>
             </div>
 
-            <div id="iaDescResultContainer" class="hidden">
+            <div id="iaDescResultContainer" class="hidden" title="Área do resultado com o prompt estruturado gerado.">
                 <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-lg font-semibold text-gray-800">Resultado</h2>
-                    <button id="iaDescCopyBtn" class="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-medium border border-indigo-200">
+                    <h2 class="text-lg font-semibold text-gray-800" title="Prompt pronto para cópia e envio à Inteligência Artificial.">Resultado</h2>
+                    <button id="iaDescCopyBtn" class="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-medium border border-indigo-200" title="Copia todo o prompt formatado para a área de transferência.">
                         <i data-lucide="copy" class="w-4 h-4 mr-1.5 pointer-events-none"></i> Copiar Texto
                     </button>
                 </div>
                 <div class="relative">
-                    <textarea id="iaDescResult" rows="16" class="w-full border-2 border-indigo-200 rounded-lg p-4 text-sm bg-gray-50 text-gray-800 font-mono shadow-inner resize-none focus:outline-none" readonly></textarea>
+                    <textarea id="iaDescResult" rows="16" class="w-full border-2 border-indigo-200 rounded-lg p-4 text-sm bg-gray-50 text-gray-800 font-mono shadow-inner resize-none focus:outline-none" readonly title="Texto final contendo as orientações e os descritivos formatados prontos para colar na IA."></textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- View: Filtrar preços P4 -->
-    <div id="pdfCatmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl">
+    <div id="pdfCatmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Módulo de cruzamento de dados de relatórios em PDF do Painel de Preços (P4) com a planilha de referência do hospital.">
         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
             <div class="text-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2" title="Sistema de extração de relatórios PDF do Painel de Preços (P4) para cálculo de preço de referência.">
                     <i data-lucide="file-text" class="w-8 h-8 text-indigo-600"></i> P4 - Filtragem de preços
                 </h1>
-                <p class="text-gray-500 mt-2">Cruze dados do PDF do Pinel de Preços com sua planilha de referência SIH.</p>
+                <p class="text-gray-500 mt-2" title="Guia rápido: 1. Selecione a planilha Excel (.xlsx) do hospital; 2. Selecione o relatório PDF extraído do Painel de Preços (P4).">Cruze dados do PDF do Painel de Preços com sua planilha de referência SIH.</p>
             </div>
 
             <!-- Área de Uploads -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <!-- Upload Excel -->
-                <div id="pdf-drop-zone-xlsx" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="document.getElementById('pdf-file-input-xlsx').click()">
+                <div id="pdf-drop-zone-xlsx" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="document.getElementById('pdf-file-input-xlsx').click()" title="Passo 1: Clique aqui ou arraste a planilha Excel (.xlsx) do hospital com a relação SIH x CATMAT e último valor pago.">
                     <input type="file" id="pdf-file-input-xlsx" class="hidden" accept=".xlsx, .xls" />
                     <div class="flex items-center justify-center gap-3">
                         <i id="pdf-icon-xlsx" data-lucide="file-spreadsheet" class="text-slate-400 w-10 h-10 group-hover:text-indigo-500 transition-colors"></i>
                         <div class="text-left">
-                            <p class="font-bold text-sm text-slate-800">1. Planilha Referência (.xlsx)</p>
-                            <p id="pdf-file-name-xlsx" class="text-xs text-slate-500">SIH, CATMAT, Preço</p>
+                            <p class="font-bold text-sm text-slate-800" title="Arquivo contendo a referência interna do hospital.">1. Planilha Referência (.xlsx)</p>
+                            <p id="pdf-file-name-xlsx" class="text-xs text-slate-500" title="Campos esperados: SIH, CATMAT e último valor pago.">SIH, CATMAT, Preço</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Upload PDF -->
-                <div id="pdf-drop-zone-pdf" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="if(!window.pdf_loading) document.getElementById('pdf-file-input-pdf').click()">
+                <div id="pdf-drop-zone-pdf" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="if(!window.pdf_loading) document.getElementById('pdf-file-input-pdf').click()" title="Passo 2: Clique aqui ou arraste o relatório em formato PDF exportado do Painel de Preços (P4).">
                     <input type="file" id="pdf-file-input-pdf" class="hidden" accept="application/pdf" />
                     <div id="pdf-loading-indicator" class="hidden flex items-center justify-center gap-3">
                         <i data-lucide="loader-2" class="animate-spin text-indigo-600 w-8 h-8"></i>
@@ -1027,38 +1033,38 @@
                     <div id="pdf-upload-content" class="flex items-center justify-center gap-3">
                         <i id="pdf-icon-pdf" data-lucide="upload-cloud" class="text-slate-400 w-10 h-10 group-hover:text-indigo-500 transition-colors"></i>
                         <div class="text-left">
-                            <p class="font-bold text-sm text-slate-800">2. Relatório Painel de Preços (.pdf)</p>
-                            <p id="pdf-file-name-pdf" class="text-xs text-slate-500">Clique ou arraste para selecionar</p>
+                            <p class="font-bold text-sm text-slate-800" title="Relatório de contratações públicas exportado em PDF do P4.">2. Relatório Painel de Preços (.pdf)</p>
+                            <p id="pdf-file-name-pdf" class="text-xs text-slate-500" title="Clique para selecionar o PDF ou solte o arquivo nesta caixa.">Clique ou arraste para selecionar</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Error Message -->
-            <div id="pdf-error-message" class="hidden bg-red-100 text-red-700 border border-red-200 p-3 rounded-lg mb-6 text-sm flex items-center gap-2">
+            <div id="pdf-error-message" class="hidden bg-red-100 text-red-700 border border-red-200 p-3 rounded-lg mb-6 text-sm flex items-center gap-2" title="Alerta de erro no processamento dos arquivos.">
                 <i data-lucide="alert-circle" class="w-4 h-4"></i>
                 <span id="pdf-error-text">Erro</span>
             </div>
 
             <!-- Filtros e Botão de Download -->
-            <div class="bg-gray-50 rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="bg-gray-50 rounded-xl shadow-sm border border-gray-200 p-4 mb-6" title="Barra de filtros para refinamento dos preços e datas do relatório PDF.">
                 <div class="flex flex-wrap gap-4 items-end">
                     
                     <!-- Filtros Básicos -->
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-gray-500 uppercase">UASG</label>
+                    <div class="flex flex-col gap-1" title="Filtro para considerar ou ignorar contratações do próprio hospital (UASG 155902).">
+                        <label class="text-xs font-bold text-gray-500 uppercase" title="Unidade Administrativa de Serviços Gerais do hospital.">UASG</label>
                         <div class="flex items-center h-10">
-                            <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
-                                <input type="checkbox" id="pdf-exclude-uasg" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                            <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700" title="Ative para ocultar compras efetuadas pela UASG 155902 (CHC-UFPR).">
+                                <input type="checkbox" id="pdf-exclude-uasg" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" title="Marque para excluir a UASG do próprio hospital dos preços do P4." />
                                 Retirar UASG 155902
                             </label>
                         </div>
                     </div>
 
                     <!-- Modalidade -->
-                    <div class="flex flex-col gap-1">
-                        <label for="pdf-modalidade-select" class="text-xs font-bold text-gray-500 uppercase">Modalidade</label>
-                        <select id="pdf-modalidade-select" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-3 bg-white">
+                    <div class="flex flex-col gap-1" title="Filtro pela modalidade de licitação no Painel de Preços.">
+                        <label for="pdf-modalidade-select" class="text-xs font-bold text-gray-500 uppercase" title="Tipo de contratação pública.">Modalidade</label>
+                        <select id="pdf-modalidade-select" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-3 bg-white" title="Escolha entre Pregão, Inexigibilidade, Dispensa ou Todas.">
                             <option value="">Todas (Ignorar este filtro)</option>
                             <option value="pregão" selected>Pregão</option>
                             <option value="inexigibilidade">Inexigibilidade</option>
@@ -1067,37 +1073,37 @@
                     </div>
 
                     <!-- Filtro de Data -->
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                    <div class="flex flex-col gap-1" title="Intervalo de datas de homologação ou registro no PDF.">
+                        <label class="text-xs font-bold text-gray-500 uppercase flex items-center gap-1" title="Intervalo de datas a ser considerado.">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Período da Compra
                         </label>
                         <div class="flex gap-2 items-center">
-                            <input type="date" id="pdf-start-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" />
+                            <input type="date" id="pdf-start-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" title="Selecione a data inicial do período de pesquisa." />
                             <span class="text-gray-400 text-sm">até</span>
-                            <input type="date" id="pdf-end-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" />
+                            <input type="date" id="pdf-end-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" title="Selecione a data final do período de pesquisa." />
                         </div>
                     </div>
 
                     <!-- Botões de Atalho de Data -->
-                    <div class="flex gap-2 pb-0.5">
-                        <button id="pdf-btn-180" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm">
+                    <div class="flex gap-2 pb-0.5" title="Atalhos rápidos para ajuste do intervalo de datas.">
+                        <button id="pdf-btn-180" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm" title="Ajusta o filtro de data inicial para os últimos 180 dias.">
                             Últimos 180 dias
                         </button>
-                        <button id="pdf-btn-1ano" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm">
+                        <button id="pdf-btn-1ano" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm" title="Ajusta o filtro de data inicial para cobrir o último ano.">
                             Último 1 Ano
                         </button>
                     </div>
 
                     <!-- Filtro de Valor (Min/Max) -->
-                    <div class="flex flex-col gap-1 ml-2 border-l border-gray-300 pl-4">
-                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-500 uppercase">
-                            <input type="checkbox" id="pdf-use-range" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                    <div class="flex flex-col gap-1 ml-2 border-l border-gray-300 pl-4" title="Filtro opcional para delimitar valores financeiros mínimo e máximo em R$.">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-500 uppercase" title="Ativa a filtragem de preços em uma faixa específica em Reais (R$).">
+                            <input type="checkbox" id="pdf-use-range" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" title="Marque para liberar a digitação do valor mínimo e máximo." />
                             <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i> Filtrar Faixa de Valor
                         </label>
                         <div id="pdf-range-inputs" class="flex gap-2 items-center transition-opacity opacity-50 pointer-events-none">
-                            <input type="number" step="0.01" id="pdf-min-price" placeholder="Min" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" />
+                            <input type="number" step="0.01" id="pdf-min-price" placeholder="Min" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" title="Digite o valor mínimo aceitável em Reais (R$)." />
                             <span class="text-gray-400">-</span>
-                            <input type="number" step="0.01" id="pdf-max-price" placeholder="Max" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" />
+                            <input type="number" step="0.01" id="pdf-max-price" placeholder="Max" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" title="Digite o valor máximo aceitável em Reais (R$)." />
                         </div>
                     </div>
                     
@@ -1105,11 +1111,11 @@
                     
                     <!-- Ações de Download -->
                     <div class="flex gap-3 items-center">
-                        <button id="pdf-clear-saved" class="hidden text-red-600 text-sm font-medium hover:underline flex items-center gap-1">
+                        <button id="pdf-clear-saved" class="hidden text-red-600 text-sm font-medium hover:underline flex items-center gap-1" title="Apaga todos os registros salvos nesta sessão de análise.">
                             <i data-lucide="trash-2" class="w-4 h-4"></i> Limpar (<span id="pdf-saved-count">0</span>)
                         </button>
 
-                        <button id="pdf-download-btn" disabled class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10 shadow-sm transition-colors">
+                        <button id="pdf-download-btn" disabled class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10 shadow-sm transition-colors" title="Gera o arquivo Excel (.xlsx) consolidado com as cotações do PDF e dados salvos.">
                             <i data-lucide="download" class="w-4 h-4"></i> 
                             <span id="pdf-download-text">Baixar Excel Completo</span>
                         </button>
@@ -1118,34 +1124,34 @@
             </div>
 
             <!-- Área Principal: Master-Detail View -->
-            <div id="pdf-main-area" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-[500px]">
+            <div id="pdf-main-area" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-[500px]" title="Área de consulta e seleção dos CATMATs do relatório PDF.">
                 
                 <!-- Coluna Esquerda: Lista de CATMATs -->
-                <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]">
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]" title="Painel com todos os CATMATs localizados no relatório do P4.">
                     <div class="p-4 border-b border-gray-100 bg-gray-50 flex-shrink-0">
-                        <h3 class="font-bold text-gray-800 text-sm">CATMATs Encontrados</h3>
-                        <p id="pdf-unique-count" class="text-xs text-gray-500">0 itens distintos</p>
+                        <h3 class="font-bold text-gray-800 text-sm" title="Lista dos códigos CATMAT do PDF que correspondem aos itens pesquisados.">CATMATs Encontrados</h3>
+                        <p id="pdf-unique-count" class="text-xs text-gray-500" title="Total de itens CATMATs únicos presentes na análise.">0 itens distintos</p>
                     </div>
-                    <div id="pdf-catmats-list" class="overflow-y-auto flex-1 p-2 space-y-1">
+                    <div id="pdf-catmats-list" class="overflow-y-auto flex-1 p-2 space-y-1" title="Clique em qualquer CATMAT para visualizar a lista de SIHs e preços.">
                         <!-- Lista de botões CATMAT -->
                     </div>
                 </div>
 
                 <!-- Coluna Direita: Detalhes -->
-                <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]">
+                <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]" title="Painel de detalhes e preços do CATMAT selecionado.">
                     
                     <!-- View de Detalhes -->
                     <div id="pdf-details-view" class="hidden flex-col h-full">
                         <!-- Header do Detalhe -->
-                        <div class="p-5 border-b border-gray-100 flex justify-between items-start gap-4">
+                        <div class="p-5 border-b border-gray-100 flex justify-between items-start gap-4" title="Cabeçalho do item selecionado com código e descrição técnica.">
                             <div class="flex-1">
-                                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2" title="Código CATMAT em exibição.">
                                     Resultado por CATMAT: <span id="pdf-active-catmat-title" class="text-indigo-600"></span>
                                 </h2>
-                                <p id="pdf-active-catmat-desc" class="text-sm text-gray-500 mt-1 line-clamp-2"></p>
+                                <p id="pdf-active-catmat-desc" class="text-sm text-gray-500 mt-1 line-clamp-2" title="Descrição do item obtida do relatório PDF."></p>
                             </div>
                             <!-- Botão Salvar (Visível se SIH ativo) -->
-                            <button id="pdf-save-btn-top" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all">
+                            <button id="pdf-save-btn-top" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all" title="Salva a seleção atual e preços do PDF para o código SIH ativado na planilha final.">
                                 <i data-lucide="save" class="w-4 h-4"></i> Salvar neste SIH (<span class="pdf-active-sih-label"></span>)
                             </button>
                         </div>
@@ -1155,22 +1161,22 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 
                                 <!-- Coluna 1: Referência (SIH) -->
-                                <div>
-                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Cód. SIH (Último valor):</h4>
+                                <div title="Códigos SIH correspondentes na planilha do hospital e último valor pago registrado.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Lista de códigos SIH vinculados a este CATMAT na planilha do hospital.">Cód. SIH (Último valor):</h4>
                                     <ul id="pdf-sih-list" class="space-y-2"></ul>
                                 </div>
 
                                 <!-- Coluna 2: Preços Encontrados -->
-                                <div>
-                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">
+                                <div title="Preços unitários em R$ encontrados no relatório PDF do Painel de Preços (P4) após a aplicação dos filtros.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Valores unitários identificados no relatório do P4.">
                                         Valor(es) no PDF <span id="pdf-filtered-label" class="text-indigo-600 text-xs hidden">(Filtrado)</span>:
                                     </h4>
                                     <ul id="pdf-price-list" class="space-y-1.5"></ul>
                                 </div>
 
                                 <!-- Coluna 3: Data da Compra -->
-                                <div>
-                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Data da Compra:</h4>
+                                <div title="Datas das aquisições e modalidades de licitação extraídas do PDF do Painel de Preços.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Datas das homologações e modalidades contratuais do P4.">Data da Compra:</h4>
                                     <ul id="pdf-date-list" class="space-y-1.5"></ul>
                                 </div>
 
@@ -1179,14 +1185,14 @@
 
                         <!-- Rodapé Fixo (Com Botão de Salvar) -->
                         <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end min-h-[70px]">
-                            <button id="pdf-save-btn-bottom" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all">
+                            <button id="pdf-save-btn-bottom" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all" title="Salva os dados deste código SIH na planilha consolidada para download.">
                                 <i data-lucide="save" class="w-4 h-4"></i> Salvar neste SIH (<span class="pdf-active-sih-label"></span>)
                             </button>
                         </div>
                     </div>
 
                     <!-- Estado Vazio / Sem Seleção -->
-                    <div id="pdf-empty-details" class="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
+                    <div id="pdf-empty-details" class="flex flex-col items-center justify-center h-full text-gray-400 gap-3" title="Instrução: Selecione um CATMAT no painel da esquerda para analisar seus preços.">
                         <i id="pdf-empty-icon" data-lucide="mouse-pointer-click" class="w-12 h-12"></i>
                         <p id="pdf-empty-text">Selecione um CATMAT ao lado para ver os detalhes.</p>
                     </div>
@@ -1272,6 +1278,7 @@
             const createBtn = (label, val) => {
                 const btn = document.createElement('button');
                 btn.textContent = label;
+                btn.title = val ? `Filtrar fornecedores iniciados pela letra/número "${label}"` : "Exibir fornecedores de todas as letras";
                 if (sihFornAlphaFilterSelected === val) {
                     btn.className = `${btnClasses} bg-indigo-600 text-white border-indigo-600 shadow-sm`;
                 } else {
@@ -2043,12 +2050,12 @@
                         processosHtml = `
                             <div class="relative inline-block text-left">
                                 <div class="flex items-center bg-gray-50 border border-gray-200 rounded-md shadow-sm w-fit transition-colors">
-                                    <button type="button" class="toggle-processos-btn flex items-center border-r border-gray-200 rounded-l-md px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none h-full">
+                                    <button type="button" class="toggle-processos-btn flex items-center border-r border-gray-200 rounded-l-md px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none h-full" title="Clique para abrir ou fechar a lista de processos de licitação deste código SIH.">
                                         <i data-lucide="file-check" class="w-3.5 h-3.5 mr-1.5 text-gray-500"></i>
                                         Processos (${processos.length})
                                         <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-1 text-gray-400 pointer-events-none"></i>
                                     </button>
-                                    <button type="button" class="copy-all-processos-btn px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-r-md transition-colors flex items-center" title="Copiar todos os processos" data-processos="-- Processos SIH ${code} --&#10;${processosDataForCopy}">
+                                    <button type="button" class="copy-all-processos-btn px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-r-md transition-colors flex items-center" title="Copiar todos os números de processos e licitações vinculados" data-processos="-- Processos SIH ${code} --&#10;${processosDataForCopy}">
                                         <i data-lucide="copy" class="w-3.5 h-3.5 pointer-events-none"></i>
                                     </button>
                                 </div>
@@ -2060,7 +2067,7 @@
                                             const display = `Nº do Processo: ${p.processo}${lici}${tpLici}`;
                                             return `
                                             <li>
-                                                <button type="button" class="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-700 copy-processo-btn transition-colors focus:outline-none flex items-center justify-between group" data-processo="${p.processo}">
+                                                <button type="button" class="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-700 copy-processo-btn transition-colors focus:outline-none flex items-center justify-between group" title="Clique para copiar este número de processo individualmente" data-processo="${p.processo}">
                                                     <span>${display}</span>
                                                     <i data-lucide="copy" class="w-3 h-3 text-indigo-400 ml-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></i>
                                                 </button>
@@ -2076,14 +2083,14 @@
                         <div class="mt-3 pl-9 flex flex-col gap-2">
                             <div class="flex flex-wrap items-center gap-3">
                                 <div class="flex items-center bg-emerald-50 border border-emerald-200 rounded-md shadow-sm w-fit transition-colors">
-                                    <button class="toggle-fornecedores-btn px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 rounded-l-md transition-colors flex items-center border-r border-emerald-200">
+                                    <button class="toggle-fornecedores-btn px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 rounded-l-md transition-colors flex items-center border-r border-emerald-200" title="Clique para expandir ou recolher a lista de fornecedores anteriores do CHC-UFPR.">
                                         <i data-lucide="users" class="w-3.5 h-3.5 mr-1.5"></i> 
                                         Fornecedores Anteriores do CHC-UFPR (${fornecedores.length})
                                     </button>
-                                    <button data-fornecedores="-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\\n${fornecedores.join('\\n')}" class="copy-fornecedores-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 border-r border-emerald-200 transition-colors flex items-center" title="Copiar estes fornecedores">
+                                    <button data-fornecedores="-- Fornecedores que já forneceram este item SIH ${code} ao CHC-UFPR --\\n${fornecedores.join('\\n')}" class="copy-fornecedores-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 border-r border-emerald-200 transition-colors flex items-center" title="Copiar a lista destes fornecedores para a área de transferência.">
                                         <i data-lucide="copy" class="w-3.5 h-3.5 pointer-events-none"></i>
                                     </button>
-                                    <button class="download-forn-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 rounded-r-md transition-colors flex items-center" title="Baixar contatos do fornecedor em Excel">
+                                    <button class="download-forn-btn px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 rounded-r-md transition-colors flex items-center" title="Faz o download em Excel com os contatos completos (CNPJ, telefones, e-mail) dos fornecedores.">
                                         <i data-lucide="download" class="w-3.5 h-3.5 pointer-events-none"></i>
                                     </button>
                                 </div>
@@ -2098,16 +2105,16 @@
                                                 ${(() => {
                                                     const supMatch = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(f) : null;
                                                     if (supMatch && supMatch.cnpj && supMatch.cnpj !== 'N/A') {
-                                                        return `<span class="text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">CNPJ ${supMatch.cnpj}</span>`;
+                                                        return `<span class="text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="Número do CNPJ do fornecedor">CNPJ ${supMatch.cnpj}</span>`;
                                                     }
                                                     return '';
                                                 })()}
                                             </div>
                                             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 text-xs">
-                                                <button class="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center transition-colors btn-view-fornecedor text-left" data-fornecedor="${f.replace(/"/g, '&quot;')}">
+                                                <button class="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center transition-colors btn-view-fornecedor text-left" title="Abrir janela modal com contatos, telefone, e-mail e endereço deste fornecedor." data-fornecedor="${f.replace(/"/g, '&quot;')}">
                                                     <i data-lucide="building" class="w-3.5 h-3.5 mr-1.5 shrink-0 flex-none"></i> Dados do Fornecedor
                                                 </button>
-                                                <button class="text-emerald-700 hover:text-emerald-900 hover:underline flex items-center transition-colors btn-view-sih text-left" data-fornecedor="${f.replace(/"/g, '&quot;')}">
+                                                <button class="text-emerald-700 hover:text-emerald-900 hover:underline flex items-center transition-colors btn-view-sih text-left" title="Ver a lista de todos os códigos SIH fornecidos por esta empresa ao hospital." data-fornecedor="${f.replace(/"/g, '&quot;')}">
                                                     <i data-lucide="package" class="w-3.5 h-3.5 mr-1.5 shrink-0 flex-none"></i> SIH que fornece ${fornecedorSihMap[f] ? `(${fornecedorSihMap[f].length})` : ''}
                                                 </button>
                                             </div>
@@ -2124,24 +2131,25 @@
                     // Group Header
                     const header = document.createElement('div');
                     header.className = 'bg-indigo-50 px-4 py-3 border-b-2 border-indigo-200 flex justify-between items-start cursor-pointer transition-colors select-none group relative rounded-t-xl';
+                    header.setAttribute('title', 'Clique para expandir ou recolher as marcas e fornecedores deste código SIH.');
                     
                     header.innerHTML = `
                         <div class="flex flex-col w-full">
                             <div class="flex flex-wrap items-center justify-between w-full gap-2">
-                                <h3 class="text-indigo-900 font-semibold flex items-center mr-2">
+                                <h3 class="text-indigo-900 font-semibold flex items-center mr-2" title="Código SIH do insumo consultado">
                                     <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-500 mr-2 transition-transform duration-200 transform rotate-180 toggle-icon group-hover:text-indigo-700"></i>
-                                    <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md mr-3 font-mono border border-indigo-700 shadow-sm">CÓD. SIH</span>
+                                    <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md mr-3 font-mono border border-indigo-700 shadow-sm" title="Identificador numérico do item no SIH">CÓD. SIH</span>
                                     <span class="text-lg font-bold">${code}</span>
                                 </h3>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'} de marcas</span>
+                                    <span class="text-xs font-medium text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-200 shadow-sm whitespace-nowrap" title="Quantidade de registros de marcas registradas para este código SIH">${rows.length} ${rows.length === 1 ? 'registro' : 'registros'} de marcas</span>
                                 </div>
                             </div>
                             
                             ${fornecedoresHtml}
                             
                             ${rows.length > 0 ? '' : `
-                            <div class="mt-3 pl-9 text-sm text-gray-500 hidden-if-empty-marks">
+                            <div class="mt-3 pl-9 text-sm text-gray-500 hidden-if-empty-marks" title="Nenhuma marca cadastrada para este código no banco atual">
                                 Nenhuma informação no Banco de Marcas para este registro.
                             </div>
                             `}
@@ -2305,19 +2313,19 @@
                         actionToolbar.className = 'bg-white border-t border-gray-100 flex flex-wrap gap-x-4 gap-y-2 px-4 py-2 items-center';
                         actionToolbar.innerHTML = `
                             <div class="flex items-center shadow-sm rounded-md" role="group">
-                                <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar marcas aprovadas" type="button">
+                                <button class="copy-marcas-aprovadas-btn px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-l-md hover:bg-emerald-50 transition-colors flex items-center" title="Copiar somente a lista de marcas APROVADAS deste código SIH para a área de transferência." type="button">
                                     <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 text-emerald-600 pointer-events-none"></i> 
                                     <span class="btn-text pointer-events-none">Marcas Aprovadas (${numAprovados})</span>
                                 </button>
-                                <button class="copy-marcas-reprovadas-btn px-3 py-1.5 text-xs font-medium text-rose-700 bg-white border-t border-b border-rose-200 hover:bg-rose-50 transition-colors flex items-center" title="Copiar marcas reprovadas" type="button">
+                                <button class="copy-marcas-reprovadas-btn px-3 py-1.5 text-xs font-medium text-rose-700 bg-white border-t border-b border-rose-200 hover:bg-rose-50 transition-colors flex items-center" title="Copiar somente a lista de marcas REPROVADAS deste código SIH para a área de transferência." type="button">
                                     <i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 text-rose-600 pointer-events-none"></i> 
                                     <span class="btn-text pointer-events-none">Marcas Reprovadas (${numReprovados})</span>
                                 </button>
-                                <button class="copy-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 relative z-10 hover:bg-indigo-50 transition-colors flex items-center" title="Copiar dados da ficha completa" type="button">
+                                <button class="copy-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 relative z-10 hover:bg-indigo-50 transition-colors flex items-center" title="Copiar a ficha técnica e pareceres completos de todas as marcas deste código SIH." type="button">
                                     <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
                                     <span class="btn-text pointer-events-none">Ficha Completa das Marcas deste Item</span>
                                 </button>
-                                <button class="download-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 rounded-r-md hover:bg-indigo-50 transition-colors flex items-center" title="Baixar planilha Excel do card" type="button">
+                                <button class="download-iso-btn px-3 py-1.5 text-xs font-medium text-indigo-700 bg-white border border-l-0 border-indigo-200 rounded-r-md hover:bg-indigo-50 transition-colors flex items-center" title="Exportar tabela de marcas e pareceres deste código SIH para arquivo Excel (.xlsx)." type="button">
                                     <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 text-indigo-500 pointer-events-none"></i> 
                                     <span class="btn-text pointer-events-none">Excel</span>
                                 </button>
@@ -2505,12 +2513,12 @@
                         thead.className = 'bg-gray-50 border-b border-gray-200';
                         thead.innerHTML = `
                             <tr class="whitespace-nowrap">
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fabricante (${numFabricantes})</th>
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Marca (${numMarcas})</th>
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aprovado (${numAprovados})</th>
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Reprovado (${numReprovados})</th>
-                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Parecer</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" title="Descrição do item hospitalar cadastrado no Banco de Marcas.">Descrição</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" title="Nome do fabricante do produto.">Fabricante (${numFabricantes})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" title="Nome da marca comercial do insumo.">Marca (${numMarcas})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center" title="Status de aprovação técnica da marca no hospital.">Aprovado (${numAprovados})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center" title="Status de reprovação técnica da marca no hospital.">Reprovado (${numReprovados})</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" title="Justificativa ou parecer técnico emitido pela comissão.">Parecer</th>
                             </tr>
                         `;
                         table.appendChild(thead);
@@ -2629,23 +2637,24 @@
 
                 const header = document.createElement('div');
                 header.className = 'bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center cursor-pointer transition-colors hover:bg-gray-100 group';
+                header.setAttribute('title', 'Clique para expandir ou recolher os materiais hospitalares fornecidos por esta empresa.');
                 const supMatchInfo = typeof findGlobalSupplier === 'function' ? findGlobalSupplier(forn) : null;
                 const cnpjHtml = supMatchInfo && supMatchInfo.cnpj && supMatchInfo.cnpj !== 'N/A' 
-                    ? `<span class="ml-2 text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ">CNPJ ${supMatchInfo.cnpj}</span>` 
+                    ? `<span class="ml-2 text-xs text-emerald-800 font-mono bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="CNPJ do fornecedor: ${supMatchInfo.cnpj}">CNPJ ${supMatchInfo.cnpj}</span>` 
                     : '';
 
                 header.innerHTML = `
-                    <h3 class="text-gray-900 font-semibold flex items-center flex-wrap gap-1">
+                    <h3 class="text-gray-900 font-semibold flex items-center flex-wrap gap-1" title="Razão Social / Nome do Fornecedor: ${forn}">
                         <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 mr-1 sm:mr-2 flex-none transition-transform duration-200 transform ${isOpen ? 'rotate-180' : ''} toggle-icon group-hover:text-gray-700"></i>
                         ${forn}
                         ${cnpjHtml}
                     </h3>
                     <div class="flex items-center space-x-2">
-                        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm hidden sm:inline mr-2">${codes.length} ${codes.length === 1 ? 'item' : 'itens'} SIH</span>
-                        <button class="sih-forn-copy-btn bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Copiar lista" type="button">
+                        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm hidden sm:inline mr-2" title="Quantidade de materiais hospitalares (SIH) fornecidos por este fornecedor">${codes.length} ${codes.length === 1 ? 'item' : 'itens'} SIH</span>
+                        <button class="sih-forn-copy-btn bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Copiar para a área de transferência a lista de códigos SIH e descrições fornecidas por este fornecedor." type="button">
                             <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5 pointer-events-none"></i> <span class="pointer-events-none">Copiar</span>
                         </button>
-                        <button class="sih-forn-export-btn bg-emerald-600 border border-transparent text-white hover:bg-emerald-700 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Baixar Excel" type="button">
+                        <button class="sih-forn-export-btn bg-emerald-600 border border-transparent text-white hover:bg-emerald-700 px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center transition-colors" title="Exportar planilha Excel (.xlsx) contendo todos os materiais e dados de contato deste fornecedor." type="button">
                             <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5 pointer-events-none text-emerald-100"></i> <span class="pointer-events-none">Baixar</span>
                         </button>
                     </div>
@@ -2658,11 +2667,11 @@
                         ${codes.map(c => {
                             const desc = sihDescMap[c] || "";
                             return `
-                            <li class="flex items-center text-sm font-medium">
-                                <span class="bg-indigo-50 shadow-sm border border-indigo-100 text-indigo-700 font-mono px-3 py-1.5 rounded-lg whitespace-nowrap mr-3 w-32 shrink-0 flex items-center">
+                            <li class="flex items-center text-sm font-medium" title="Código SIH: ${c} - ${desc}">
+                                <span class="bg-indigo-50 shadow-sm border border-indigo-100 text-indigo-700 font-mono px-3 py-1.5 rounded-lg whitespace-nowrap mr-3 w-32 shrink-0 flex items-center" title="Código SIH do material hospitalar">
                                     <span class="text-indigo-400 mr-1 text-xs">SIH</span>${c}
                                 </span>
-                                <span class="text-gray-600 font-normal truncate" title="${desc}">${desc}</span>
+                                <span class="text-gray-600 font-normal truncate" title="Descrição do material: ${desc}">${desc}</span>
                             </li>
                         `}).join('')}
                     </ul>
@@ -2771,8 +2780,8 @@
                 }
             });
 
-            const activeClasses = 'px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
-            const inactiveClasses = 'px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap';
+            const activeClasses = 'px-2.5 py-1.5 lg:px-3 lg:py-2 bg-indigo-700 text-white text-xs lg:text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
+            const inactiveClasses = 'px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap';
             
             navIsoBtn.className = tab === 'iso' ? activeClasses : inactiveClasses;
             navFornecedoresBtn.className = tab === 'fornecedores' ? activeClasses : inactiveClasses;
@@ -2795,15 +2804,15 @@
             const btnChildCatalogoSpia = navCatalogoSpiaBtn.querySelector('svg');
 
             // Reset icons
-            if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-4 h-4 mr-2 pointer-events-none');
-            if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 pointer-events-none');
+            if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             
             isoView.style.display = 'none';
             fornecedoresView.style.display = 'none';
@@ -2816,31 +2825,31 @@
             catalogoSpiaView.style.display = 'none';
 
             if (tab === 'iso') {
-                if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 isoView.style.display = 'flex';
             } else if (tab === 'fornecedores') {
-                if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 fornecedoresView.style.display = 'flex';
             } else if (tab === 'emailExtractor') {
-                if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 emailExtractorView.style.display = 'flex';
             } else if (tab === 'catmat') {
-                if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 catmatView.style.display = 'flex';
             } else if (tab === 'iadescp4') {
-                if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 iaDescP4View.style.display = 'flex';
             } else if (tab === 'pdfcatmat') {
-                if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 pdfCatmatView.style.display = 'flex';
             } else if (tab === 'sihfornecedor') {
-                if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 sihFornecedorView.style.display = 'flex';
             } else if (tab === 'ipca') {
-                if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 if (ipcaView) ipcaView.style.display = 'flex';
             } else if (tab === 'catalogospia') {
-                if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 catalogoSpiaView.style.display = 'flex';
             }
 
@@ -3362,22 +3371,23 @@
             suppliers.forEach(supplier => {
                 const row = document.createElement('div');
                 row.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col md:flex-row md:items-start md:gap-6';
-                const categoriesHtml = supplier.categoriasPrincipais.map(cat => `<span class="bg-indigo-50 text-indigo-700 text-xs font-semibold mr-2 mb-2 px-2.5 py-1 rounded-md border border-indigo-100">${cat}</span>`).join('');
+                row.setAttribute('title', `Empresa: ${supplier.nome} - Clique no botão Detalhes para ver telefones, e-mail e contatos do representante.`);
+                const categoriesHtml = supplier.categoriasPrincipais.map(cat => `<span class="bg-indigo-50 text-indigo-700 text-xs font-semibold mr-2 mb-2 px-2.5 py-1 rounded-md border border-indigo-100" title="Categoria principal fornecida">${cat}</span>`).join('');
                 let locationHtml = '';
                 if (supplier.location) {
-                    locationHtml = `<span class="inline-flex items-center text-gray-600 text-sm mt-1" title="${supplier.location.desc}"><i data-lucide="map-pin" class="w-4 h-4 mr-1 text-gray-400"></i> ${supplier.location.uf} - DDD ${supplier.location.ddd} (${supplier.location.region})</span>`;
+                    locationHtml = `<span class="inline-flex items-center text-gray-600 text-sm mt-1" title="Localização: ${supplier.location.desc} (${supplier.location.uf} - DDD ${supplier.location.ddd})"><i data-lucide="map-pin" class="w-4 h-4 mr-1 text-gray-400"></i> ${supplier.location.uf} - DDD ${supplier.location.ddd} (${supplier.location.region})</span>`;
                 }
                 row.innerHTML = `
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-lg font-bold text-gray-900 truncate" title="${supplier.nome}">${supplier.nome}</h3>
-                        <p class="text-xs text-gray-500 font-mono mt-1 mb-2">CNPJ: ${supplier.cnpj}</p>
+                        <h3 class="text-lg font-bold text-gray-900 truncate" title="Razão social: ${supplier.nome}">${supplier.nome}</h3>
+                        <p class="text-xs text-gray-500 font-mono mt-1 mb-2" title="CNPJ da empresa fornecedora">CNPJ: ${supplier.cnpj}</p>
                         ${locationHtml}
                     </div>
-                    <div class="md:flex-[1.5] min-w-0 pt-3 md:pt-0">
+                    <div class="md:flex-[1.5] min-w-0 pt-3 md:pt-0" title="Categorias principais registradas para este fornecedor">
                         <div class="flex flex-wrap">${categoriesHtml || '<span class="text-sm text-gray-400 italic">Sem categorias</span>'}</div>
                     </div>
                     <div class="md:flex-shrink-0 mt-4 md:mt-0 self-center">
-                        <button class="w-full md:w-auto bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center">
+                        <button class="w-full md:w-auto bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center" title="Clique para abrir modal com ficha de contatos, representantes e subcategorias do fornecedor.">
                             <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Detalhes
                         </button>
                     </div>
@@ -3592,9 +3602,9 @@
                 const totalEmails = todosEmailsExtraidos.length;
 
                 resumoTotal.innerHTML = `
-                    <div class="cabecalho-resumo">
-                        <h2>Total de E-mails Únicos: <span style="color: #007BFF;">${totalEmails}</span></h2>
-                        <button id="btnCopiarTodos" onclick="copiarTodosEmails()" class="email-btn btn-secundario">Copiar Todos</button>
+                    <div class="cabecalho-resumo" title="Resumo do processamento com contagem total de e-mails únicos.">
+                        <h2 title="Total de e-mails únicos identificados sem duplicatas.">Total de E-mails Únicos: <span style="color: #007BFF;">${totalEmails}</span></h2>
+                        <button id="btnCopiarTodos" onclick="copiarTodosEmails()" class="email-btn btn-secundario" title="Copia a lista inteira de todos os e-mails únicos para a área de transferência.">Copiar Todos</button>
                     </div>
                 `;
 
@@ -3605,23 +3615,26 @@
                     criarElementoLista(lote, numeroDaLista);
                 }
             } else {
-                resumoTotal.innerHTML = `<h2>Nenhum e-mail encontrado.</h2>`;
+                resumoTotal.innerHTML = `<h2 title="Nenhum padrão de endereço de e-mail válido foi encontrado no texto inserido.">Nenhum e-mail encontrado.</h2>`;
             }
         }
 
         function criarElementoLista(loteEmails, numeroDaLista) {
             const divLista = document.createElement('div');
             divLista.className = 'lista-container';
+            divLista.title = `Lote número ${numeroDaLista} contendo ${loteEmails.length} e-mails.`;
             
             const divHeader = document.createElement('div');
             divHeader.className = 'lista-header';
             
             const titulo = document.createElement('h3');
             titulo.textContent = `Lista ${numeroDaLista} (${loteEmails.length})`;
+            titulo.title = `Título do lote de e-mails ${numeroDaLista} (${loteEmails.length} contatos).`;
             
             const btnCopiar = document.createElement('button');
             btnCopiar.className = 'email-btn btn-secundario';
             btnCopiar.textContent = 'Copiar';
+            btnCopiar.title = `Copia apenas os ${loteEmails.length} e-mails deste lote para a área de transferência.`;
             btnCopiar.onclick = function() {
                 copiarLoteE(loteEmails, btnCopiar);
             };
@@ -3630,9 +3643,11 @@
             divHeader.appendChild(btnCopiar);
             
             const ul = document.createElement('ul');
+            ul.title = "Lista de endereços de e-mail extraídos deste lote";
             loteEmails.forEach(email => {
                 const li = document.createElement('li');
                 li.textContent = email;
+                li.title = `E-mail: ${email}`;
                 ul.appendChild(li);
             });
             
@@ -4320,11 +4335,11 @@
             const resultDiv = document.createElement('div');
             resultDiv.className = 'pt-2';
             
-            const saveButtonHtml = catmat_activeCodItemFilter !== null ? `<button onclick="window.catmat_saveFilteredData('${catmat}')" class="ml-4 py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>` : '';
+            const saveButtonHtml = catmat_activeCodItemFilter !== null ? `<button onclick="window.catmat_saveFilteredData('${catmat}')" title="Clique para salvar o filtro ativo e valores deste código SIH na planilha acumulada." class="ml-4 py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>` : '';
 
             let content = `
-                <div class="flex items-center mt-2 mb-6">
-                    <h3 class="font-semibold text-lg text-gray-700">Resultado da Consulta por CATMAT: <span class="text-indigo-600 font-bold">${catmat}</span></h3>
+                <div class="flex items-center mt-2 mb-6" title="CATMAT pesquisado e opção de salvamento de dados.">
+                    <h3 class="font-semibold text-lg text-gray-700" title="Código CATMAT em exibição.">Resultado da Consulta por CATMAT: <span class="text-indigo-600 font-bold">${catmat}</span></h3>
                     ${saveButtonHtml}
                 </div>`;
 
@@ -4344,7 +4359,7 @@
             }
 
             if (filteredEntries.length === 0 && results.length === 0) {
-                 content += `<p class="text-gray-500 mt-2">Nenhum dado encontrado com os filtros atuais.</p>`;
+                 content += `<p class="text-gray-500 mt-2" title="Sem cotações para este CATMAT no período ou critérios selecionados.">Nenhum dado encontrado com os filtros atuais.</p>`;
                  resultDiv.innerHTML = content;
                  catmat_resultsContainer.appendChild(resultDiv);
                  return;
@@ -4354,7 +4369,7 @@
 
             content += '<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">';
             
-            content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Cód. SIH (Último valor):</p>';
+            content += '<div title="Códigos SIH vinculados a este CATMAT na planilha do hospital e o último valor pago registrado."><p class="text-sm font-semibold text-gray-800 mb-2">Cód. SIH (Último valor):</p>';
             if (results.length > 0) {
                 content += '<ul class="list-disc list-inside space-y-1.5">';
                 results.forEach(item => {
@@ -4369,13 +4384,14 @@
                          } else if (item.price) {
                              priceDisplay = String(item.price);
                          }
-                         priceDisplaySpan = `<span class="text-sm ml-1 ${isActiveFilter ? 'font-bold text-gray-800' : 'text-gray-500'}">(${priceDisplay})</span>`;
+                         priceDisplaySpan = `<span class="text-sm ml-1 ${isActiveFilter ? 'font-bold text-gray-800' : 'text-gray-500'}" title="Último valor pago registrado no hospital para este SIH">(${priceDisplay})</span>`;
                     }
                     
-                    const activatedText = isActiveFilter ? `<span class="text-xs font-semibold text-green-600 ml-1">(Ativado)</span>` : '';
+                    const activatedText = isActiveFilter ? `<span class="text-xs font-semibold text-green-600 ml-1" title="Código SIH selecionado no momento">(Ativado)</span>` : '';
                     content += `
                         <li class="text-gray-600">
                             <button onclick="window.catmat_applyPriceFilter(${priceValue}, '${item.codItem}')" 
+                                    title="Clique para ativar este Cód. SIH (${item.codItem}) e filtrar o seu valor de referência"
                                     class="text-blue-600 hover:text-blue-800 focus:outline-none ${isActiveFilter ? 'font-bold underline' : 'hover:underline'}">
                                 ${item.codItem}
                             </button>
@@ -4386,7 +4402,7 @@
                 });
                 content += '</ul>';
             } else {
-                content += `<p class="text-gray-500 mt-1 italic text-sm">Nenhum cód. SIH.</p>`;
+                content += `<p class="text-gray-500 mt-1 italic text-sm" title="Sem código SIH atrelado na planilha do hospital.">Nenhum cód. SIH.</p>`;
             }
             content += '</div>';
 
@@ -4398,20 +4414,20 @@
                 const average = sortedEntries.length > 0 ? sum / sortedEntries.length : 0;
                 const formattedAverage = average.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Valor(es) para SIH:</p><ul class="list-disc list-inside space-y-1.5">';
+                content += '<div title="Valores unitários encontrados nas cotações do Compras Net após aplicação dos filtros."><p class="text-sm font-semibold text-gray-800 mb-2">Valor(es) para SIH:</p><ul class="list-disc list-inside space-y-1.5">';
                 sortedEntries.forEach(entry => { 
-                    content += `<li class="text-gray-600">${entry.value}</li>`; 
+                    content += `<li class="text-gray-600" title="Valor unitário em R$ registrado na compra">${entry.value}</li>`; 
                 });
                 content += '</ul>';
-                content += `<p class="mt-4 text-sm font-bold text-gray-800">Média: ${formattedAverage}</p></div>`;
+                content += `<p class="mt-4 text-sm font-bold text-gray-800" title="Média aritmética dos valores encontrados">Média: ${formattedAverage}</p></div>`;
                 
-                content += '<div><p class="text-sm font-semibold text-gray-800 mb-2">Data da Compra:</p><ul class="list-disc list-inside space-y-1.5">';
+                content += '<div title="Datas e modalidades de contratação das cotações públicas encontradas."><p class="text-sm font-semibold text-gray-800 mb-2">Data da Compra:</p><ul class="list-disc list-inside space-y-1.5">';
                 sortedEntries.forEach(entry => {
                     let formattedDate = entry.date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                     if (entry.modalidade) {
-                        formattedDate += ` - <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${entry.modalidade}</span>`;
+                        formattedDate += ` - <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded" title="Modalidade da compra">${entry.modalidade}</span>`;
                     }
-                    content += `<li class="text-gray-600">${formattedDate}</li>`;
+                    content += `<li class="text-gray-600" title="Data da homologação ou registro da compra">${formattedDate}</li>`;
                 });
                 content += '</ul></div>';
             } else {
@@ -4423,7 +4439,7 @@
             if (catmat_activeCodItemFilter !== null) {
                 content += `
                     <div class="flex justify-end mt-8">
-                        <button onclick="window.catmat_saveFilteredData('${catmat}')" class="py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>
+                        <button onclick="window.catmat_saveFilteredData('${catmat}')" title="Salva a seleção atual deste código SIH na planilha final para download." class="py-1.5 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">Salvar dados na planilha</button>
                     </div>`;
             }
 
@@ -4834,12 +4850,12 @@
                 if (active) bgClass = "bg-indigo-600 text-white font-bold shadow-md";
                 else if (isCompleted) bgClass = "bg-green-50 text-green-700 hover:bg-green-100";
 
-                return `<button onclick="pdf_selectedCatmat='${c}'; pdf_activeSih=null; pdf_updateUI();" class="w-full text-left px-3 py-2 rounded-lg text-sm font-mono transition-colors flex justify-between items-center ${bgClass}">
+                return `<button onclick="pdf_selectedCatmat='${c}'; pdf_activeSih=null; pdf_updateUI();" title="Clique para selecionar o CATMAT ${c} e visualizar seus preços e códigos SIH." class="w-full text-left px-3 py-2 rounded-lg text-sm font-mono transition-colors flex justify-between items-center ${bgClass}">
                     <span>${c}</span>
                     ${isCompleted ? `<i data-lucide="check" class="w-4 h-4 ${active ? 'text-white' : 'text-green-600'}"></i>` : ''}
                 </button>`;
             }).join('');
-            document.getElementById('pdf-catmats-list').innerHTML = catmatsListHtml || '<p class="text-sm text-gray-400 text-center mt-4 italic">Nenhum item no período/filtro.</p>';
+            document.getElementById('pdf-catmats-list').innerHTML = catmatsListHtml || '<p class="text-sm text-gray-400 text-center mt-4 italic" title="Nenhum código CATMAT encontrado com os filtros selecionados.">Nenhum item no período/filtro.</p>';
 
             // Setup right side
             if (pdf_selectedCatmat) {
@@ -4888,25 +4904,25 @@
                     
                     const nextActiveSihValue = isActive ? '' : r.sih;
                     return `<li class="flex flex-col items-start gap-1">
-                        <div onclick="pdf_activeSih = '${nextActiveSihValue}'; pdf_updateUI()" class="flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all w-full border ${style}">
-                            <span class="font-mono font-bold px-2 py-0.5 rounded text-sm ${saved ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'}">${r.sih}</span>
-                            <span class="text-gray-500 font-medium text-sm bg-yellow-100 px-2 py-0.5 rounded">(${pdf_formatPrice(r.refPrice)})</span>
+                        <div onclick="pdf_activeSih = '${nextActiveSihValue}'; pdf_updateUI()" title="Clique para ativar este Cód. SIH (${r.sih}) e filtrar preços do PDF no valor de referência (${pdf_formatPrice(r.refPrice)})" class="flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all w-full border ${style}">
+                            <span class="font-mono font-bold px-2 py-0.5 rounded text-sm ${saved ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'}" title="Código SIH do hospital">${r.sih}</span>
+                            <span class="text-gray-500 font-medium text-sm bg-yellow-100 px-2 py-0.5 rounded" title="Último valor pago registrado">(${pdf_formatPrice(r.refPrice)})</span>
                             ${saved ? `<i data-lucide="check" class="w-4 h-4 text-green-600 ml-auto"></i>` : ''}
                         </div>
                     </li>`;
-                }).join('') : '<p class="text-sm text-gray-400 italic">Nenhum SIH correspondente na planilha.</p>';
+                }).join('') : '<p class="text-sm text-gray-400 italic" title="Sem código SIH atrelado na planilha do hospital.">Nenhum SIH correspondente na planilha.</p>';
 
                 document.getElementById('pdf-filtered-label').classList.toggle('hidden', !(pdf_useRangeFilter || pdf_activeSih));
 
                 // Prices List
-                document.getElementById('pdf-price-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => `<li class="text-sm font-bold text-gray-700">R$ ${i.preco}</li>`).join('') : '<p class="text-sm text-gray-400 italic">Nenhum valor encontrado nesta faixa.</p>';
+                document.getElementById('pdf-price-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => `<li class="text-sm font-bold text-gray-700" title="Preço unitário em R$ registrado no relatório PDF do Painel de Preços">R$ ${i.preco}</li>`).join('') : '<p class="text-sm text-gray-400 italic" title="Nenhum valor encontrado para o filtro ativo.">Nenhum valor encontrado nesta faixa.</p>';
                 // Dates List
                 document.getElementById('pdf-date-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => {
                     const modLabel = i.modalidade ? i.modalidade.trim() : 'Outras';
-                    return `<li class="text-sm text-gray-600 font-medium flex items-center gap-1.5">
-                        <span>${pdf_formatDateStr(i.data)}</span>
+                    return `<li class="text-sm text-gray-600 font-medium flex items-center gap-1.5" title="Data da homologação e modalidade da compra">
+                        <span title="Data da compra">${pdf_formatDateStr(i.data)}</span>
                         <span>-</span>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">${modLabel}</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700" title="Modalidade da licitação">${modLabel}</span>
                     </li>`;
                 }).join('') : '<p class="text-sm text-gray-400 italic">-</p>';
 
@@ -5419,7 +5435,7 @@ ${formattedInput2}`;
                 const isSelected = ipcaSelectedRowIndex === i;
                 if (r.isError) {
                     return `
-                        <tr onclick="selectIpcaRow(${i})" class="hover:bg-red-50/50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-red-100/60 font-semibold' : 'bg-red-50/20'}">
+                        <tr onclick="selectIpcaRow(${i})" title="Clique para selecionar este registro com erro e ver os detalhes no Painel de Análise." class="hover:bg-red-50/50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-red-100/60 font-semibold' : 'bg-red-50/20'}">
                             <td class="py-2.5 px-3 text-center text-slate-400 text-[11px]">${r.index}</td>
                             <td class="py-2.5 px-3 font-semibold text-slate-800">${r.sih || '--'}</td>
                             <td class="py-2.5 px-3 text-slate-600">${r.dateRaw || '--'}</td>
@@ -5434,7 +5450,7 @@ ${formattedInput2}`;
                 }
 
                 return `
-                    <tr onclick="selectIpcaRow(${i})" class="hover:bg-slate-50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-indigo-50/80 font-semibold text-indigo-950' : ''}">
+                    <tr onclick="selectIpcaRow(${i})" title="Clique para selecionar este item e ver as métricas completas no Painel de Análise." class="hover:bg-slate-50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-indigo-50/80 font-semibold text-indigo-950' : ''}">
                         <td class="py-2.5 px-3 text-center text-slate-400 text-[11px]">${r.index}</td>
                         <td class="py-2.5 px-3 font-bold text-slate-800">${r.sih}</td>
                         <td class="py-2.5 px-3 text-slate-600">${r.dateRaw}</td>
