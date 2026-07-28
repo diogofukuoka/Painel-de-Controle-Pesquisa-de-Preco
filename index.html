@@ -221,7 +221,7 @@
                 <button id="navIsoBtn" title="Consulta de marcas aprovadas e reprovadas, fabricantes e fornecedores cadastrados por Código SIH." class="px-2.5 py-1.5 lg:px-3 lg:py-2 bg-indigo-700 text-white text-xs lg:text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors">
                     <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none"></i> Fornecedor, Fabricante e Marca
                 </button>
-                <button id="navFornecedoresBtn" title="Consulta e filtragem do Catálogo de Fornecedores, empresas cadastradas, categorias e contatos do hospital." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                <button id="navFornecedoresBtn" title="Consulta e filtragem do Catálogo de Fornecedores, empresas cadastradas, categorias e contatos do hospital que responderam ao formulário." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Catálogo de Fornecedores
                 </button>
                 <button id="navSihFornecedorBtn" title="Consulta de códigos e materiais hospitalares (SIH) agrupados por empresa fornecedora." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
@@ -235,6 +235,9 @@
                 </button>
                 <button id="navEmailExtractorBtn" title="Ferramenta para extrair, padronizar em minúsculas e desduplicar endereços de e-mail a partir de qualquer texto." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="mail" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Extrair E-mails
+                </button>
+                <button id="navListaEmailsGeralBtn" title="Consulta e busca inteligente e unificada de e-mails de fornecedores da planilha Lista Geral de emails já coletados pela UPDE." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="mail-search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Lista de E-mails Geral de Fornecedores
                 </button>
                 <button id="navCatmatBtn" title="Análise e filtragem de preços do Compras Net e cotações por código CATMAT e SIH." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Filtrar Preços Compras Net
@@ -781,6 +784,198 @@
                     <!-- As listas separadas aparecerão aqui lado a lado -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- View: Lista de E-mails Geral de Fornecedores -->
+    <div id="listaEmailsGeralView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Módulo de consulta, filtragem avançada e busca unificada de e-mails de fornecedores da planilha Extração de emails.xlsx.">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2" title="Módulo de pesquisa unificada e avançada na lista geral de e-mails de fornecedores.">
+                    <i data-lucide="mail-search" class="w-8 h-8 text-indigo-600"></i> Lista de E-mails Geral de Fornecedores
+                </h1>
+                <p class="text-gray-500 mt-2 text-sm md:text-base" title="Pesquisa avançada com suporte a colunas, exclusão (-termo), múltiplos termos (OR) e filtros rápidos.">
+                    Consulte, filtre e organize os e-mails extraídos da planilha <strong>Extração de emails.xlsx</strong> com busca avançada e seleção múltipla.
+                </p>
+            </div>
+
+            <!-- Banner / Status de Upload Direct/Global -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4" title="Status de carregamento da planilha Extração de emails.xlsx.">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 p-3 rounded-lg text-indigo-600">
+                        <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 id="geral-email-status-title" class="font-bold text-gray-800 text-sm">Planilha "Extração de emails.xlsx"</h3>
+                        <p id="geral-email-status-desc" class="text-xs text-gray-500">Aguardando arquivo pelo botão "Carregar Planilhas" no topo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Control Bar -->
+            <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-6 space-y-4" title="Painel de busca avançada e ação de exportação de e-mails.">
+                
+                <!-- Row 1: Search input + Column Select + Exact match checkbox -->
+                <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+                    
+                    <!-- Search Input Field -->
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </div>
+                        <input type="text" id="geral-email-search-input" placeholder="Pesquisar e-mails... (Ex: contato, -gmail, silva OR oliveira)" class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all" title="Dicas de busca: use - para excluir (ex: -gmail), vírgula ou OR para múltiplos (ex: silva, oliveira)" />
+                        <button id="geral-email-clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600" title="Limpar pesquisa">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Column Selector Dropdown -->
+                    <div class="w-full lg:w-48">
+                        <select id="geral-email-search-column" class="w-full py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-xs md:text-sm text-gray-700 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" title="Escolha em qual campo realizar a pesquisa">
+                            <option value="all">🔍 Todos os Campos</option>
+                            <option value="user">👤 Apenas Usuário (antes do @)</option>
+                            <option value="domain">🌐 Apenas Domínio (depois do @)</option>
+                        </select>
+                    </div>
+
+                    <!-- Exact Match Checkbox -->
+                    <div class="flex items-center gap-2 bg-white px-3 py-2 border border-gray-300 rounded-lg shadow-sm whitespace-nowrap">
+                        <input type="checkbox" id="geral-email-exact-match" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
+                        <label for="geral-email-exact-match" class="text-xs font-medium text-gray-700 cursor-pointer select-none" title="Limita a busca a correspondência exata de palavra inteira em vez de trecho">
+                            Palavra Inteira / Exata
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Row 2: Quick Filter Chips -->
+                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 text-xs">
+                    <span class="font-bold text-gray-500 uppercase tracking-wider text-[10px]">Filtros Rápidos:</span>
+                    <button id="geral-email-tag-all" class="px-3 py-1 rounded-full bg-indigo-600 text-white font-semibold transition-all shadow-xs flex items-center gap-1 cursor-pointer" title="Mostrar todos os e-mails da lista">
+                        <span>Todos</span>
+                    </button>
+                    <button id="geral-email-tag-corp" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-indigo-100 text-gray-700 hover:text-indigo-800 font-medium transition-all flex items-center gap-1 cursor-pointer" title="Exibe apenas e-mails corporativos (oculta provedores gratuitos como @gmail, @hotmail, etc.)">
+                        <i data-lucide="building" class="w-3 h-3"></i>
+                        <span>Apenas Corporativos</span>
+                    </button>
+                    <button id="geral-email-tag-free" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-indigo-100 text-gray-700 hover:text-indigo-800 font-medium transition-all flex items-center gap-1 cursor-pointer" title="Exibe apenas provedores públicos/gratuitos (gmail, hotmail, yahoo, outlook, uol, etc.)">
+                        <i data-lucide="mail" class="w-3-h-3"></i>
+                        <span>Provedores Gratuitos</span>
+                    </button>
+                    <button id="geral-email-tag-invalid" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-red-100 text-gray-700 hover:text-red-800 font-medium transition-all flex items-center gap-1 cursor-pointer" title="Filtra e-mails com sintaxe suspeita ou formato inválido">
+                        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                        <span>Sintaxe Suspeita</span>
+                    </button>
+                </div>
+
+                <!-- Row 3: Actions & Selection Control Bar -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-gray-200">
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <span id="geral-email-selection-count" class="text-xs text-gray-600 font-medium hidden">0 selecionados</span>
+                        <button id="geral-email-deselect-btn" class="hidden text-xs text-indigo-600 hover:text-indigo-800 underline font-medium cursor-pointer" title="Desselecionar todos os itens">
+                            Limpar seleção
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
+                        <button id="geral-email-copy-selected-btn" disabled class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap cursor-pointer" title="Copiar e-mails marcados nas caixas de seleção">
+                            <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                            <span id="geral-email-copy-selected-text">Copiar Selecionados (0)</span>
+                        </button>
+                        <button id="geral-email-copy-all-btn" disabled class="bg-indigo-800 hover:bg-indigo-900 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap cursor-pointer" title="Copiar todos os e-mails resultantes do filtro atual">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copiar E-mails Filtrados</span>
+                        </button>
+                        <button id="geral-email-export-btn" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap cursor-pointer" title="Exportar lista filtrada para planilha Excel">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>Exportar Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Stats & Tips Header -->
+            <div class="mb-3 flex flex-col md:flex-row md:items-center justify-between text-xs text-gray-500 gap-2 px-1">
+                <span id="geral-email-counter-text" class="font-medium">Nenhum e-mail carregado.</span>
+                <span class="text-indigo-600 font-medium hidden md:inline" title="Dicas de busca avançada: Use - para excluir (ex: -gmail.com) e vírgula/OR para termos múltiplos">
+                    <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i> <strong>Dica de Busca:</strong> Use <code>-termo</code> para excluir (ex: <code>-gmail</code>) e <code>,</code> ou <code>OR</code> para buscar múltiplos.
+                </span>
+            </div>
+
+            <!-- Emails Table Container -->
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm" title="Tabela de exibição de e-mails">
+                <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10 border-b border-gray-200">
+                            <tr>
+                                <th class="py-3 px-3 w-10 text-center">
+                                    <input type="checkbox" id="geral-email-select-all" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" title="Selecionar/Desselecionar todos os e-mails resultantes do filtro" />
+                                </th>
+                                <th class="py-3 px-3 w-12 text-center cursor-pointer select-none hover:bg-gray-200 transition-colors" data-sort="index" title="Clique para ordenar por número da linha">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span>#</span>
+                                        <span id="sort-icon-index" class="text-gray-400 text-[10px]">↕</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer select-none hover:bg-gray-200 transition-colors" data-sort="full" title="Clique para ordenar por e-mail completo">
+                                    <div class="flex items-center gap-1">
+                                        <span>Endereço de E-mail Completo</span>
+                                        <span id="sort-icon-full" class="text-gray-400 text-[10px]">↕</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer select-none hover:bg-gray-200 transition-colors" data-sort="user" title="Clique para ordenar por nome de usuário (antes do @)">
+                                    <div class="flex items-center gap-1">
+                                        <span>Usuário (antes do @)</span>
+                                        <span id="sort-icon-user" class="text-gray-400 text-[10px]">↕</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 cursor-pointer select-none hover:bg-gray-200 transition-colors" data-sort="domain" title="Clique para ordenar por domínio (depois do @)">
+                                    <div class="flex items-center gap-1">
+                                        <span>Domínio (depois do @)</span>
+                                        <span id="sort-icon-domain" class="text-gray-400 text-[10px]">↕</span>
+                                    </div>
+                                </th>
+                                <th class="py-3 px-4 w-28 text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="geral-email-table-body" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-gray-400 italic">
+                                    Use o botão "Carregar Planilhas" no topo ou anexe a planilha "Extração de emails.xlsx" para visualizar a lista de e-mails.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer Bar -->
+                <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <span>Exibir por página:</span>
+                        <select id="geral-email-page-size" class="bg-white border border-gray-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500 shadow-xs cursor-pointer">
+                            <option value="50">50 e-mails</option>
+                            <option value="100" selected>100 e-mails</option>
+                            <option value="250">250 e-mails</option>
+                            <option value="500">500 e-mails</option>
+                            <option value="all">Exibir Todos</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span id="geral-email-page-info" class="font-medium">Página 1 de 1</span>
+                        <div class="inline-flex rounded-md shadow-xs" role="group">
+                            <button id="geral-email-prev-page" disabled class="px-3 py-1 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 text-gray-700 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer" title="Página anterior">
+                                &laquo; Anterior
+                            </button>
+                            <button id="geral-email-next-page" disabled class="px-3 py-1 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 text-gray-700 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer" title="Próxima página">
+                                Próxima &raquo;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 
@@ -2755,6 +2950,7 @@
         const navIsoBtn = document.getElementById('navIsoBtn');
         const navFornecedoresBtn = document.getElementById('navFornecedoresBtn');
         const navEmailExtractorBtn = document.getElementById('navEmailExtractorBtn');
+        const navListaEmailsGeralBtn = document.getElementById('navListaEmailsGeralBtn');
         const navCatmatBtn = document.getElementById('navCatmatBtn');
         const navIaDescP4Btn = document.getElementById('navIaDescP4Btn');
         const navPdfCatmatBtn = document.getElementById('navPdfCatmatBtn');
@@ -2764,6 +2960,7 @@
         const isoView = document.getElementById('isoView');
         const fornecedoresView = document.getElementById('fornecedoresView');
         const emailExtractorView = document.getElementById('emailExtractorView');
+        const listaEmailsGeralView = document.getElementById('listaEmailsGeralView');
         const catmatView = document.getElementById('catmatView');
         const iaDescP4View = document.getElementById('iaDescP4View');
         const pdfCatmatView = document.getElementById('pdfCatmatView');
@@ -2786,6 +2983,7 @@
             navIsoBtn.className = tab === 'iso' ? activeClasses : inactiveClasses;
             navFornecedoresBtn.className = tab === 'fornecedores' ? activeClasses : inactiveClasses;
             navEmailExtractorBtn.className = tab === 'emailExtractor' ? activeClasses : inactiveClasses;
+            if (navListaEmailsGeralBtn) navListaEmailsGeralBtn.className = tab === 'listaEmailsGeral' ? activeClasses : inactiveClasses;
             navCatmatBtn.className = tab === 'catmat' ? activeClasses : inactiveClasses;
             navIaDescP4Btn.className = tab === 'iadescp4' ? activeClasses : inactiveClasses;
             navPdfCatmatBtn.className = tab === 'pdfcatmat' ? activeClasses : inactiveClasses;
@@ -2796,6 +2994,7 @@
             const btnChildIso = navIsoBtn.querySelector('svg');
             const btnChildForn = navFornecedoresBtn.querySelector('svg');
             const btnChildEmail = navEmailExtractorBtn.querySelector('svg');
+            const btnChildListaEmailsGeral = navListaEmailsGeralBtn ? navListaEmailsGeralBtn.querySelector('svg') : null;
             const btnChildCatmat = navCatmatBtn.querySelector('svg');
             const btnChildIaDescP4 = navIaDescP4Btn.querySelector('svg');
             const btnChildPdfCatmat = navPdfCatmatBtn.querySelector('svg');
@@ -2807,6 +3006,7 @@
             if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildListaEmailsGeral) btnChildListaEmailsGeral.setAttribute('class', 'lucide lucide-mail-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
             if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
@@ -2817,6 +3017,7 @@
             isoView.style.display = 'none';
             fornecedoresView.style.display = 'none';
             emailExtractorView.style.display = 'none';
+            if (listaEmailsGeralView) listaEmailsGeralView.style.display = 'none';
             catmatView.style.display = 'none';
             iaDescP4View.style.display = 'none';
             pdfCatmatView.style.display = 'none';
@@ -2833,6 +3034,9 @@
             } else if (tab === 'emailExtractor') {
                 if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 emailExtractorView.style.display = 'flex';
+            } else if (tab === 'listaEmailsGeral') {
+                if (btnChildListaEmailsGeral) btnChildListaEmailsGeral.setAttribute('class', 'lucide lucide-mail-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                if (listaEmailsGeralView) listaEmailsGeralView.style.display = 'flex';
             } else if (tab === 'catmat') {
                 if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 catmatView.style.display = 'flex';
@@ -2867,6 +3071,7 @@
         navIsoBtn.addEventListener('click', () => activateTab('iso'));
         navFornecedoresBtn.addEventListener('click', () => activateTab('fornecedores'));
         navEmailExtractorBtn.addEventListener('click', () => activateTab('emailExtractor'));
+        if (navListaEmailsGeralBtn) navListaEmailsGeralBtn.addEventListener('click', () => activateTab('listaEmailsGeral'));
         navCatmatBtn.addEventListener('click', () => activateTab('catmat'));
         navIaDescP4Btn.addEventListener('click', () => activateTab('iadescp4'));
         navPdfCatmatBtn.addEventListener('click', () => activateTab('pdfcatmat'));
@@ -5578,6 +5783,637 @@ ${formattedInput2}`;
             });
         }
 
+        // --- MÓDULO: LISTA DE E-MAILS GERAL DE FORNECEDORES ---
+        let geralListaEmails = [];
+        let geralSelectedEmailsSet = new Set();
+        let geralActiveFilterTag = 'all'; // 'all' | 'corp' | 'free' | 'invalid'
+        let geralSortColumn = 'index'; // 'index' | 'full' | 'user' | 'domain'
+        let geralSortDir = 'asc'; // 'asc' | 'desc'
+        let geralCurrentPage = 1;
+        let geralPageSize = 100; // number or 'all'
+        let geralDebounceTimer = null;
+
+        const FREE_EMAIL_DOMAINS = new Set([
+            'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'yahoo.com.br',
+            'uol.com.br', 'bol.com.br', 'terra.com.br', 'ig.com.br', 'live.com',
+            'icloud.com', 'globo.com', 'aol.com', 'proton.me', 'protonmail.com',
+            'zipmail.com.br', 'msn.com', 'ymail.com'
+        ]);
+
+        function processExtracaoEmailsFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const raw_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    const emails = [];
+                    const emailSet = new Set();
+                    
+                    raw_data.forEach((row, idx) => {
+                        if (row && row[0] !== undefined && row[0] !== null) {
+                            let val = String(row[0]).trim();
+                            if (!val) return;
+                            
+                            const valLower = val.toLowerCase();
+                            // Ignorar linha de cabeçalho comum se não for um e-mail válido
+                            if (idx === 0 && (valLower === 'email' || valLower === 'e-mail' || valLower === 'emails' || valLower === 'e-mails' || valLower === 'lista de emails' || valLower === 'endereço de email' || valLower === 'fornecedores')) {
+                                return;
+                            }
+                            
+                            const matches = val.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+                            if (matches && matches.length > 0) {
+                                matches.forEach(m => {
+                                    const emLower = m.toLowerCase();
+                                    if (!emailSet.has(emLower)) {
+                                        emailSet.add(emLower);
+                                        const parts = emLower.split('@');
+                                        emails.push({
+                                            full: emLower,
+                                            username: parts[0] || '',
+                                            domain: parts[1] || '',
+                                            originalRow: idx + 1
+                                        });
+                                    }
+                                });
+                            } else if (val.includes('@')) {
+                                const emLower = val.toLowerCase();
+                                if (!emailSet.has(emLower)) {
+                                    emailSet.add(emLower);
+                                    const parts = emLower.split('@');
+                                    emails.push({
+                                        full: emLower,
+                                        username: parts[0] || '',
+                                        domain: parts[1] || '',
+                                        originalRow: idx + 1
+                                    });
+                                }
+                            }
+                        }
+                    });
+                    
+                    geralListaEmails = emails;
+                    geralSelectedEmailsSet.clear();
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                    
+                    const titleEl = document.getElementById('geral-email-status-title');
+                    const descEl = document.getElementById('geral-email-status-desc');
+                    if (titleEl) titleEl.textContent = `Planilha "${file.name}" carregada com sucesso`;
+                    if (descEl) descEl.textContent = `Total de ${emails.length} e-mails únicos identificados na Coluna A.`;
+                    
+                    if (typeof catmat_showToast === 'function') {
+                        catmat_showToast(`${emails.length} e-mails carregados da planilha ${file.name}!`);
+                    }
+                } catch(err) {
+                    console.error("Erro ao ler planilha de e-mails:", err);
+                    alert("Erro ao processar o arquivo " + file.name + ". Verifique se é uma planilha Excel (.xlsx ou .csv) válida.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function filterAndSortGeralEmails() {
+            const searchInput = document.getElementById('geral-email-search-input');
+            const columnSelect = document.getElementById('geral-email-search-column');
+            const exactMatchCb = document.getElementById('geral-email-exact-match');
+
+            const rawQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const selectedColumn = columnSelect ? columnSelect.value : 'all';
+            const isExactMatch = exactMatchCb ? exactMatchCb.checked : false;
+
+            return geralListaEmails.filter(item => {
+                // 1. Tag / Chip Filter
+                if (geralActiveFilterTag === 'corp') {
+                    if (FREE_EMAIL_DOMAINS.has(item.domain)) return false;
+                } else if (geralActiveFilterTag === 'free') {
+                    if (!FREE_EMAIL_DOMAINS.has(item.domain)) return false;
+                } else if (geralActiveFilterTag === 'invalid') {
+                    const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(item.full);
+                    if (isValid) return false;
+                }
+
+                // 2. Query Search
+                if (!rawQuery) return true;
+
+                // Split OR groups (by comma or OR)
+                const groups = rawQuery.split(/,|\s+or\s+/i).map(g => g.trim()).filter(Boolean);
+                if (groups.length === 0) return true;
+
+                // An item matches if AT LEAST ONE OR group matches
+                return groups.some(group => {
+                    // Split tokens by spaces
+                    const tokens = group.split(/\s+/).filter(Boolean);
+                    if (tokens.length === 0) return true;
+
+                    // Every token in the group must pass (positive AND negative tokens)
+                    return tokens.every(token => {
+                        const isNegative = token.startsWith('-');
+                        let cleanToken = isNegative ? token.substring(1).trim() : token;
+
+                        if (!cleanToken) return true;
+                        if (cleanToken.startsWith('@')) cleanToken = cleanToken.substring(1);
+
+                        let targetTexts = [];
+                        if (selectedColumn === 'user') {
+                            targetTexts = [item.username];
+                        } else if (selectedColumn === 'domain') {
+                            targetTexts = [item.domain];
+                        } else {
+                            targetTexts = [item.full, item.username, item.domain];
+                        }
+
+                        let matches = false;
+                        if (isExactMatch) {
+                            matches = targetTexts.some(txt => {
+                                if (txt === cleanToken) return true;
+                                try {
+                                    const regex = new RegExp(`\\b${cleanToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                                    return regex.test(txt);
+                                } catch(e) {
+                                    return txt.includes(cleanToken);
+                                }
+                            });
+                        } else {
+                            matches = targetTexts.some(txt => txt.includes(cleanToken));
+                        }
+
+                        return isNegative ? !matches : matches;
+                    });
+                });
+            }).sort((a, b) => {
+                let valA = a.originalRow;
+                let valB = b.originalRow;
+
+                if (geralSortColumn === 'full') {
+                    valA = a.full;
+                    valB = b.full;
+                } else if (geralSortColumn === 'user') {
+                    valA = a.username;
+                    valB = b.username;
+                } else if (geralSortColumn === 'domain') {
+                    valA = a.domain;
+                    valB = b.domain;
+                } else if (geralSortColumn === 'index') {
+                    valA = a.originalRow;
+                    valB = b.originalRow;
+                }
+
+                if (valA < valB) return geralSortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return geralSortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function renderGeralListaEmails() {
+            const tableBody = document.getElementById('geral-email-table-body');
+            const counterText = document.getElementById('geral-email-counter-text');
+            const copyAllBtn = document.getElementById('geral-email-copy-all-btn');
+            const copySelectedBtn = document.getElementById('geral-email-copy-selected-btn');
+            const copySelectedText = document.getElementById('geral-email-copy-selected-text');
+            const exportBtn = document.getElementById('geral-email-export-btn');
+            const selectAllCb = document.getElementById('geral-email-select-all');
+            const selectionCountSpan = document.getElementById('geral-email-selection-count');
+            const deselectBtn = document.getElementById('geral-email-deselect-btn');
+            const searchInput = document.getElementById('geral-email-search-input');
+            const clearBtn = document.getElementById('geral-email-clear-search');
+
+            if (!tableBody) return;
+
+            const query = searchInput ? searchInput.value.trim() : '';
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', query.length === 0);
+            }
+
+            // Update Selection UI status
+            const selectedCount = geralSelectedEmailsSet.size;
+            if (selectionCountSpan) {
+                selectionCountSpan.textContent = `${selectedCount} e-mail(s) selecionado(s)`;
+                selectionCountSpan.classList.toggle('hidden', selectedCount === 0);
+            }
+            if (deselectBtn) {
+                deselectBtn.classList.toggle('hidden', selectedCount === 0);
+            }
+            if (copySelectedBtn) {
+                copySelectedBtn.disabled = selectedCount === 0;
+            }
+            if (copySelectedText) {
+                copySelectedText.textContent = `Copiar Selecionados (${selectedCount})`;
+            }
+
+            if (geralListaEmails.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-400 italic">
+                            Nenhum e-mail carregado ainda. Use o botão "Carregar Planilhas" no topo ou anexe o arquivo "Extração de emails.xlsx".
+                        </td>
+                    </tr>
+                `;
+                if (counterText) counterText.textContent = "Nenhum e-mail carregado.";
+                if (copyAllBtn) copyAllBtn.disabled = true;
+                if (exportBtn) exportBtn.disabled = true;
+                updatePaginationControls(0, 0, 0, 0);
+                return;
+            }
+
+            const filtered = filterAndSortGeralEmails();
+
+            if (copyAllBtn) copyAllBtn.disabled = filtered.length === 0;
+            if (exportBtn) exportBtn.disabled = filtered.length === 0;
+
+            // Check if all filtered items are selected
+            if (selectAllCb) {
+                if (filtered.length > 0 && filtered.every(item => geralSelectedEmailsSet.has(item.full))) {
+                    selectAllCb.checked = true;
+                    selectAllCb.indeterminate = false;
+                } else if (filtered.some(item => geralSelectedEmailsSet.has(item.full))) {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = true;
+                } else {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = false;
+                }
+            }
+
+            // Pagination calculation
+            const totalFiltered = filtered.length;
+            let pageSize = geralPageSize === 'all' ? totalFiltered : parseInt(geralPageSize, 10);
+            if (isNaN(pageSize) || pageSize <= 0) pageSize = 100;
+
+            const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+            if (geralCurrentPage > totalPages) geralCurrentPage = totalPages;
+            if (geralCurrentPage < 1) geralCurrentPage = 1;
+
+            const startIndex = (geralCurrentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalFiltered);
+            const paginatedItems = filtered.slice(startIndex, endIndex);
+
+            updatePaginationControls(totalFiltered, startIndex, endIndex, totalPages);
+
+            // Render Counter Text
+            if (counterText) {
+                let tagLabel = '';
+                if (geralActiveFilterTag === 'corp') tagLabel = ' (Apenas Corporativos)';
+                else if (geralActiveFilterTag === 'free') tagLabel = ' (Provedores Gratuitos)';
+                else if (geralActiveFilterTag === 'invalid') tagLabel = ' (Sintaxe Suspeita)';
+
+                if (query || tagLabel) {
+                    counterText.innerHTML = `Exibindo <strong class="text-indigo-600">${totalFiltered}</strong> de <strong>${geralListaEmails.length}</strong> e-mails encontrados${tagLabel}.`;
+                } else {
+                    counterText.innerHTML = `Total de <strong class="text-indigo-600">${geralListaEmails.length}</strong> e-mails cadastrados.`;
+                }
+            }
+
+            if (totalFiltered === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500">
+                            <p class="font-semibold text-gray-700">Nenhum e-mail encontrado para os filtros aplicados.</p>
+                            <p class="text-xs text-gray-400 mt-1">Tente remover termos de exclusão (-termo), alterar a coluna de busca ou trocar o filtro rápido.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Highlight helper
+            function escapeRegExp(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function extractPositiveTerms(rawQuery) {
+                if (!rawQuery) return [];
+                const parts = rawQuery.split(/,|\s+or\s+/i);
+                const termsSet = new Set();
+                parts.forEach(part => {
+                    const tokens = part.split(/\s+/);
+                    tokens.forEach(tok => {
+                        tok = tok.trim();
+                        if (!tok || tok.startsWith('-') || tok.toLowerCase() === 'or') return;
+                        if (tok.startsWith('@')) tok = tok.substring(1);
+                        if (tok.length >= 1) {
+                            termsSet.add(tok);
+                        }
+                    });
+                });
+                return Array.from(termsSet).sort((a, b) => b.length - a.length);
+            }
+
+            const positiveTerms = extractPositiveTerms(query);
+            let highlightRegex = null;
+            if (positiveTerms.length > 0) {
+                try {
+                    const pattern = positiveTerms.map(t => escapeRegExp(t)).join('|');
+                    highlightRegex = new RegExp(`(${pattern})`, 'gi');
+                } catch (e) {
+                    highlightRegex = null;
+                }
+            }
+
+            function highlight(text) {
+                if (!text || !highlightRegex) return text;
+                return text.replace(highlightRegex, '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>');
+            }
+
+            tableBody.innerHTML = paginatedItems.map((item, pIdx) => {
+                const globalIdx = startIndex + pIdx + 1;
+                const isChecked = geralSelectedEmailsSet.has(item.full);
+                const highlightedUser = highlight(item.username);
+                const highlightedDomain = highlight(item.domain);
+                const isFree = FREE_EMAIL_DOMAINS.has(item.domain);
+
+                return `
+                    <tr class="hover:bg-indigo-50/50 transition-colors ${isChecked ? 'bg-indigo-50/70' : ''}">
+                        <td class="py-2.5 px-3 text-center">
+                            <input type="checkbox" class="geral-email-row-cb w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" data-email="${item.full}" ${isChecked ? 'checked' : ''} />
+                        </td>
+                        <td class="py-2.5 px-3 text-center text-xs font-mono text-gray-400">${globalIdx}</td>
+                        <td class="py-2.5 px-4 font-mono font-medium text-gray-800 text-xs md:text-sm">
+                            ${highlightedUser}@${highlightedDomain}
+                        </td>
+                        <td class="py-2.5 px-4 text-gray-600 text-xs font-mono">
+                            ${highlightedUser}
+                        </td>
+                        <td class="py-2.5 px-4 text-gray-600 text-xs font-mono">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isFree ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-gray-100 text-gray-700'}">
+                                ${highlightedDomain}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-4 text-center">
+                            <button onclick="copySingleGeralEmail('${item.full}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium hover:underline inline-flex items-center gap-1 cursor-pointer" title="Copiar este e-mail">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons({ root: tableBody });
+
+            // Attach checkbox event handlers for rows
+            tableBody.querySelectorAll('.geral-email-row-cb').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const email = e.target.getAttribute('data-email');
+                    if (e.target.checked) {
+                        geralSelectedEmailsSet.add(email);
+                    } else {
+                        geralSelectedEmailsSet.delete(email);
+                    }
+                    renderGeralListaEmails();
+                });
+            });
+
+            updateSortIconsUI();
+        }
+
+        function updatePaginationControls(totalItems, startIndex, endIndex, totalPages) {
+            const pageInfo = document.getElementById('geral-email-page-info');
+            const prevBtn = document.getElementById('geral-email-prev-page');
+            const nextBtn = document.getElementById('geral-email-next-page');
+
+            if (pageInfo) {
+                if (totalItems === 0) {
+                    pageInfo.textContent = 'Página 0 de 0';
+                } else {
+                    pageInfo.textContent = `Página ${geralCurrentPage} de ${totalPages} (${startIndex + 1}–${endIndex} de ${totalItems})`;
+                }
+            }
+
+            if (prevBtn) prevBtn.disabled = geralCurrentPage <= 1 || totalItems === 0;
+            if (nextBtn) nextBtn.disabled = geralCurrentPage >= totalPages || totalItems === 0;
+        }
+
+        function updateSortIconsUI() {
+            ['index', 'full', 'user', 'domain'].forEach(col => {
+                const iconEl = document.getElementById(`sort-icon-${col}`);
+                if (!iconEl) return;
+                if (geralSortColumn === col) {
+                    iconEl.textContent = geralSortDir === 'asc' ? '▲' : '▼';
+                    iconEl.className = 'text-indigo-600 font-bold text-xs';
+                } else {
+                    iconEl.textContent = '↕';
+                    iconEl.className = 'text-gray-400 text-[10px]';
+                }
+            });
+        }
+
+        function setGeralFilterTag(tag) {
+            geralActiveFilterTag = tag;
+            geralCurrentPage = 1;
+
+            const tags = {
+                'all': 'geral-email-tag-all',
+                'corp': 'geral-email-tag-corp',
+                'free': 'geral-email-tag-free',
+                'invalid': 'geral-email-tag-invalid'
+            };
+
+            Object.keys(tags).forEach(t => {
+                const btn = document.getElementById(tags[t]);
+                if (!btn) return;
+                if (t === tag) {
+                    btn.className = 'px-3 py-1 rounded-full bg-indigo-600 text-white font-semibold transition-all shadow-xs flex items-center gap-1 cursor-pointer';
+                } else {
+                    btn.className = 'px-3 py-1 rounded-full bg-gray-200 hover:bg-indigo-100 text-gray-700 hover:text-indigo-800 font-medium transition-all flex items-center gap-1 cursor-pointer';
+                }
+            });
+
+            renderGeralListaEmails();
+        }
+
+        function toggleSelectAllGeralEmails(checked) {
+            const filtered = filterAndSortGeralEmails();
+            if (checked) {
+                filtered.forEach(item => geralSelectedEmailsSet.add(item.full));
+            } else {
+                filtered.forEach(item => geralSelectedEmailsSet.delete(item.full));
+            }
+            renderGeralListaEmails();
+        }
+
+        function copySingleGeralEmail(email) {
+            navigator.clipboard.writeText(email).then(() => {
+                if (typeof catmat_showToast === 'function') {
+                    catmat_showToast(`E-mail ${email} copiado!`);
+                } else {
+                    alert(`E-mail ${email} copiado!`);
+                }
+            });
+        }
+
+        function copySelectedGeralEmails() {
+            if (geralSelectedEmailsSet.size === 0) return;
+            const emailsArray = Array.from(geralSelectedEmailsSet);
+            const str = emailsArray.join('; ');
+            navigator.clipboard.writeText(str).then(() => {
+                if (typeof catmat_showToast === 'function') {
+                    catmat_showToast(`${emailsArray.length} e-mail(s) selecionados copiados!`);
+                } else {
+                    alert(`${emailsArray.length} e-mail(s) selecionados copiados!`);
+                }
+            });
+        }
+
+        function copyAllGeralEmails() {
+            const filtered = filterAndSortGeralEmails();
+            if (filtered.length === 0) return;
+            
+            const emailListStr = filtered.map(item => item.full).join('; ');
+            navigator.clipboard.writeText(emailListStr).then(() => {
+                if (typeof catmat_showToast === 'function') {
+                    catmat_showToast(`${filtered.length} e-mails filtrados copiados!`);
+                } else {
+                    alert(`${filtered.length} e-mails filtrados copiados!`);
+                }
+            });
+        }
+
+        function exportGeralEmailsExcel() {
+            const filtered = filterAndSortGeralEmails();
+            if (filtered.length === 0) return;
+            
+            const dataToExport = filtered.map((item, idx) => ({
+                "Nº": idx + 1,
+                "E-mail Completo": item.full,
+                "Usuário (Antes do @)": item.username,
+                "Domínio (Depois do @)": item.domain,
+                "Tipo Provedor": FREE_EMAIL_DOMAINS.has(item.domain) ? 'Público/Gratuito' : 'Corporativo'
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Lista de E-mails");
+            XLSX.writeFile(wb, "Lista_Geral_Emails_Fornecedores.xlsx");
+        }
+
+        // Initialize event listeners for Lista de E-mails Geral de Fornecedores
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('geral-email-search-input');
+            const columnSelect = document.getElementById('geral-email-search-column');
+            const exactMatchCb = document.getElementById('geral-email-exact-match');
+            const clearSearchBtn = document.getElementById('geral-email-clear-search');
+            
+            const tagAllBtn = document.getElementById('geral-email-tag-all');
+            const tagCorpBtn = document.getElementById('geral-email-tag-corp');
+            const tagFreeBtn = document.getElementById('geral-email-tag-free');
+            const tagInvalidBtn = document.getElementById('geral-email-tag-invalid');
+
+            const selectAllCb = document.getElementById('geral-email-select-all');
+            const deselectBtn = document.getElementById('geral-email-deselect-btn');
+            const copySelectedBtn = document.getElementById('geral-email-copy-selected-btn');
+            const copyAllBtn = document.getElementById('geral-email-copy-all-btn');
+            const exportBtn = document.getElementById('geral-email-export-btn');
+
+            const pageSizeSelect = document.getElementById('geral-email-page-size');
+            const prevPageBtn = document.getElementById('geral-email-prev-page');
+            const nextPageBtn = document.getElementById('geral-email-next-page');
+
+            // Debounce function for search
+            function triggerDebouncedSearch() {
+                if (geralDebounceTimer) clearTimeout(geralDebounceTimer);
+                geralDebounceTimer = setTimeout(() => {
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                }, 300);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', triggerDebouncedSearch);
+            }
+
+            if (columnSelect) {
+                columnSelect.addEventListener('change', () => {
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                });
+            }
+
+            if (exactMatchCb) {
+                exactMatchCb.addEventListener('change', () => {
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                });
+            }
+
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', () => {
+                    if (searchInput) searchInput.value = '';
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                });
+            }
+
+            // Quick Filter Chips
+            if (tagAllBtn) tagAllBtn.addEventListener('click', () => setGeralFilterTag('all'));
+            if (tagCorpBtn) tagCorpBtn.addEventListener('click', () => setGeralFilterTag('corp'));
+            if (tagFreeBtn) tagFreeBtn.addEventListener('click', () => setGeralFilterTag('free'));
+            if (tagInvalidBtn) tagInvalidBtn.addEventListener('click', () => setGeralFilterTag('invalid'));
+
+            // Select All Checkbox
+            if (selectAllCb) {
+                selectAllCb.addEventListener('change', (e) => {
+                    toggleSelectAllGeralEmails(e.target.checked);
+                });
+            }
+
+            // Deselect Button
+            if (deselectBtn) {
+                deselectBtn.addEventListener('click', () => {
+                    geralSelectedEmailsSet.clear();
+                    renderGeralListaEmails();
+                });
+            }
+
+            // Column Sorting Click Handlers
+            document.querySelectorAll('#listaEmailsGeralView [data-sort]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const col = th.getAttribute('data-sort');
+                    if (geralSortColumn === col) {
+                        geralSortDir = geralSortDir === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        geralSortColumn = col;
+                        geralSortDir = 'asc';
+                    }
+                    renderGeralListaEmails();
+                });
+            });
+
+            // Pagination Controls
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', (e) => {
+                    geralPageSize = e.target.value;
+                    geralCurrentPage = 1;
+                    renderGeralListaEmails();
+                });
+            }
+
+            if (prevPageBtn) {
+                prevPageBtn.addEventListener('click', () => {
+                    if (geralCurrentPage > 1) {
+                        geralCurrentPage--;
+                        renderGeralListaEmails();
+                    }
+                });
+            }
+
+            if (nextPageBtn) {
+                nextPageBtn.addEventListener('click', () => {
+                    geralCurrentPage++;
+                    renderGeralListaEmails();
+                });
+            }
+
+            // Copy & Export Actions
+            if (copySelectedBtn) copySelectedBtn.addEventListener('click', copySelectedGeralEmails);
+            if (copyAllBtn) copyAllBtn.addEventListener('click', copyAllGeralEmails);
+            if (exportBtn) exportBtn.addEventListener('click', exportGeralEmailsExcel);
+        });
+
+        // Global file upload handler update
         document.getElementById('globalFileInput').addEventListener('change', (e) => {
             const files = e.target.files;
             
@@ -5594,11 +6430,14 @@ ${formattedInput2}`;
                 
                 const fileNameLower = fileName.toLowerCase();
                 
+                const isExtracaoEmails = fileNameLower.includes("extração") || fileNameLower.includes("extracao") || (fileNameLower.includes("email") && !fileNameLower.includes("cadastro")) || fileNameLower.includes("e-mail");
                 const isBancoDeMarcas = fileNameLower.includes("banco") || fileNameLower.includes("marca") || fileNameLower.includes("iso");
                 const isMT15 = fileNameLower.includes("mt15") || fileNameLower.includes("mt-15") || fileNameLower.includes("mt 15") || fileNameLower.includes("sih");
                 const isFornecedor = fileNameLower.includes("fornecedor") || fileNameLower.includes("cadastro") || fileNameLower.includes("chc") || fileNameLower.includes("catálogo");
                 
-                if (isBancoDeMarcas) {
+                if (isExtracaoEmails) {
+                    processExtracaoEmailsFile(file);
+                } else if (isBancoDeMarcas) {
                     if (typeof handleFileUpload === 'function') handleFileUpload(pseudoEvent);
                 } else if (isMT15) {
                     if (typeof handleFornSihFileUpload === 'function') handleFornSihFileUpload(pseudoEvent);
@@ -5606,7 +6445,7 @@ ${formattedInput2}`;
                     if (typeof handleFileSelect === 'function') handleFileSelect(pseudoEvent);
                 } else {
                     console.warn("Nome de arquivo não reconhecido pelo botão global:", fileName);
-                    alert("A planilha '" + fileName + "' não foi carregada automaticamente pois o nome não foi reconhecido.\n(Certifique-se de que o nome contenha 'banco'/'marca', 'mt15'/'sih', ou 'fornecedor')");
+                    alert("A planilha '" + fileName + "' não foi carregada automaticamente pois o nome não foi reconhecido.\n(Certifique-se de que o nome contenha 'banco'/'marca', 'mt15'/'sih', 'fornecedor' ou 'emails')");
                 }
             }
             setTimeout(() => {
