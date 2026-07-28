@@ -221,6 +221,9 @@
                 <button id="navSihFornecedorBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="list" class="w-4 h-4 mr-2 pointer-events-none"></i> SIH por Fornecedor
                 </button>
+                <button id="navIpcaBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="calculator" class="w-4 h-4 mr-2 pointer-events-none"></i> Calculadora IPCA
+                </button>
                 <button id="navCatalogoSpiaBtn" class="px-4 py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="globe" class="w-4 h-4 mr-2 pointer-events-none"></i> Catálogo Spia
                 </button>
@@ -398,6 +401,184 @@
             <div id="sihFornResults" class="overflow-y-auto flex-1 h-[calc(100vh-250px)] space-y-4 pb-20 pr-2">
                 <!-- Grouped cards rendered by JS -->
             </div>
+        </div>
+    </div>
+
+    <!-- View: Calculadora IPCA da UPDE -->
+    <div id="ipcaView" style="display: none;" class="flex-1 min-h-0 flex flex-col bg-slate-50 overflow-hidden w-full h-full border-t border-slate-200">
+        <!-- Cabeçalho (Header): h-14, fundo branco, borda inferior -->
+        <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-10 shadow-2xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                    C
+                </div>
+                <h1 class="text-base md:text-lg font-bold text-slate-800 tracking-tight">Calculadora IPCA da UPDE</h1>
+            </div>
+            
+            <div id="ipcaHeaderStatus" class="flex items-center gap-2 text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                <span id="ipcaHeaderLed" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                <span id="ipcaHeaderStatusText">Carregando API...</span>
+            </div>
+        </header>
+
+        <!-- Banner Alert Area (Top of view if API loading/error) -->
+        <div id="ipcaApiBanner" class="bg-indigo-50 border-b border-indigo-100 px-6 py-2.5 text-xs text-indigo-800 font-medium flex items-center gap-2 shrink-0">
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-indigo-600"></i>
+            <span id="ipcaApiBannerText">Carregando série histórica do Banco Central...</span>
+        </div>
+
+        <!-- Layout Principal (Center Area + Right Panel) -->
+        <div class="flex-1 flex min-h-0 overflow-hidden">
+            <!-- Área Central (Inputs topo + Tabela de Dados baixo) -->
+            <div class="flex-1 flex flex-col min-h-0 overflow-hidden p-4 md:p-6 gap-4">
+                
+                <!-- Área de Inputs (Topo) -->
+                <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-4 md:p-5 shrink-0">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                        
+                        <!-- Textarea de Dados Brutos -->
+                        <div class="lg:col-span-8 flex flex-col">
+                            <label for="ipcaRawInput" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                                <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                                Dados Brutos: SIH | Último Mês de Entrada | Último Preço
+                            </label>
+                            <textarea id="ipcaRawInput" rows="3" disabled class="w-full border border-slate-300 rounded-lg p-3 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs resize-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed placeholder:text-slate-400" placeholder="Exemplo:&#10;10030   05/2021   1.200,50&#10;10031   01/2020   50,00"></textarea>
+                            <span class="text-[11px] text-slate-500 mt-1">Cole aqui do Excel os dados (separados por espaço ou tabulação).</span>
+                        </div>
+
+                        <!-- Form Controls (Data Final + Botões) -->
+                        <div class="lg:col-span-4 flex flex-col gap-3">
+                            <div>
+                                <label for="ipcaFinalDate" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
+                                    Data Final (Mês/Ano)
+                                </label>
+                                <input type="month" id="ipcaFinalDate" disabled class="w-full border border-slate-300 rounded-lg p-2.5 text-xs text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed" />
+                            </div>
+
+                            <!-- Botões -->
+                            <div class="flex flex-col sm:flex-row gap-2 mt-1">
+                                <button id="ipcaProcessBtn" disabled class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed">
+                                    <i data-lucide="play" class="w-4 h-4"></i>
+                                    Processar Dados
+                                </button>
+                                <button id="ipcaExportBtn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-2xs transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                    Baixar Resultados em Excel
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Tabela de Dados (Baixo, com rolagem) -->
+                <div class="flex-1 bg-white rounded-xl shadow-xs border border-slate-200 flex flex-col min-h-0 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 shrink-0">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                            <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i>
+                            Tabela de Resultados
+                        </h2>
+                        <span id="ipcaRowCount" class="text-xs text-slate-500 font-medium">0 registros</span>
+                    </div>
+
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-100 text-slate-600 uppercase font-semibold text-[11px] sticky top-0 z-10 border-b border-slate-200 shadow-2xs">
+                                <tr>
+                                    <th class="py-2.5 px-3 w-12 text-center">#</th>
+                                    <th class="py-2.5 px-3">SIH</th>
+                                    <th class="py-2.5 px-3">Último Mês de Entrada</th>
+                                    <th class="py-2.5 px-3 text-right">Último Preço</th>
+                                    <th class="py-2.5 px-3 text-right">IPCA (%)</th>
+                                    <th class="py-2.5 px-3 text-right">Preço Corrigido</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ipcaTableBody" class="divide-y divide-slate-100 font-mono">
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs">
+                                        Nenhum dado processado. Cole a lista acima e clique em "Processar Dados".
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Painel Lateral Direito (Aside) -->
+            <aside class="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 min-h-0 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i>
+                        Painel de Análise
+                    </h3>
+                </div>
+
+                <!-- Aside Content Area -->
+                <div id="ipcaAnalysisContent" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+                    <!-- Estado Vazio -->
+                    <div id="ipcaAnalysisEmpty" class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 my-auto">
+                        <i data-lucide="mouse-pointer-click" class="w-8 h-8 mb-2 text-slate-300"></i>
+                        <p class="font-sans text-xs">Select a row in the table to view detailed execution metrics.</p>
+                    </div>
+
+                    <!-- Detail View (Hidden initially) -->
+                    <div id="ipcaAnalysisDetail" class="hidden space-y-4">
+                        <!-- Bloco 1 (Preço) -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Preço Corrigido</span>
+                                <span id="ipcaDetailStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">SUCCESS</span>
+                            </div>
+                            <div id="ipcaDetailPrice" class="text-2xl font-extrabold text-slate-800 font-mono">R$ 0,0000</div>
+                            <div class="text-[11px] text-slate-500 flex justify-between border-t border-slate-200 pt-2 mt-1">
+                                <span>Valor Base Original:</span>
+                                <span id="ipcaDetailBasePrice" class="font-bold font-mono text-slate-700">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <!-- Bloco 2 (IPCA) -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">IPCA Acumulado</span>
+                                <span id="ipcaDetailIpcaBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">HIGH</span>
+                            </div>
+                            <div id="ipcaDetailIpcaValue" class="text-2xl font-extrabold text-slate-800 font-mono">+0.000000%</div>
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mt-2">
+                                <div id="ipcaDetailBar" class="bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bloco 3 (Details) -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block border-b border-slate-200 pb-1.5">Detalhes da Execução</span>
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Código SIH:</span>
+                                <span id="ipcaDetailSih" class="font-bold font-mono text-slate-800">--</span>
+                            </div>
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Período de Ajuste:</span>
+                                <span id="ipcaDetailPeriod" class="font-mono text-slate-800 text-[11px]">-- -> --</span>
+                            </div>
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Data Source:</span>
+                                <span class="font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 text-[10px]">BCB SGS 433</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rodapé Aside -->
+                <div class="p-3 border-t border-slate-200 bg-slate-50/50 shrink-0 flex items-center justify-between text-[11px] text-slate-500">
+                    <span class="font-medium">BCB SGS 433</span>
+                    <div id="ipcaSyncLedContainer" class="flex items-center gap-1.5 font-semibold">
+                        <span id="ipcaSyncLedDot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                        <span id="ipcaSyncLedText" class="text-slate-400">Offline</span>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 
@@ -2569,6 +2750,7 @@
         const navIaDescP4Btn = document.getElementById('navIaDescP4Btn');
         const navPdfCatmatBtn = document.getElementById('navPdfCatmatBtn');
         const navSihFornecedorBtn = document.getElementById('navSihFornecedorBtn');
+        const navIpcaBtn = document.getElementById('navIpcaBtn');
         const navCatalogoSpiaBtn = document.getElementById('navCatalogoSpiaBtn');
         const isoView = document.getElementById('isoView');
         const fornecedoresView = document.getElementById('fornecedoresView');
@@ -2577,6 +2759,7 @@
         const iaDescP4View = document.getElementById('iaDescP4View');
         const pdfCatmatView = document.getElementById('pdfCatmatView');
         const sihFornecedorView = document.getElementById('sihFornecedorView');
+        const ipcaView = document.getElementById('ipcaView');
         const catalogoSpiaView = document.getElementById('catalogoSpiaView');
 
         const scrollPositions = new Map();
@@ -2598,6 +2781,7 @@
             navIaDescP4Btn.className = tab === 'iadescp4' ? activeClasses : inactiveClasses;
             navPdfCatmatBtn.className = tab === 'pdfcatmat' ? activeClasses : inactiveClasses;
             navSihFornecedorBtn.className = tab === 'sihfornecedor' ? activeClasses : inactiveClasses;
+            if (navIpcaBtn) navIpcaBtn.className = tab === 'ipca' ? activeClasses : inactiveClasses;
             navCatalogoSpiaBtn.className = tab === 'catalogospia' ? activeClasses : inactiveClasses;
             
             const btnChildIso = navIsoBtn.querySelector('svg');
@@ -2607,6 +2791,7 @@
             const btnChildIaDescP4 = navIaDescP4Btn.querySelector('svg');
             const btnChildPdfCatmat = navPdfCatmatBtn.querySelector('svg');
             const btnChildSihFornecedor = navSihFornecedorBtn.querySelector('svg');
+            const btnChildIpca = navIpcaBtn ? navIpcaBtn.querySelector('svg') : null;
             const btnChildCatalogoSpia = navCatalogoSpiaBtn.querySelector('svg');
 
             // Reset icons
@@ -2617,6 +2802,7 @@
             if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-4 h-4 mr-2 pointer-events-none');
             if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-4 h-4 mr-2 pointer-events-none');
             if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 pointer-events-none');
+            if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-4 h-4 mr-2 pointer-events-none');
             if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 pointer-events-none');
             
             isoView.style.display = 'none';
@@ -2626,6 +2812,7 @@
             iaDescP4View.style.display = 'none';
             pdfCatmatView.style.display = 'none';
             sihFornecedorView.style.display = 'none';
+            if (ipcaView) ipcaView.style.display = 'none';
             catalogoSpiaView.style.display = 'none';
 
             if (tab === 'iso') {
@@ -2649,6 +2836,9 @@
             } else if (tab === 'sihfornecedor') {
                 if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
                 sihFornecedorView.style.display = 'flex';
+            } else if (tab === 'ipca') {
+                if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
+                if (ipcaView) ipcaView.style.display = 'flex';
             } else if (tab === 'catalogospia') {
                 if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-4 h-4 mr-2 text-indigo-300 pointer-events-none');
                 catalogoSpiaView.style.display = 'flex';
@@ -2672,6 +2862,7 @@
         navIaDescP4Btn.addEventListener('click', () => activateTab('iadescp4'));
         navPdfCatmatBtn.addEventListener('click', () => activateTab('pdfcatmat'));
         navSihFornecedorBtn.addEventListener('click', () => activateTab('sihfornecedor'));
+        if (navIpcaBtn) navIpcaBtn.addEventListener('click', () => activateTab('ipca'));
         navCatalogoSpiaBtn.addEventListener('click', () => activateTab('catalogospia'));
         
         
@@ -4904,6 +5095,472 @@ ${formattedInput2}`;
                 }
             }
         });
+
+        // ==========================================
+        // --- CALCULADORA IPCA DA UPDE LOGIC ---
+        // ==========================================
+        let ipcaBcbData = [];
+        let ipcaApiLoaded = false;
+        let ipcaProcessedResults = [];
+        let ipcaSelectedRowIndex = null;
+
+        function getIpcaDefaultFinalMonth() {
+            if (ipcaBcbData && ipcaBcbData.length > 0) {
+                return ipcaBcbData[ipcaBcbData.length - 1].yearMonth;
+            }
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth(); // 0 = Jan, 1 = Feb, ..., 5 = June, 6 = July
+            if (month === 0) {
+                month = 12;
+                year -= 1;
+            }
+            const monthStr = String(month).padStart(2, '0');
+            return `${year}-${monthStr}`;
+        }
+
+        // Set default date on input
+        const ipcaFinalDateInput = document.getElementById('ipcaFinalDate');
+        if (ipcaFinalDateInput) {
+            ipcaFinalDateInput.value = getIpcaDefaultFinalMonth();
+        }
+
+        function updateIpcaProcessBtnState() {
+            const processBtn = document.getElementById('ipcaProcessBtn');
+            const rawInput = document.getElementById('ipcaRawInput');
+            if (processBtn && rawInput) {
+                const hasText = rawInput.value.trim().length > 0;
+                processBtn.disabled = !ipcaApiLoaded || !hasText;
+            }
+        }
+
+        const ipcaRawInputEl = document.getElementById('ipcaRawInput');
+        if (ipcaRawInputEl) {
+            ipcaRawInputEl.addEventListener('input', updateIpcaProcessBtnState);
+        }
+
+        // Fetch BCB API SGS 433
+        async function fetchIpcaBcbData() {
+            const banner = document.getElementById('ipcaApiBanner');
+            const bannerText = document.getElementById('ipcaApiBannerText');
+            const headerLed = document.getElementById('ipcaHeaderLed');
+            const headerText = document.getElementById('ipcaHeaderStatusText');
+            const syncLedDot = document.getElementById('ipcaSyncLedDot');
+            const syncLedText = document.getElementById('ipcaSyncLedText');
+            const rawInputEl = document.getElementById('ipcaRawInput');
+            const finalDateEl = document.getElementById('ipcaFinalDate');
+
+            try {
+                const response = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Parse BCB data
+                ipcaBcbData = data.map(item => {
+                    const parts = item.data.split('/');
+                    const yearMonth = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                    return {
+                        yearMonth: yearMonth,
+                        dateStr: item.data,
+                        valor: parseFloat(item.valor) || 0
+                    };
+                });
+
+                ipcaApiLoaded = true;
+
+                // Pre-select the latest available closed month from BCB API
+                if (ipcaBcbData.length > 0 && finalDateEl) {
+                    finalDateEl.value = ipcaBcbData[ipcaBcbData.length - 1].yearMonth;
+                }
+
+                // Update UI
+                if (banner) banner.classList.add('hidden');
+                
+                if (headerLed) {
+                    headerLed.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+                }
+                if (headerText) {
+                    headerText.textContent = 'API Sync Active';
+                    headerText.className = 'text-emerald-700 font-bold';
+                }
+
+                if (syncLedDot) {
+                    syncLedDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+                }
+                if (syncLedText) {
+                    syncLedText.textContent = 'API Sync Active';
+                    syncLedText.className = 'text-emerald-600 font-bold';
+                }
+
+                if (rawInputEl) rawInputEl.disabled = false;
+                if (finalDateEl) finalDateEl.disabled = false;
+                updateIpcaProcessBtnState();
+
+            } catch (err) {
+                console.error("Erro ao carregar API do BCB:", err);
+                if (banner) {
+                    banner.className = 'bg-red-50 border-b border-red-200 px-6 py-2.5 text-xs text-red-700 font-medium flex items-center gap-2 shrink-0';
+                    if (bannerText) bannerText.textContent = 'Erro ao carregar dados do Banco Central (SGS 433). Verifique sua conexão.';
+                }
+                if (headerLed) headerLed.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+                if (headerText) headerText.textContent = 'API Sync Error';
+                if (syncLedDot) syncLedDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+                if (syncLedText) syncLedText.textContent = 'API Offline';
+            }
+        }
+
+        fetchIpcaBcbData();
+
+        function parseIpcaDateToYearMonth(dateStr) {
+            if (!dateStr) return null;
+            const clean = dateStr.trim();
+            if (clean.includes('/') || clean.includes('-')) {
+                const sep = clean.includes('/') ? '/' : '-';
+                const parts = clean.split(sep);
+                if (parts.length === 2) {
+                    let m = parseInt(parts[0], 10);
+                    let y = parseInt(parts[1], 10);
+                    if (y < 100) y += 2000;
+                    if (m >= 1 && m <= 12 && y >= 1900 && y <= 2100) {
+                        return `${y}-${String(m).padStart(2, '0')}`;
+                    }
+                } else if (parts.length === 3) {
+                    if (parts[0].length === 4) {
+                        let y = parseInt(parts[0], 10);
+                        let m = parseInt(parts[1], 10);
+                        if (m >= 1 && m <= 12) return `${y}-${String(m).padStart(2, '0')}`;
+                    } else {
+                        let m = parseInt(parts[1], 10);
+                        let y = parseInt(parts[2], 10);
+                        if (y < 100) y += 2000;
+                        if (m >= 1 && m <= 12 && y >= 1900 && y <= 2100) {
+                            return `${y}-${String(m).padStart(2, '0')}`;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function formatBrl4Dec(val) {
+            if (isNaN(val)) return '--';
+            const parts = val.toFixed(4).split('.');
+            const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            const decimalPart = parts[1];
+            return `R$ ${integerPart},${decimalPart}`;
+        }
+
+        function formatBrl2Dec(val) {
+            if (isNaN(val)) return '--';
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function formatIpcaPercent(val) {
+            if (isNaN(val)) return '--';
+            const sign = val >= 0 ? '+' : '';
+            return `${sign}${val.toFixed(6)}%`;
+        }
+
+        const ipcaProcessBtnEl = document.getElementById('ipcaProcessBtn');
+        if (ipcaProcessBtnEl) {
+            ipcaProcessBtnEl.addEventListener('click', () => {
+                const rawText = document.getElementById('ipcaRawInput').value.trim();
+                const finalDateVal = document.getElementById('ipcaFinalDate').value;
+
+                if (!rawText) return;
+                if (!finalDateVal) {
+                    alert("Por favor, selecione a Data Final.");
+                    return;
+                }
+
+                const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                ipcaProcessedResults = [];
+
+                lines.forEach((line, index) => {
+                    const tokens = line.split(/\s+/);
+                    
+                    if (tokens.length < 3) {
+                        ipcaProcessedResults.push({
+                            index: index + 1,
+                            sih: tokens[0] || '--',
+                            dateRaw: tokens[1] || '--',
+                            priceRaw: tokens.slice(2).join(' ') || '--',
+                            isError: true,
+                            errorMsg: "Formato de linha inválido (esperado: SIH Data Valor)"
+                        });
+                        return;
+                    }
+
+                    const sih = tokens[0];
+                    const dateRaw = tokens[1];
+                    const priceRaw = tokens.slice(2).join(' ');
+
+                    const startYearMonth = parseIpcaDateToYearMonth(dateRaw);
+                    if (!startYearMonth) {
+                        ipcaProcessedResults.push({
+                            index: index + 1,
+                            sih,
+                            dateRaw,
+                            priceRaw,
+                            isError: true,
+                            errorMsg: "Data inicial em formato inválido"
+                        });
+                        return;
+                    }
+
+                    if (startYearMonth > finalDateVal) {
+                        ipcaProcessedResults.push({
+                            index: index + 1,
+                            sih,
+                            dateRaw,
+                            priceRaw,
+                            isError: true,
+                            errorMsg: "Data inicial é maior que a data final"
+                        });
+                        return;
+                    }
+
+                    const cleanPriceStr = priceRaw.replace(/R\$\s*/gi, '').replace(/\./g, '').replace(',', '.').trim();
+                    const basePrice = parseFloat(cleanPriceStr);
+
+                    if (isNaN(basePrice) || basePrice < 0) {
+                        ipcaProcessedResults.push({
+                            index: index + 1,
+                            sih,
+                            dateRaw,
+                            priceRaw,
+                            isError: true,
+                            errorMsg: "Preço base inválido"
+                        });
+                        return;
+                    }
+
+                    const matchingMonths = ipcaBcbData.filter(item => item.yearMonth >= startYearMonth && item.yearMonth <= finalDateVal);
+
+                    if (matchingMonths.length === 0) {
+                        ipcaProcessedResults.push({
+                            index: index + 1,
+                            sih,
+                            dateRaw,
+                            priceRaw,
+                            basePrice,
+                            isError: true,
+                            errorMsg: "Sem dados de IPCA para o período selecionado"
+                        });
+                        return;
+                    }
+
+                    let fatorAcumulado = 1;
+                    matchingMonths.forEach(m => {
+                        // Banco Central do Brasil (BCB) Calculadora do Cidadão methodology:
+                        // Compounds monthly IPCA rates with 7-decimal precision step-wise rounding
+                        fatorAcumulado = Math.round(fatorAcumulado * (1 + (m.valor / 100)) * 1e7) / 1e7;
+                    });
+
+                    const precoCorrigido = basePrice * fatorAcumulado;
+                    const ipcaPercent = (fatorAcumulado - 1) * 100;
+
+                    ipcaProcessedResults.push({
+                        index: index + 1,
+                        sih,
+                        dateRaw,
+                        startYearMonth,
+                        endYearMonth: finalDateVal,
+                        basePrice,
+                        fatorAcumulado,
+                        ipcaPercent,
+                        precoCorrigido,
+                        isError: false
+                    });
+                });
+
+                renderIpcaTable();
+                
+                const exportBtn = document.getElementById('ipcaExportBtn');
+                if (exportBtn) {
+                    if (ipcaProcessedResults.length > 0) {
+                        exportBtn.classList.remove('hidden');
+                    } else {
+                        exportBtn.classList.add('hidden');
+                    }
+                }
+
+                if (ipcaProcessedResults.length > 0) {
+                    selectIpcaRow(0);
+                } else {
+                    clearIpcaDetail();
+                }
+            });
+        }
+
+        function renderIpcaTable() {
+            const tbody = document.getElementById('ipcaTableBody');
+            const rowCountEl = document.getElementById('ipcaRowCount');
+            if (!tbody) return;
+
+            if (rowCountEl) {
+                rowCountEl.textContent = `${ipcaProcessedResults.length} registro(s)`;
+            }
+
+            if (ipcaProcessedResults.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-slate-400 font-sans text-xs">
+                            Nenhum dado processado. Cole a lista acima e clique em "Processar Dados".
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = ipcaProcessedResults.map((r, i) => {
+                const isSelected = ipcaSelectedRowIndex === i;
+                if (r.isError) {
+                    return `
+                        <tr onclick="selectIpcaRow(${i})" class="hover:bg-red-50/50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-red-100/60 font-semibold' : 'bg-red-50/20'}">
+                            <td class="py-2.5 px-3 text-center text-slate-400 text-[11px]">${r.index}</td>
+                            <td class="py-2.5 px-3 font-semibold text-slate-800">${r.sih || '--'}</td>
+                            <td class="py-2.5 px-3 text-slate-600">${r.dateRaw || '--'}</td>
+                            <td class="py-2.5 px-3 text-right text-slate-500">${typeof r.basePrice === 'number' ? formatBrl2Dec(r.basePrice) : '--'}</td>
+                            <td class="py-2.5 px-3 text-right text-rose-600 font-semibold" colspan="2">
+                                <span class="inline-block bg-rose-50 text-rose-700 border border-rose-200 text-[11px] px-2 py-0.5 rounded font-sans">
+                                    Erro: ${r.errorMsg}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <tr onclick="selectIpcaRow(${i})" class="hover:bg-slate-50 border-b border-slate-100 transition-colors cursor-pointer ${isSelected ? 'bg-indigo-50/80 font-semibold text-indigo-950' : ''}">
+                        <td class="py-2.5 px-3 text-center text-slate-400 text-[11px]">${r.index}</td>
+                        <td class="py-2.5 px-3 font-bold text-slate-800">${r.sih}</td>
+                        <td class="py-2.5 px-3 text-slate-600">${r.dateRaw}</td>
+                        <td class="py-2.5 px-3 text-right text-slate-700">${formatBrl2Dec(r.basePrice)}</td>
+                        <td class="py-2.5 px-3 text-right ${r.ipcaPercent >= 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}">${formatIpcaPercent(r.ipcaPercent)}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            <span class="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-0.5 rounded text-xs">
+                                ${formatBrl4Dec(r.precoCorrigido)}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        window.selectIpcaRow = function(index) {
+            ipcaSelectedRowIndex = index;
+            renderIpcaTable();
+            
+            const r = ipcaProcessedResults[index];
+            if (!r) return;
+
+            const emptyEl = document.getElementById('ipcaAnalysisEmpty');
+            const detailEl = document.getElementById('ipcaAnalysisDetail');
+            
+            if (emptyEl) emptyEl.classList.add('hidden');
+            if (detailEl) detailEl.classList.remove('hidden');
+
+            const statusBadge = document.getElementById('ipcaDetailStatusBadge');
+            const detailPrice = document.getElementById('ipcaDetailPrice');
+            const basePrice = document.getElementById('ipcaDetailBasePrice');
+            const ipcaBadge = document.getElementById('ipcaDetailIpcaBadge');
+            const ipcaValue = document.getElementById('ipcaDetailIpcaValue');
+            const ipcaBar = document.getElementById('ipcaDetailBar');
+            const detailSih = document.getElementById('ipcaDetailSih');
+            const detailPeriod = document.getElementById('ipcaDetailPeriod');
+
+            if (r.isError) {
+                if (statusBadge) {
+                    statusBadge.textContent = 'ERROR';
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
+                }
+                if (detailPrice) detailPrice.textContent = 'Erro';
+                if (basePrice) basePrice.textContent = typeof r.basePrice === 'number' ? formatBrl2Dec(r.basePrice) : '--';
+                if (ipcaBadge) {
+                    ipcaBadge.textContent = 'ERROR';
+                    ipcaBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
+                }
+                if (ipcaValue) ipcaValue.textContent = r.errorMsg;
+                if (ipcaBar) ipcaBar.style.width = '0%';
+                if (detailSih) detailSih.textContent = r.sih || '--';
+                if (detailPeriod) detailPeriod.textContent = `${r.dateRaw || '--'} -> Erro`;
+            } else {
+                if (statusBadge) {
+                    statusBadge.textContent = 'SUCCESS';
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700';
+                }
+                if (detailPrice) detailPrice.textContent = formatBrl4Dec(r.precoCorrigido);
+                if (basePrice) basePrice.textContent = formatBrl2Dec(r.basePrice);
+                
+                if (ipcaBadge) {
+                    ipcaBadge.textContent = r.ipcaPercent >= 0 ? 'HIGH' : 'LOW';
+                    ipcaBadge.className = r.ipcaPercent >= 0 ? 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700' : 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
+                }
+                if (ipcaValue) ipcaValue.textContent = formatIpcaPercent(r.ipcaPercent);
+                
+                const barWidth = Math.min(100, Math.max(0, r.ipcaPercent));
+                if (ipcaBar) ipcaBar.style.width = `${barWidth}%`;
+
+                if (detailSih) detailSih.textContent = r.sih;
+                if (detailPeriod) detailPeriod.textContent = `${r.startYearMonth} -> ${r.endYearMonth}`;
+            }
+        };
+
+        function clearIpcaDetail() {
+            ipcaSelectedRowIndex = null;
+            const emptyEl = document.getElementById('ipcaAnalysisEmpty');
+            const detailEl = document.getElementById('ipcaAnalysisDetail');
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            if (detailEl) detailEl.classList.add('hidden');
+        }
+
+        const ipcaExportBtnEl = document.getElementById('ipcaExportBtn');
+        if (ipcaExportBtnEl) {
+            ipcaExportBtnEl.addEventListener('click', () => {
+                if (ipcaProcessedResults.length === 0) return;
+
+                const finalDateVal = document.getElementById('ipcaFinalDate').value;
+                let dataFinalFormatted = '';
+                if (finalDateVal) {
+                    const parts = finalDateVal.split('-');
+                    if (parts.length === 2) {
+                        dataFinalFormatted = `01/${parts[1]}/${parts[0]}`;
+                    }
+                }
+
+                const dataToExport = ipcaProcessedResults.map(r => {
+                    if (r.isError) {
+                        return {
+                            "SIH": String(r.sih || ''),
+                            "Último Mês de Entrada": String(r.dateRaw || ''),
+                            "Último Preço (R$)": typeof r.basePrice === 'number' ? r.basePrice : (r.priceRaw || ''),
+                            "Data final": dataFinalFormatted,
+                            "IPCA Acumulado (%)": `Erro: ${r.errorMsg}`,
+                            "Preço Corrigido (R$)": `Erro: ${r.errorMsg}`
+                        };
+                    }
+
+                    return {
+                        "SIH": String(r.sih),
+                        "Último Mês de Entrada": String(r.dateRaw),
+                        "Último Preço (R$)": Number(r.basePrice),
+                        "Data final": dataFinalFormatted,
+                        "IPCA Acumulado (%)": Number((r.ipcaPercent / 100).toFixed(6)),
+                        "Preço Corrigido (R$)": Number(r.precoCorrigido.toFixed(4))
+                    };
+                });
+
+                const ws = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Calculo IPCA");
+                XLSX.writeFile(wb, `Calculo_IPCA_UPDE_${finalDateVal || 'resultados'}.xlsx`);
+            });
+        }
 
         document.getElementById('globalFileInput').addEventListener('change', (e) => {
             const files = e.target.files;
