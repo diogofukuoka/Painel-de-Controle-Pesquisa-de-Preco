@@ -1,0 +1,550 @@
+        // --- EXTRATOR CATMAT PDF LOGIC ---
+        let pdf_pdfData = [];
+        let pdf_refData = [];
+        let pdf_excludeUasg = true;
+        let pdf_selectedModalidade = 'pregão';
+        let pdf_startDate = '';
+        let pdf_endDate = '';
+        let pdf_useRangeFilter = false;
+        let pdf_minPrice = '';
+        let pdf_maxPrice = '';
+        let pdf_selectedCatmat = null;
+        let pdf_activeSih = null;
+        let pdf_savedItems = [];
+        let pdf_modalidadesDisponiveis = ['Todas'];
+
+        const elPdfInputXlsx = document.getElementById('pdf-file-input-xlsx');
+        const elPdfInputPdf = document.getElementById('pdf-file-input-pdf');
+        const pdfErrorMsg = document.getElementById('pdf-error-message');
+        const pdfErrorText = document.getElementById('pdf-error-text');
+
+        document.getElementById('pdf-end-date').value = pdf_endDate;
+
+        applyDropZone('pdf-drop-zone-xlsx', 'pdf-file-input-xlsx');
+        applyDropZone('pdf-drop-zone-pdf', 'pdf-file-input-pdf');
+
+        function showPdfError(msg) {
+            pdfErrorMsg.classList.remove('hidden');
+            pdfErrorText.textContent = msg;
+        }
+        function hidePdfError() {
+            pdfErrorMsg.classList.add('hidden');
+        }
+
+        elPdfInputXlsx.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('pdf-file-name-xlsx').textContent = file.name;
+            document.getElementById('pdf-icon-xlsx').classList.add('text-green-600');
+            document.getElementById('pdf-icon-xlsx').setAttribute('data-lucide', 'check-circle');
+            lucide.createIcons();
+            
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                pdf_refData = json.map(row => ({
+                    sih: row[0] !== undefined && row[0] !== null ? String(row[0]).trim() : '',
+                    catmat: row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '',
+                    refPrice: row[2]
+                })).filter(item => item.catmat && item.catmat !== 'undefined' && item.catmat !== 'CATMAT' && item.sih);
+                hidePdfError();
+                pdf_updateUI();
+            } catch (err) {
+                console.error(err);
+                showPdfError("Erro ao ler Excel. Verifique o formato.");
+            }
+        });
+
+        elPdfInputPdf.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                showPdfError('Selecione um PDF válido.');
+                return;
+            }
+            document.getElementById('pdf-file-name-pdf').textContent = file.name;
+            window.pdf_loading = true;
+            document.getElementById('pdf-upload-content').classList.add('hidden');
+            document.getElementById('pdf-loading-indicator').classList.remove('hidden');
+            hidePdfError();
+            
+            pdf_pdfData = [];
+            pdf_selectedCatmat = null;
+            pdf_savedItems = [];
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                
+                let extractedRecords = [];
+                let currentCatmat_V1 = '';
+                let currentDesc_V1 = '';
+                let currentCatmat_V2 = '';
+                let currentDesc_V2 = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const items = textContent.items;
+
+                    // Ordena os itens de texto de cima para baixo (Eixo Y)
+                    items.sort((a, b) => b.transform[5] - a.transform[5]);
+                    
+                    const lines = [];
+                    let lastY = null;
+                    
+                    // Agrupa os itens na mesma linha (tolerância de 8 pixels no Eixo Y para tabelas)
+                    items.forEach(item => {
+                        const y = Math.round(item.transform[5]);
+                        const x = Math.round(item.transform[4]);
+                        const text = item.str.trim();
+                        
+                        if (!text) return;
+
+                        if (lastY === null || Math.abs(y - lastY) > 8) {
+                            lines.push([]);
+                            lastY = y;
+                        }
+                        lines[lines.length - 1].push({ text, x, y });
+                    });
+
+                    // Ordena cada linha da esquerda para a direita (Eixo X)
+                    lines.forEach(line => line.sort((a, b) => a.x - b.x));
+                    
+                    const flatLines = lines.map(lineItems => lineItems.map(i => i.text).join(' '));
+
+                    for (let j = 0; j < lines.length; j++) {
+                        const lineStr = flatLines[j].trim();
+
+                        // Ignorar linhas de Médias e Medianas
+                        const lowerLine = lineStr.toLowerCase();
+                        if (lowerLine.includes('média:') || lowerLine.includes('mediana:') || lowerLine.includes('amostra total:')) {
+                            continue;
+                        }
+
+                        // ==========================================
+                        // LOGIC FOR 2.PDF (Original pattern with 'CATMAT:' and 'R$')
+                        // ==========================================
+                        if (lineStr.includes('CATMAT:')) {
+                            const matchV2 = lineStr.match(/CATMAT:\s*(\d+)/);
+                            if (matchV2) currentCatmat_V2 = matchV2[1];
+                        }
+                        if (lineStr.includes('Descrição CATMAT:')) {
+                            currentDesc_V2 = lineStr.replace('Descrição CATMAT:', '').trim();
+                        }
+                        const priceMatch_V2 = lineStr.match(/R\$\s*([\d.,]+)/);
+                        
+                        if (priceMatch_V2 && currentCatmat_V2) {
+                            let foundUasg = null;
+                            let foundDate = 'N/I';
+                            let foundMod = 'Outras';
+                            let foundQtd = 'N/I';
+                            
+                            const textBlock = (j > 0 ? flatLines[j-1] + " " : "") + flatLines[j];
+                            const qtdMatch = textBlock.match(/(?:^|\s)(\d{1,3}(?:\.\d{3})*)\s+R\$\s*[\d.,]+/);
+                            if (qtdMatch) foundQtd = qtdMatch[1];
+
+                            for (let k = j; k >= Math.max(0, j - 8); k--) {
+                                const checkLine = flatLines[k];
+                                if (!foundUasg) {
+                                    const uasgMatch = checkLine.match(/\b(\d{6})\b/);
+                                    if (uasgMatch) foundUasg = uasgMatch[1];
+                                }
+                                if (foundDate === 'N/I') {
+                                    const dateMatch = checkLine.match(/\b(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)\s*\d{4}\b/i);
+                                    if (dateMatch) foundDate = dateMatch[0];
+                                }
+                                if (foundMod === 'Outras') {
+                                    const modalities = ['Pregão', 'Dispensa', 'Inexigibilidade', 'Concorrência', 'Chamamento'];
+                                    const modMatch = modalities.find(m => checkLine.toLowerCase().includes(m.toLowerCase()));
+                                    if (modMatch) foundMod = modMatch;
+                                }
+                                if (foundUasg && foundDate !== 'N/I') break;
+                            }
+
+                            if (foundUasg) {
+                                const lineSignature = flatLines.slice(Math.max(0, j - 2), j + 1).join(' | ').trim() + '_v2';
+                                extractedRecords.push({
+                                    _signature: lineSignature, 
+                                    catmat: currentCatmat_V2,
+                                    descricao: currentDesc_V2,
+                                    uasg: foundUasg,
+                                    data: foundDate,
+                                    modalidade: foundMod,
+                                    preco: priceMatch_V2[1],
+                                    quantidade: foundQtd
+                                });
+                            }
+                        }
+
+                        // ==========================================
+                        // LOGIC FOR 1.PDF (Pattern with 4 decimals and catmat at line start)
+                        // ==========================================
+                        const catmatMatch_V1 = lineStr.match(/(?:^|\s)(\d{6})\b/);
+                        if (catmatMatch_V1 && lineStr.indexOf(catmatMatch_V1[1]) < 20) {
+                            currentCatmat_V1 = catmatMatch_V1[1];
+                            
+                            let descPart = lineStr.substring(lineStr.indexOf(currentCatmat_V1) + 6).trim();
+                            const descEndMatch = descPart.match(/\b(UNIDADE|CAIXA|PCT|FRASCO|AMPOLA|GALÃO|KILO|METRO|PEÇA|CONJUNTO|SERINGA|TUBO|CX|UND|KG|M2|M3|\d+)\b/i);
+                            
+                            if (descEndMatch) {
+                                currentDesc_V1 = descPart.substring(0, descEndMatch.index).trim();
+                            } else {
+                                currentDesc_V1 = descPart.substring(0, 150).trim();
+                            }
+                            
+                            if(!currentDesc_V1) currentDesc_V1 = "Descrição não identificada";
+                        }
+
+                        // Procura especificamente um preço com 4 casas decimais sem o prefixo R$
+                        const priceMatch_V1 = lineStr.match(/\b(\d{1,3}(?:\.\d{3})*,\d{4})\b/);
+                        
+                        if (priceMatch_V1 && currentCatmat_V1) {
+                            const preco = priceMatch_V1[1];
+
+                            let qtde = '1';
+                            const safePreco = preco.replace('.', '\\.').replace(',', ',');
+                            const qtdeRegex = new RegExp(`\\b([\\d.]+)\\s+(?:-\\s+)?${safePreco}`);
+                            const qtdeMatch = lineStr.match(qtdeRegex);
+                            if (qtdeMatch) {
+                                qtde = qtdeMatch[1];
+                            }
+
+                            let mod = 'Outras';
+                            const modMatch = lineStr.match(/\b(Pregão|Dispensa|Inexigibilidade|Convite|Tomada de Preços|Concorrência|RDC)\b/i);
+                            if (modMatch) {
+                                mod = modMatch[1];
+                            }
+
+                            let uasg = '000000';
+                            const afterPriceStr = lineStr.substring(lineStr.indexOf(preco) + preco.length);
+                            const uasgMatch = afterPriceStr.match(/\b(\d{6})\b/);
+                            if (uasgMatch) {
+                                uasg = uasgMatch[1];
+                            }
+
+                            let data = 'N/I';
+                            const dateRegex = /\b(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)[\s/]*(\d{4})\b/i;
+                            
+                            for (let k = j; k <= Math.min(lines.length - 1, j + 3); k++) {
+                                const dateMatch = flatLines[k].match(dateRegex);
+                                if (dateMatch) {
+                                    const month = dateMatch[1].charAt(0).toUpperCase() + dateMatch[1].slice(1).toLowerCase();
+                                    data = `${month} ${dateMatch[2]}`;
+                                    break;
+                                }
+                            }
+
+                            const lineSignature = `${currentCatmat_V1}-${uasg}-${preco}-${qtde}-${data}_v1`;
+
+                            // Avoid extracting the same price line again if v2 already extracted it,
+                            // although v1 matches 4 decimals specifically, so it's quite safe.
+                            extractedRecords.push({
+                                _signature: lineSignature, 
+                                catmat: currentCatmat_V1,
+                                descricao: currentDesc_V1,
+                                uasg: uasg,
+                                data: data,
+                                modalidade: mod,
+                                preco: preco,
+                                quantidade: qtde
+                            });
+                        }
+                    }
+                }
+
+                // Desduplicação Definitiva
+                pdf_pdfData = extractedRecords.filter((v, i, a) => 
+                    a.findIndex(t => t._signature === v._signature) === i
+                );
+
+                document.getElementById('pdf-icon-pdf').classList.add('text-indigo-600');
+                document.getElementById('pdf-icon-pdf').setAttribute('data-lucide', 'check-circle');
+                lucide.createIcons();
+                
+            } catch (err) {
+                console.error(err);
+                showPdfError('Erro ao processar o PDF.');
+            } finally {
+                window.pdf_loading = false;
+                document.getElementById('pdf-upload-content').classList.remove('hidden');
+                document.getElementById('pdf-loading-indicator').classList.add('hidden');
+                pdf_updateUI();
+            }
+        });
+
+        // Utils
+        const pdf_parseDate = (dateStr) => {
+            if (!dateStr || dateStr === 'N/I') return null;
+            const parts = dateStr.split(' ');
+            if (parts.length < 2) return null;
+            const monthMap = { 'Jan': 0, 'Fev': 1, 'Mar': 2, 'Abr': 3, 'Mai': 4, 'Jun': 5, 'Jul': 6, 'Ago': 7, 'Set': 8, 'Out': 9, 'Nov': 10, 'Dez': 11, 'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5, 'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11 };
+            const month = monthMap[parts[0]];
+            const year = parseInt(parts[1]);
+            if (month === undefined || isNaN(year)) return null;
+            return new Date(year, month, 1);
+        };
+        const pdf_formatDateStr = (dateStr) => {
+            if (!dateStr || dateStr === 'N/I') return dateStr;
+            const parts = dateStr.split(' ');
+            if (parts.length < 2) return dateStr;
+            const monthMap = { 'Jan': '01', 'Fev': '02', 'Mar': '03', 'Abr': '04', 'Mai': '05', 'Jun': '06', 'Jul': '07', 'Ago': '08', 'Set': '09', 'Out': '10', 'Nov': '11', 'Dez': '12', 'jan': '01', 'fev': '02', 'mar': '03', 'abr': '04', 'mai': '05', 'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'out': '10', 'nov': '11', 'dez': '12' };
+            return `${monthMap[parts[0]] || parts[0]}/${parts[1]}`;
+        };
+        const pdf_parseFloatPrice = (valStr) => {
+            if (!valStr) return 0;
+            if (typeof valStr === 'number') return valStr;
+            const cleanStr = String(valStr).replace(/\./g, '').replace(',', '.');
+            return parseFloat(cleanStr);
+        };
+        const pdf_formatPrice = (val) => {
+            if (!val) return '-';
+            if (typeof val === 'number') return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const num = pdf_parseFloatPrice(val);
+            if (!isNaN(num)) return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return val;
+        };
+
+        // Listeners for filters
+        document.getElementById('pdf-exclude-uasg').addEventListener('change', e => { pdf_excludeUasg = e.target.checked; pdf_updateUI(); });
+        document.getElementById('pdf-modalidade-select').addEventListener('change', e => { pdf_selectedModalidade = e.target.value; pdf_updateUI(); });
+        document.getElementById('pdf-start-date').addEventListener('change', e => { pdf_startDate = e.target.value; pdf_updateUI(); });
+        document.getElementById('pdf-end-date').addEventListener('change', e => { pdf_endDate = e.target.value; pdf_updateUI(); });
+        document.getElementById('pdf-use-range').addEventListener('change', e => { 
+            pdf_useRangeFilter = e.target.checked; 
+            const inputs = document.getElementById('pdf-range-inputs');
+            if(pdf_useRangeFilter) { inputs.classList.remove('opacity-50', 'pointer-events-none'); }
+            else { inputs.classList.add('opacity-50', 'pointer-events-none'); }
+            pdf_updateUI(); 
+        });
+        document.getElementById('pdf-min-price').addEventListener('input', e => { pdf_minPrice = e.target.value; pdf_updateUI(); });
+        document.getElementById('pdf-max-price').addEventListener('input', e => { pdf_maxPrice = e.target.value; pdf_updateUI(); });
+
+        document.getElementById('pdf-btn-180').addEventListener('click', () => {
+            const end = new Date();
+            const start = new Date();
+            start.setDate(end.getDate() - 180);
+            pdf_endDate = end.toISOString().split('T')[0];
+            pdf_startDate = start.toISOString().split('T')[0];
+            document.getElementById('pdf-end-date').value = pdf_endDate;
+            document.getElementById('pdf-start-date').value = pdf_startDate;
+            pdf_updateUI();
+        });
+        document.getElementById('pdf-btn-1ano').addEventListener('click', () => {
+            const end = new Date();
+            const start = new Date();
+            start.setFullYear(end.getFullYear() - 1);
+            pdf_endDate = end.toISOString().split('T')[0];
+            pdf_startDate = start.toISOString().split('T')[0];
+            document.getElementById('pdf-end-date').value = pdf_endDate;
+            document.getElementById('pdf-start-date').value = pdf_startDate;
+            pdf_updateUI();
+        });
+
+        function getBaseFiltered() {
+            return pdf_pdfData.filter(item => {
+                if (pdf_excludeUasg && item.uasg === '155902') return false;
+                if (pdf_selectedModalidade) {
+                    const entryMod = item.modalidade ? item.modalidade.toLowerCase().trim() : '';
+                    const selMod = pdf_selectedModalidade.toLowerCase().trim();
+                    if (!entryMod.includes(selMod)) return false;
+                }
+                return true;
+            });
+        }
+
+        function getFullyFiltered() {
+            return getBaseFiltered().filter(item => {
+                const dt = pdf_parseDate(item.data);
+                if (dt) {
+                    if (pdf_startDate) { const st = new Date(pdf_startDate); st.setHours(0,0,0,0); if (dt < st) return false; }
+                    if (pdf_endDate) { const ed = new Date(pdf_endDate); ed.setHours(23,59,59,999); if (dt > ed) return false; }
+                }
+                return true;
+            });
+        }
+
+        function pdf_updateUI() {
+            if (pdf_pdfData.length === 0) {
+                document.getElementById('pdf-main-area').classList.add('hidden');
+                return;
+            }
+            document.getElementById('pdf-main-area').classList.remove('hidden');
+
+            const baseFiltered = getBaseFiltered();
+            const uniqueCatmats = [...new Set(baseFiltered.map(i => i.catmat))].sort();
+            document.getElementById('pdf-unique-count').textContent = `${uniqueCatmats.length} itens distintos`;
+
+            if (uniqueCatmats.length > 0 && !pdf_selectedCatmat) pdf_selectedCatmat = uniqueCatmats[0];
+            if (!uniqueCatmats.includes(pdf_selectedCatmat) && uniqueCatmats.length > 0) pdf_selectedCatmat = uniqueCatmats[0];
+            if (uniqueCatmats.length === 0) pdf_selectedCatmat = null;
+
+            // Render catmats list
+            const catmatsListHtml = uniqueCatmats.map(c => {
+                const refs = pdf_refData.filter(r => r.catmat === c);
+                const isCompleted = refs.length > 0 && refs.every(r => pdf_savedItems.some(s => s['CATMAT'] === c && String(s['Cód. SIH']) === String(r.sih)));
+                const active = pdf_selectedCatmat === c;
+                let bgClass = "text-gray-600 hover:bg-gray-100";
+                if (active) bgClass = "bg-indigo-600 text-white font-bold shadow-md";
+                else if (isCompleted) bgClass = "bg-green-50 text-green-700 hover:bg-green-100";
+
+                return `<button onclick="pdf_selectedCatmat='${c}'; pdf_activeSih=null; pdf_updateUI();" title="Clique para selecionar o CATMAT ${c} e visualizar seus preços e códigos SIH." class="w-full text-left px-3 py-2 rounded-lg text-sm font-mono transition-colors flex justify-between items-center ${bgClass}">
+                    <span>${c}</span>
+                    ${isCompleted ? `<i data-lucide="check" class="w-4 h-4 ${active ? 'text-white' : 'text-green-600'}"></i>` : ''}
+                </button>`;
+            }).join('');
+            document.getElementById('pdf-catmats-list').innerHTML = catmatsListHtml || '<p class="text-sm text-gray-400 text-center mt-4 italic" title="Nenhum código CATMAT encontrado com os filtros selecionados.">Nenhum item no período/filtro.</p>';
+
+            // Setup right side
+            if (pdf_selectedCatmat) {
+                document.getElementById('pdf-details-view').classList.remove('hidden');
+                document.getElementById('pdf-empty-details').classList.add('hidden');
+
+                let pdfItems = baseFiltered.filter(i => i.catmat === pdf_selectedCatmat);
+                pdfItems = pdfItems.filter(item => {
+                    const dt = pdf_parseDate(item.data);
+                    if (dt) {
+                        if (pdf_startDate) { const st = new Date(pdf_startDate); st.setHours(0,0,0,0); if (dt < st) return false; }
+                        if (pdf_endDate) { const ed = new Date(pdf_endDate); ed.setHours(23,59,59,999); if (dt > ed) return false; }
+                    }
+                    return true;
+                });
+                const refItems = pdf_refData.filter(r => r.catmat === pdf_selectedCatmat);
+
+                document.getElementById('pdf-active-catmat-title').textContent = pdf_selectedCatmat;
+                document.getElementById('pdf-active-catmat-desc').textContent = pdfItems[0]?.descricao || 'Sem descrição';
+
+                // Visible PDFs
+                let visiblePdfs = [...pdfItems];
+                if (pdf_useRangeFilter) {
+                    const min = pdf_parseFloatPrice(pdf_minPrice) || 0;
+                    const max = pdf_parseFloatPrice(pdf_maxPrice) || Infinity;
+                    visiblePdfs = visiblePdfs.filter(i => {
+                        const v = pdf_parseFloatPrice(i.preco);
+                        return v >= min && v <= max;
+                    });
+                } else if (pdf_activeSih) {
+                    const ref = refItems.find(r => String(r.sih) === String(pdf_activeSih));
+                    if(ref) {
+                        const min = pdf_parseFloatPrice(ref.refPrice);
+                        visiblePdfs = visiblePdfs.filter(i => pdf_parseFloatPrice(i.preco) >= min);
+                    }
+                }
+
+                // Render SIHs
+                const activeRef = refItems.find(r => String(r.sih) === String(pdf_activeSih));
+                document.getElementById('pdf-sih-list').innerHTML = refItems.length > 0 ? refItems.map(r => {
+                    const saved = pdf_savedItems.some(s => String(s['Cód. SIH']) === String(r.sih) && s['CATMAT'] === pdf_selectedCatmat);
+                    const isActive = pdf_activeSih !== null && pdf_activeSih !== '' && String(pdf_activeSih) === String(r.sih);
+                    let style = "border-transparent hover:bg-gray-50 text-gray-700";
+                    if (isActive) style = "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200";
+                    else if (saved) style = "bg-green-50 border-green-200 text-green-700";
+                    
+                    const nextActiveSihValue = isActive ? '' : r.sih;
+                    return `<li class="flex flex-col items-start gap-1">
+                        <div onclick="pdf_activeSih = '${nextActiveSihValue}'; pdf_updateUI()" title="Clique para ativar este Cód. SIH (${r.sih}) e filtrar preços do PDF no valor de referência (${pdf_formatPrice(r.refPrice)})" class="flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-all w-full border ${style}">
+                            <span class="font-mono font-bold px-2 py-0.5 rounded text-sm ${saved ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'}" title="Código SIH do hospital">${r.sih}</span>
+                            <span class="text-gray-500 font-medium text-sm bg-yellow-100 px-2 py-0.5 rounded" title="Último valor pago registrado">(${pdf_formatPrice(r.refPrice)})</span>
+                            ${saved ? `<i data-lucide="check" class="w-4 h-4 text-green-600 ml-auto"></i>` : ''}
+                        </div>
+                    </li>`;
+                }).join('') : '<p class="text-sm text-gray-400 italic" title="Sem código SIH atrelado na planilha do hospital.">Nenhum SIH correspondente na planilha.</p>';
+
+                document.getElementById('pdf-filtered-label').classList.toggle('hidden', !(pdf_useRangeFilter || pdf_activeSih));
+
+                // Prices List
+                document.getElementById('pdf-price-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => `<li class="text-sm font-bold text-gray-700" title="Preço unitário em R$ registrado no relatório PDF do Painel de Preços">R$ ${i.preco}</li>`).join('') : '<p class="text-sm text-gray-400 italic" title="Nenhum valor encontrado para o filtro ativo.">Nenhum valor encontrado nesta faixa.</p>';
+                // Dates List
+                document.getElementById('pdf-date-list').innerHTML = visiblePdfs.length > 0 ? visiblePdfs.map(i => {
+                    const modLabel = i.modalidade ? i.modalidade.trim() : 'Outras';
+                    return `<li class="text-sm text-gray-600 font-medium flex items-center gap-1.5" title="Data da homologação e modalidade da compra">
+                        <span title="Data da compra">${pdf_formatDateStr(i.data)}</span>
+                        <span>-</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700" title="Modalidade da licitação">${modLabel}</span>
+                    </li>`;
+                }).join('') : '<p class="text-sm text-gray-400 italic">-</p>';
+
+                // Save buttons
+                const btnTop = document.getElementById('pdf-save-btn-top');
+                const btnBot = document.getElementById('pdf-save-btn-bottom');
+                if (pdf_activeSih && activeRef) {
+                    btnTop.classList.remove('hidden'); btnBot.classList.remove('hidden');
+                    document.querySelectorAll('.pdf-active-sih-label').forEach(el => el.textContent = pdf_activeSih);
+                    btnTop.onclick = () => window.pdf_handleSave(pdf_activeSih, visiblePdfs);
+                    btnBot.onclick = () => window.pdf_handleSave(pdf_activeSih, visiblePdfs);
+                } else {
+                    btnTop.classList.add('hidden'); btnBot.classList.add('hidden');
+                }
+
+            } else {
+                document.getElementById('pdf-details-view').classList.add('hidden');
+                document.getElementById('pdf-empty-details').classList.remove('hidden');
+            }
+
+            // Update footer
+            document.getElementById('pdf-saved-count').textContent = pdf_savedItems.length;
+            if (pdf_savedItems.length > 0) {
+                document.getElementById('pdf-clear-saved').classList.remove('hidden');
+                document.getElementById('pdf-download-text').textContent = `Baixar Selecionados (${pdf_savedItems.length})`;
+                document.getElementById('pdf-download-btn').disabled = false;
+            } else {
+                document.getElementById('pdf-clear-saved').classList.add('hidden');
+                document.getElementById('pdf-download-text').textContent = 'Baixar Excel Completo';
+                const fully = getFullyFiltered();
+                document.getElementById('pdf-download-btn').disabled = fully.length === 0;
+            }
+
+            lucide.createIcons();
+        }
+
+        window.pdf_handleSave = function(sih, visibleItems) {
+            const newItems = visibleItems.map(item => ({
+                '_signature': item._signature,
+                'CATMAT': item.catmat,
+                'Cód. SIH': sih,
+                'Data': pdf_formatDateStr(item.data),
+                'Preço Homologado': item.preco
+            }));
+
+            // Merge & unique
+            const combined = [...pdf_savedItems, ...newItems];
+            pdf_savedItems = combined.filter((v, i, a) => a.findIndex(t => t['_signature'] === v['_signature'] && t['Cód. SIH'] === v['Cód. SIH']) === i);
+            pdf_activeSih = null;
+            pdf_updateUI();
+        };
+
+        document.getElementById('pdf-clear-saved').addEventListener('click', () => {
+            pdf_savedItems = [];
+            pdf_updateUI();
+        });
+
+        document.getElementById('pdf-download-btn').addEventListener('click', () => {
+            const fully = getFullyFiltered();
+            const sourceList = pdf_savedItems.length > 0 ? pdf_savedItems : fully;
+            if (sourceList.length === 0) return;
+
+            const dataToExport = sourceList.map(item => {
+                if (item['CATMAT'] !== undefined && item['Cód. SIH'] !== undefined) {
+                    return item; // already saved format
+                } else {
+                    const ref = pdf_refData.find(r => r.catmat === item.catmat);
+                    return {
+                        'CATMAT': item.catmat,
+                        'Cód. SIH': ref ? ref.sih : '-',
+                        'Data': pdf_formatDateStr(item.data),
+                        'Preço Homologado': item.preco
+                    };
+                }
+            });
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Relatório PDF");
+            XLSX.writeFile(wb, `Precos_do_P4_${pdf_savedItems.length > 0 ? 'Selecionados' : 'Geral'}.xlsx`);
+        });
+        
+        // --- IA Desc P4 Logic ---
+        document.getElementById('iaDescGenerateBtn').addEventListener('click', () => {
+            const input1 = document.getElementById('iaDescInput1').value.trim();

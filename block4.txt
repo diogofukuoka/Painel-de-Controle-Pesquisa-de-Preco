@@ -1,0 +1,130 @@
+        const navListaEmailsGeralBtn = document.getElementById('navListaEmailsGeralBtn');
+        const navCatmatBtn = document.getElementById('navCatmatBtn');
+        const navIaDescP4Btn = document.getElementById('navIaDescP4Btn');
+        const navPdfCatmatBtn = document.getElementById('navPdfCatmatBtn');
+        const navSihFornecedorBtn = document.getElementById('navSihFornecedorBtn');
+        const navIpcaBtn = document.getElementById('navIpcaBtn');
+        const navCatalogoSpiaBtn = document.getElementById('navCatalogoSpiaBtn');
+        const isoView = document.getElementById('isoView');
+        const fornecedoresView = document.getElementById('fornecedoresView');
+        const emailExtractorView = document.getElementById('emailExtractorView');
+        const listaEmailsGeralView = document.getElementById('listaEmailsGeralView');
+        const catmatView = document.getElementById('catmatView');
+        const iaDescP4View = document.getElementById('iaDescP4View');
+        const pdfCatmatView = document.getElementById('pdfCatmatView');
+        const sihFornecedorView = document.getElementById('sihFornecedorView');
+        const ipcaView = document.getElementById('ipcaView');
+        const catalogoSpiaView = document.getElementById('catalogoSpiaView');
+
+        const scrollPositions = new Map();
+
+        function activateTab(tab) {
+            document.querySelectorAll('.overflow-y-auto, .overflow-x-auto').forEach(el => {
+                if (el.offsetParent !== null) { 
+                    scrollPositions.set(el, { top: el.scrollTop, left: el.scrollLeft });
+                }
+            });
+
+            const activeClasses = 'px-2.5 py-1.5 lg:px-3 lg:py-2 bg-indigo-700 text-white text-xs lg:text-sm font-medium rounded-lg flex items-center shadow-inner whitespace-nowrap transition-colors';
+            const inactiveClasses = 'px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap';
+            
+            navIsoBtn.className = tab === 'iso' ? activeClasses : inactiveClasses;
+            navFornecedoresBtn.className = tab === 'fornecedores' ? activeClasses : inactiveClasses;
+            navEmailExtractorBtn.className = tab === 'emailExtractor' ? activeClasses : inactiveClasses;
+            if (navListaEmailsGeralBtn) navListaEmailsGeralBtn.className = tab === 'listaEmailsGeral' ? activeClasses : inactiveClasses;
+            navCatmatBtn.className = tab === 'catmat' ? activeClasses : inactiveClasses;
+            navIaDescP4Btn.className = tab === 'iadescp4' ? activeClasses : inactiveClasses;
+            navPdfCatmatBtn.className = tab === 'pdfcatmat' ? activeClasses : inactiveClasses;
+            navSihFornecedorBtn.className = tab === 'sihfornecedor' ? activeClasses : inactiveClasses;
+            if (navIpcaBtn) navIpcaBtn.className = tab === 'ipca' ? activeClasses : inactiveClasses;
+            navCatalogoSpiaBtn.className = tab === 'catalogospia' ? activeClasses : inactiveClasses;
+            
+            const btnChildIso = navIsoBtn.querySelector('svg');
+            const btnChildForn = navFornecedoresBtn.querySelector('svg');
+            const btnChildEmail = navEmailExtractorBtn.querySelector('svg');
+            const btnChildListaEmailsGeral = navListaEmailsGeralBtn ? navListaEmailsGeralBtn.querySelector('svg') : null;
+            const btnChildCatmat = navCatmatBtn.querySelector('svg');
+            const btnChildIaDescP4 = navIaDescP4Btn.querySelector('svg');
+            const btnChildPdfCatmat = navPdfCatmatBtn.querySelector('svg');
+            const btnChildSihFornecedor = navSihFornecedorBtn.querySelector('svg');
+            const btnChildIpca = navIpcaBtn ? navIpcaBtn.querySelector('svg') : null;
+            const btnChildCatalogoSpia = navCatalogoSpiaBtn.querySelector('svg');
+
+            // Reset icons
+            if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildListaEmailsGeral) btnChildListaEmailsGeral.setAttribute('class', 'lucide lucide-mail-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none');
+            
+            isoView.style.display = 'none';
+            fornecedoresView.style.display = 'none';
+            emailExtractorView.style.display = 'none';
+            if (listaEmailsGeralView) listaEmailsGeralView.style.display = 'none';
+            catmatView.style.display = 'none';
+            iaDescP4View.style.display = 'none';
+            pdfCatmatView.style.display = 'none';
+            sihFornecedorView.style.display = 'none';
+            if (ipcaView) ipcaView.style.display = 'none';
+            catalogoSpiaView.style.display = 'none';
+
+            if (tab === 'iso') {
+                if (btnChildIso) btnChildIso.setAttribute('class', 'lucide lucide-check-circle w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                isoView.style.display = 'flex';
+            } else if (tab === 'fornecedores') {
+                if (btnChildForn) btnChildForn.setAttribute('class', 'lucide lucide-users w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                fornecedoresView.style.display = 'flex';
+            } else if (tab === 'emailExtractor') {
+                if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                emailExtractorView.style.display = 'flex';
+            } else if (tab === 'listaEmailsGeral') {
+                if (btnChildListaEmailsGeral) btnChildListaEmailsGeral.setAttribute('class', 'lucide lucide-mail-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                if (listaEmailsGeralView) listaEmailsGeralView.style.display = 'flex';
+            } else if (tab === 'catmat') {
+                if (btnChildCatmat) btnChildCatmat.setAttribute('class', 'lucide lucide-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                catmatView.style.display = 'flex';
+            } else if (tab === 'iadescp4') {
+                if (btnChildIaDescP4) btnChildIaDescP4.setAttribute('class', 'lucide lucide-bot w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                iaDescP4View.style.display = 'flex';
+            } else if (tab === 'pdfcatmat') {
+                if (btnChildPdfCatmat) btnChildPdfCatmat.setAttribute('class', 'lucide lucide-file-text w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                pdfCatmatView.style.display = 'flex';
+            } else if (tab === 'sihfornecedor') {
+                if (btnChildSihFornecedor) btnChildSihFornecedor.setAttribute('class', 'lucide lucide-list w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                sihFornecedorView.style.display = 'flex';
+            } else if (tab === 'ipca') {
+                if (btnChildIpca) btnChildIpca.setAttribute('class', 'lucide lucide-calculator w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                if (ipcaView) ipcaView.style.display = 'flex';
+            } else if (tab === 'catalogospia') {
+                if (btnChildCatalogoSpia) btnChildCatalogoSpia.setAttribute('class', 'lucide lucide-globe w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
+                catalogoSpiaView.style.display = 'flex';
+            }
+
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.overflow-y-auto, .overflow-x-auto').forEach(el => {
+                    if (el.offsetParent !== null && scrollPositions.has(el)) {
+                        const pos = scrollPositions.get(el);
+                        el.scrollTop = pos.top;
+                        el.scrollLeft = pos.left;
+                    }
+                });
+            });
+        }
+
+        navIsoBtn.addEventListener('click', () => activateTab('iso'));
+        navFornecedoresBtn.addEventListener('click', () => activateTab('fornecedores'));
+        navEmailExtractorBtn.addEventListener('click', () => activateTab('emailExtractor'));
+        if (navListaEmailsGeralBtn) navListaEmailsGeralBtn.addEventListener('click', () => activateTab('listaEmailsGeral'));
+        navCatmatBtn.addEventListener('click', () => activateTab('catmat'));
+        navIaDescP4Btn.addEventListener('click', () => activateTab('iadescp4'));
+        navPdfCatmatBtn.addEventListener('click', () => activateTab('pdfcatmat'));
+        navSihFornecedorBtn.addEventListener('click', () => activateTab('sihfornecedor'));
+        if (navIpcaBtn) navIpcaBtn.addEventListener('click', () => activateTab('ipca'));
+        navCatalogoSpiaBtn.addEventListener('click', () => activateTab('catalogospia'));
+        
+        

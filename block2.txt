@@ -1,0 +1,204 @@
+    <!-- View: Filtrar preços P4 -->
+    <div id="pdfCatmatView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Módulo de cruzamento de dados de relatórios em PDF do Painel de Preços (P4) com a planilha de referência do hospital.">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-4 mb-10 w-full overflow-y-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center justify-center gap-2" title="Sistema de extração de relatórios PDF do Painel de Preços (P4) para cálculo de preço de referência.">
+                    <i data-lucide="file-text" class="w-8 h-8 text-indigo-600"></i> P4 - Filtragem de preços
+                </h1>
+                <p class="text-gray-500 mt-2" title="Guia rápido: 1. Selecione a planilha Excel (.xlsx) do hospital; 2. Selecione o relatório PDF extraído do Painel de Preços (P4).">Cruze dados do PDF do Painel de Preços com sua planilha de referência SIH.</p>
+            </div>
+
+            <!-- Área de Uploads -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Upload Excel -->
+                <div id="pdf-drop-zone-xlsx" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="document.getElementById('pdf-file-input-xlsx').click()" title="Passo 1: Clique aqui ou arraste a planilha Excel (.xlsx) do hospital com a relação SIH x CATMAT e último valor pago.">
+                    <input type="file" id="pdf-file-input-xlsx" class="hidden" accept=".xlsx, .xls" />
+                    <div class="flex items-center justify-center gap-3">
+                        <i id="pdf-icon-xlsx" data-lucide="file-spreadsheet" class="text-slate-400 w-10 h-10 group-hover:text-indigo-500 transition-colors"></i>
+                        <div class="text-left">
+                            <p class="font-bold text-sm text-slate-800" title="Arquivo contendo a referência interna do hospital.">1. Planilha Referência (.xlsx)</p>
+                            <p id="pdf-file-name-xlsx" class="text-xs text-slate-500" title="Campos esperados: SIH, CATMAT e último valor pago.">SIH, CATMAT, Preço</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload PDF -->
+                <div id="pdf-drop-zone-pdf" class="bg-white rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors border-slate-300 hover:border-indigo-400 group" onclick="if(!window.pdf_loading) document.getElementById('pdf-file-input-pdf').click()" title="Passo 2: Clique aqui ou arraste o relatório em formato PDF exportado do Painel de Preços (P4).">
+                    <input type="file" id="pdf-file-input-pdf" class="hidden" accept="application/pdf" />
+                    <div id="pdf-loading-indicator" class="hidden flex items-center justify-center gap-3">
+                        <i data-lucide="loader-2" class="animate-spin text-indigo-600 w-8 h-8"></i>
+                        <p class="font-bold text-sm text-slate-700">Processando PDF...</p>
+                    </div>
+                    <div id="pdf-upload-content" class="flex items-center justify-center gap-3">
+                        <i id="pdf-icon-pdf" data-lucide="upload-cloud" class="text-slate-400 w-10 h-10 group-hover:text-indigo-500 transition-colors"></i>
+                        <div class="text-left">
+                            <p class="font-bold text-sm text-slate-800" title="Relatório de contratações públicas exportado em PDF do P4.">2. Relatório Painel de Preços (.pdf)</p>
+                            <p id="pdf-file-name-pdf" class="text-xs text-slate-500" title="Clique para selecionar o PDF ou solte o arquivo nesta caixa.">Clique ou arraste para selecionar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="pdf-error-message" class="hidden bg-red-100 text-red-700 border border-red-200 p-3 rounded-lg mb-6 text-sm flex items-center gap-2" title="Alerta de erro no processamento dos arquivos.">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span id="pdf-error-text">Erro</span>
+            </div>
+
+            <!-- Filtros e Botão de Download -->
+            <div class="bg-gray-50 rounded-xl shadow-sm border border-gray-200 p-4 mb-6" title="Barra de filtros para refinamento dos preços e datas do relatório PDF.">
+                <div class="flex flex-wrap gap-4 items-end">
+                    
+                    <!-- Filtros Básicos -->
+                    <div class="flex flex-col gap-1" title="Filtro para considerar ou ignorar contratações do próprio hospital (UASG 155902).">
+                        <label class="text-xs font-bold text-gray-500 uppercase" title="Unidade Administrativa de Serviços Gerais do hospital.">UASG</label>
+                        <div class="flex items-center h-10">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700" title="Ative para ocultar compras efetuadas pela UASG 155902 (CHC-UFPR).">
+                                <input type="checkbox" id="pdf-exclude-uasg" checked class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" title="Marque para excluir a UASG do próprio hospital dos preços do P4." />
+                                Retirar UASG 155902
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Modalidade -->
+                    <div class="flex flex-col gap-1" title="Filtro pela modalidade de licitação no Painel de Preços.">
+                        <label for="pdf-modalidade-select" class="text-xs font-bold text-gray-500 uppercase" title="Tipo de contratação pública.">Modalidade</label>
+                        <select id="pdf-modalidade-select" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-3 bg-white" title="Escolha entre Pregão, Inexigibilidade, Dispensa ou Todas.">
+                            <option value="">Todas (Ignorar este filtro)</option>
+                            <option value="pregão" selected>Pregão</option>
+                            <option value="inexigibilidade">Inexigibilidade</option>
+                            <option value="dispensa">Dispensa</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de Data -->
+                    <div class="flex flex-col gap-1" title="Intervalo de datas de homologação ou registro no PDF.">
+                        <label class="text-xs font-bold text-gray-500 uppercase flex items-center gap-1" title="Intervalo de datas a ser considerado.">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Período da Compra
+                        </label>
+                        <div class="flex gap-2 items-center">
+                            <input type="date" id="pdf-start-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" title="Selecione a data inicial do período de pesquisa." />
+                            <span class="text-gray-400 text-sm">até</span>
+                            <input type="date" id="pdf-end-date" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2" title="Selecione a data final do período de pesquisa." />
+                        </div>
+                    </div>
+
+                    <!-- Botões de Atalho de Data -->
+                    <div class="flex gap-2 pb-0.5" title="Atalhos rápidos para ajuste do intervalo de datas.">
+                        <button id="pdf-btn-180" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm" title="Ajusta o filtro de data inicial para os últimos 180 dias.">
+                            Últimos 180 dias
+                        </button>
+                        <button id="pdf-btn-1ano" class="text-xs bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 font-medium px-3 py-2 rounded-md transition-colors shadow-sm" title="Ajusta o filtro de data inicial para cobrir o último ano.">
+                            Último 1 Ano
+                        </button>
+                    </div>
+
+                    <!-- Filtro de Valor (Min/Max) -->
+                    <div class="flex flex-col gap-1 ml-2 border-l border-gray-300 pl-4" title="Filtro opcional para delimitar valores financeiros mínimo e máximo em R$.">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-500 uppercase" title="Ativa a filtragem de preços em uma faixa específica em Reais (R$).">
+                            <input type="checkbox" id="pdf-use-range" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" title="Marque para liberar a digitação do valor mínimo e máximo." />
+                            <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i> Filtrar Faixa de Valor
+                        </label>
+                        <div id="pdf-range-inputs" class="flex gap-2 items-center transition-opacity opacity-50 pointer-events-none">
+                            <input type="number" step="0.01" id="pdf-min-price" placeholder="Min" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" title="Digite o valor mínimo aceitável em Reais (R$)." />
+                            <span class="text-gray-400">-</span>
+                            <input type="number" step="0.01" id="pdf-max-price" placeholder="Max" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-9 px-2 w-20" title="Digite o valor máximo aceitável em Reais (R$)." />
+                        </div>
+                    </div>
+                    
+                    <div class="flex-grow"></div>
+                    
+                    <!-- Ações de Download -->
+                    <div class="flex gap-3 items-center">
+                        <button id="pdf-clear-saved" class="hidden text-red-600 text-sm font-medium hover:underline flex items-center gap-1" title="Apaga todos os registros salvos nesta sessão de análise.">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Limpar (<span id="pdf-saved-count">0</span>)
+                        </button>
+
+                        <button id="pdf-download-btn" disabled class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10 shadow-sm transition-colors" title="Gera o arquivo Excel (.xlsx) consolidado com as cotações do PDF e dados salvos.">
+                            <i data-lucide="download" class="w-4 h-4"></i> 
+                            <span id="pdf-download-text">Baixar Excel Completo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área Principal: Master-Detail View -->
+            <div id="pdf-main-area" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-[500px]" title="Área de consulta e seleção dos CATMATs do relatório PDF.">
+                
+                <!-- Coluna Esquerda: Lista de CATMATs -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]" title="Painel com todos os CATMATs localizados no relatório do P4.">
+                    <div class="p-4 border-b border-gray-100 bg-gray-50 flex-shrink-0">
+                        <h3 class="font-bold text-gray-800 text-sm" title="Lista dos códigos CATMAT do PDF que correspondem aos itens pesquisados.">CATMATs Encontrados</h3>
+                        <p id="pdf-unique-count" class="text-xs text-gray-500" title="Total de itens CATMATs únicos presentes na análise.">0 itens distintos</p>
+                    </div>
+                    <div id="pdf-catmats-list" class="overflow-y-auto flex-1 p-2 space-y-1" title="Clique em qualquer CATMAT para visualizar a lista de SIHs e preços.">
+                        <!-- Lista de botões CATMAT -->
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Detalhes -->
+                <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[600px]" title="Painel de detalhes e preços do CATMAT selecionado.">
+                    
+                    <!-- View de Detalhes -->
+                    <div id="pdf-details-view" class="hidden flex-col h-full">
+                        <!-- Header do Detalhe -->
+                        <div class="p-5 border-b border-gray-100 flex justify-between items-start gap-4" title="Cabeçalho do item selecionado com código e descrição técnica.">
+                            <div class="flex-1">
+                                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2" title="Código CATMAT em exibição.">
+                                    Resultado por CATMAT: <span id="pdf-active-catmat-title" class="text-indigo-600"></span>
+                                </h2>
+                                <p id="pdf-active-catmat-desc" class="text-sm text-gray-500 mt-1 line-clamp-2" title="Descrição do item obtida do relatório PDF."></p>
+                            </div>
+                            <!-- Botão Salvar (Visível se SIH ativo) -->
+                            <button id="pdf-save-btn-top" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all" title="Salva a seleção atual e preços do PDF para o código SIH ativado na planilha final.">
+                                <i data-lucide="save" class="w-4 h-4"></i> Salvar neste SIH (<span class="pdf-active-sih-label"></span>)
+                            </button>
+                        </div>
+
+                        <!-- Grid de Informações -->
+                        <div class="flex-1 overflow-y-auto p-5">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                
+                                <!-- Coluna 1: Referência (SIH) -->
+                                <div title="Códigos SIH correspondentes na planilha do hospital e último valor pago registrado.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Lista de códigos SIH vinculados a este CATMAT na planilha do hospital.">Cód. SIH (Último valor):</h4>
+                                    <ul id="pdf-sih-list" class="space-y-2"></ul>
+                                </div>
+
+                                <!-- Coluna 2: Preços Encontrados -->
+                                <div title="Preços unitários em R$ encontrados no relatório PDF do Painel de Preços (P4) após a aplicação dos filtros.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Valores unitários identificados no relatório do P4.">
+                                        Valor(es) no PDF <span id="pdf-filtered-label" class="text-indigo-600 text-xs hidden">(Filtrado)</span>:
+                                    </h4>
+                                    <ul id="pdf-price-list" class="space-y-1.5"></ul>
+                                </div>
+
+                                <!-- Coluna 3: Data da Compra -->
+                                <div title="Datas das aquisições e modalidades de licitação extraídas do PDF do Painel de Preços.">
+                                    <h4 class="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2" title="Datas das homologações e modalidades contratuais do P4.">Data da Compra:</h4>
+                                    <ul id="pdf-date-list" class="space-y-1.5"></ul>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Rodapé Fixo (Com Botão de Salvar) -->
+                        <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end min-h-[70px]">
+                            <button id="pdf-save-btn-bottom" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2 transition-all" title="Salva os dados deste código SIH na planilha consolidada para download.">
+                                <i data-lucide="save" class="w-4 h-4"></i> Salvar neste SIH (<span class="pdf-active-sih-label"></span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado Vazio / Sem Seleção -->
+                    <div id="pdf-empty-details" class="flex flex-col items-center justify-center h-full text-gray-400 gap-3" title="Instrução: Selecione um CATMAT no painel da esquerda para analisar seus preços.">
+                        <i id="pdf-empty-icon" data-lucide="mouse-pointer-click" class="w-12 h-12"></i>
+                        <p id="pdf-empty-text">Selecione um CATMAT ao lado para ver os detalhes.</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
