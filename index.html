@@ -227,17 +227,17 @@
                 <button id="navSihFornecedorBtn" title="Consulta de códigos e materiais hospitalares (SIH) agrupados por empresa fornecedora." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="list" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> SIH por Fornecedor
                 </button>
+                <button id="navListaEmailsGeralBtn" title="Consulta e busca inteligente e unificada de e-mails de fornecedores da planilha Lista Geral de emails já coletados pela UPDE." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="mail-search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Lista de E-mails Geral de Fornecedores
+                </button>
+                <button id="navEmailExtractorBtn" title="Ferramenta para extrair, padronizar em minúsculas e desduplicar endereços de e-mail a partir de qualquer texto." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
+                    <i data-lucide="mail" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Extrair E-mails
+                </button>
                 <button id="navIpcaBtn" title="Calculadora de reajuste e correção monetária de preços pelo IPCA acumulado do Banco Central (SGS 433)." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="calculator" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Calculadora IPCA
                 </button>
                 <button id="navCatalogoSpiaBtn" title="Consulta unificada ao Catálogo SPIA do CHC-UFPR." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="globe" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Catálogo Spia
-                </button>
-                <button id="navEmailExtractorBtn" title="Ferramenta para extrair, padronizar em minúsculas e desduplicar endereços de e-mail a partir de qualquer texto." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="mail" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Extrair E-mails
-                </button>
-                <button id="navListaEmailsGeralBtn" title="Consulta e busca inteligente e unificada de e-mails de fornecedores da planilha Lista Geral de emails já coletados pela UPDE." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
-                    <i data-lucide="mail-search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Lista de E-mails Geral de Fornecedores
                 </button>
                 <button id="navCatmatBtn" title="Análise e filtragem de preços do Compras Net e cotações por código CATMAT e SIH." class="px-2.5 py-1.5 lg:px-3 lg:py-2 text-indigo-100 hover:bg-indigo-700 hover:text-white text-xs lg:text-sm font-medium rounded-lg transition-colors flex items-center whitespace-nowrap">
                     <i data-lucide="search" class="w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 pointer-events-none"></i> Filtrar Preços Compras Net
@@ -4589,17 +4589,19 @@
                 let inTable2 = false;
 
                 for (let line of allLines) {
-                    if (line.includes("Resultado das amostras")) {
+                    const cleanLine = line.toLowerCase().replace(/\s+/g, ' ');
+
+                    if (cleanLine.includes("resultado das amostras")) {
                         inTable1 = true;
                         inTable2 = false;
                         continue;
                     }
-                    if (line.includes("Registros considerados no período") || line.includes("Compras consideradas no período")) {
+                    if (cleanLine.includes("considerados no per") || cleanLine.includes("consideradas no per")) {
                         inTable1 = false;
                         inTable2 = true;
                         continue;
                     }
-                    if (line.includes("Registros descartados") || line.includes("Descartes")) {
+                    if (cleanLine.includes("registros descartados") || cleanLine.includes("descartes")) {
                         inTable1 = false;
                         inTable2 = false;
                         continue;
@@ -4608,7 +4610,9 @@
                     if (inTable1) {
                         const match1 = line.match(/^\s*(\d+)\s+(\d+)\s+/);
                         if (match1) {
-                            itemToCodigo[match1[1]] = match1[2];
+                            if (!itemToCodigo[match1[1]]) {
+                                itemToCodigo[match1[1]] = match1[2];
+                            }
                         }
                     } else if (inTable2) {
                         const match2 = line.match(/^\s*(\d+)\s+(?:\d+).*?R\$\s*([\d,.]+)/);
