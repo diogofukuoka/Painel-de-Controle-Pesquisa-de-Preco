@@ -4594,7 +4594,7 @@
                         inTable2 = false;
                         continue;
                     }
-                    if (line.includes("Registros considerados no período")) {
+                    if (line.includes("Registros considerados no período") || line.includes("Compras consideradas no período")) {
                         inTable1 = false;
                         inTable2 = true;
                         continue;
@@ -4611,10 +4611,10 @@
                             itemToCodigo[match1[1]] = match1[2];
                         }
                     } else if (inTable2) {
-                        const match2 = line.match(/^\s*(\d+)\s+(\d+)\s+(\d+)\s+R\$\s*([\d,.]+)/);
+                        const match2 = line.match(/^\s*(\d+)\s+(?:\d+).*?R\$\s*([\d,.]+)/);
                         if (match2) {
                             let item = match2[1];
-                            let val = match2[4];
+                            let val = match2[2];
                             if (!itemToValues[item]) itemToValues[item] = [];
                             itemToValues[item].push(val);
                         }
