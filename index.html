@@ -20,9 +20,9 @@
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         /* Estilo para a fonte Inter */
         body { font-family: 'Inter', sans-serif; }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         /* Estilos para o modal */
         #modal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
@@ -1222,9 +1222,25 @@
             
             <div class="flex justify-center mb-8">
                 <button id="ep4-process-btn" disabled class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all flex items-center gap-2 disabled:cursor-not-allowed">
-                    <i data-lucide="cog" class="w-5 h-5"></i>
+                    <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                     Processar e Baixar Excel
                 </button>
+            </div>
+
+            <!-- Banner de Fornecedores do Processo (P4) -->
+            <div id="ep4-suppliers-banner" class="bg-indigo-50 border border-indigo-100 rounded-xl shadow-sm p-6 mt-6 max-w-4xl mx-auto hidden" title="Relação das empresas e fornecedores encontrados nas compras consideradas do PDF.">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="ep4-suppliers-title" class="font-bold text-indigo-900 flex items-center" title="Empresas fornecedoras listadas no relatório PDF do Painel de Preços.">
+                        <i data-lucide="users" class="w-5 h-5 mr-2 text-indigo-600"></i> Fornecedores do processo
+                    </h3>
+                    <button id="ep4-copy-suppliers-button" class="py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 flex items-center transition-colors" title="Copia a lista formatada de fornecedores para colar no ChatGPT ou Gemini.">
+                        <i data-lucide="copy" class="w-4 h-4 mr-1.5"></i> Copiar para IA
+                    </button>
+                </div>
+                <p id="ep4-suppliers-subtitle" class="font-medium italic text-indigo-600/70 mb-3 text-sm" title="Fornecedores participantes extraídos do PDF do P4.">Lista de nomes recuperados do PDF:</p>
+                <div id="ep4-suppliers-list" class="text-sm text-gray-700 space-y-1.5 max-h-[400px] overflow-y-auto bg-white p-4 rounded-lg border border-indigo-200/50" title="Razões sociais das empresas fornecedoras.">
+                    <!-- Lista de fornecedores -->
+                </div>
             </div>
         </div>
     </div>
@@ -4508,32 +4524,246 @@
         const ep4FileName = document.getElementById('ep4-file-name');
         const ep4ErrorMsg = document.getElementById('ep4-error-message');
         const ep4ErrorText = document.getElementById('ep4-error-text');
+        const ep4SuppliersBanner = document.getElementById('ep4-suppliers-banner');
+        const ep4SuppliersList = document.getElementById('ep4-suppliers-list');
+        const ep4SuppliersSubtitle = document.getElementById('ep4-suppliers-subtitle');
+        const ep4CopySuppliersBtn = document.getElementById('ep4-copy-suppliers-button');
+
         let ep4File = null;
+        let ep4CurrentSuppliers = [];
+        let ep4CachedData = null;
 
         function ep4ShowError(msg) {
-            ep4ErrorMsg.classList.remove('hidden');
-            ep4ErrorText.textContent = msg;
+            if (ep4ErrorMsg) ep4ErrorMsg.classList.remove('hidden');
+            if (ep4ErrorText) ep4ErrorText.textContent = msg;
         }
 
         function ep4HideError() {
-            ep4ErrorMsg.classList.add('hidden');
+            if (ep4ErrorMsg) ep4ErrorMsg.classList.add('hidden');
         }
 
-        ep4FileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
+        async function ep4ExtractPdfData(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let allLines = [];
+            
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const textContent = await page.getTextContent();
+                const items = textContent.items;
+                
+                let lineGroups = [];
+                items.forEach(item => {
+                    const y = Math.round(item.transform[5]);
+                    const x = item.transform[4];
+                    let found = false;
+                    for (let group of lineGroups) {
+                        if (Math.abs(group.y - y) <= 2) {
+                            group.items.push({ text: item.str, x: x });
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        lineGroups.push({ y: y, items: [{ text: item.str, x: x }] });
+                    }
+                });
+                
+                lineGroups.sort((a, b) => b.y - a.y);
+                
+                for (let group of lineGroups) {
+                    group.items.sort((a, b) => a.x - b.x);
+                    let lineText = group.items.map(i => i.text.trim()).filter(t => t.length > 0).join(' ');
+                    if (lineText) {
+                        allLines.push(lineText);
+                    }
+                }
+            }
+            
+            let itemToCodigo = {};
+            let itemToValues = {};
+            let suppliersSet = new Set();
+            let inTable1 = false;
+            let inTable2 = false;
+
+            for (let line of allLines) {
+                const cleanLine = line.toLowerCase().replace(/\s+/g, ' ');
+
+                if (cleanLine.includes("resultado das amostras")) {
+                    inTable1 = true;
+                    inTable2 = false;
+                    continue;
+                }
+                if (cleanLine.includes("considerados no per") || cleanLine.includes("consideradas no per")) {
+                    inTable1 = false;
+                    inTable2 = true;
+                    continue;
+                }
+                if (cleanLine.includes("registros descartados") || cleanLine.includes("compras descartadas") || cleanLine.includes("descartes")) {
+                    inTable1 = false;
+                    inTable2 = false;
+                    continue;
+                }
+                
+                if (inTable1) {
+                    const match1 = line.match(/^\s*(\d+)\s+(\d+)\s+/);
+                    if (match1) {
+                        if (!itemToCodigo[match1[1]]) {
+                            itemToCodigo[match1[1]] = match1[2];
+                        }
+                    }
+                } else if (inTable2) {
+                    const match2 = line.match(/^\s*(\d+)\s+(?:\d+).*?R\$\s*([\d,.]+)/);
+                    if (match2) {
+                        let item = match2[1];
+                        let val = match2[2];
+                        if (!itemToValues[item]) itemToValues[item] = [];
+                        itemToValues[item].push(val);
+                    }
+
+                    // Extração de fornecedores da tabela de compras consideradas
+                    const dateMatch = line.match(/\b\d{2}\/\d{2}\/\d{4}\s+(.+)$/);
+                    if (dateMatch) {
+                        let sup = dateMatch[1].trim();
+                        sup = sup.replace(/\s*(?:Sem|Com)\s+reajuste.*$/i, '').trim();
+                        sup = sup.replace(/\s*(?:IPCA|Memória|Reajuste).*$/i, '').trim();
+                        sup = sup.replace(/\s*Página\s+\d+.*$/i, '').trim();
+                        sup = sup.replace(/\s*Relatório gerado.*$/i, '').trim();
+                        sup = sup.replace(/\s*https?:\/\/.*$/i, '').trim();
+                        sup = sup.replace(/\s*Painel de Preços.*$/i, '').trim();
+                        if (sup && /[a-zA-ZÀ-ÿ]{2,}/.test(sup)) {
+                            suppliersSet.add(sup);
+                        }
+                    }
+                }
+            }
+            
+            let excelData = [];
+            let maxValues = 0;
+            
+            for (let item in itemToValues) {
+                if (itemToValues[item].length > maxValues) {
+                    maxValues = itemToValues[item].length;
+                }
+            }
+            
+            const sortedItems = Object.keys(itemToCodigo).map(Number).sort((a, b) => a - b);
+            
+            for (let itemNum of sortedItems) {
+                let row = {
+                    'Item': itemNum,
+                    'Código': itemToCodigo[itemNum] || ''
+                };
+                
+                const values = itemToValues[itemNum] || [];
+                for (let i = 0; i < maxValues; i++) {
+                    let valStr = values[i] || '';
+                    if (valStr) {
+                        let valNum = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+                        row[`Valor unitário (${i+1})`] = isNaN(valNum) ? valStr : valNum;
+                    } else {
+                        row[`Valor unitário (${i+1})`] = '';
+                    }
+                }
+                excelData.push(row);
+            }
+
+            const sortedSuppliers = Array.from(suppliersSet).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+            return {
+                excelData,
+                suppliers: sortedSuppliers
+            };
+        }
+
+        function ep4DisplaySuppliers(suppliers) {
+            if (!ep4SuppliersBanner || !ep4SuppliersList) return;
+            ep4CurrentSuppliers = suppliers || [];
+
+            if (ep4CurrentSuppliers.length > 0) {
+                if (ep4SuppliersSubtitle) {
+                    ep4SuppliersSubtitle.textContent = `Lista de nomes recuperados do PDF (${ep4CurrentSuppliers.length}):`;
+                }
+                ep4SuppliersList.innerHTML = ep4CurrentSuppliers.map(name => 
+                    `<div class="py-1.5 px-2 border-b border-gray-100 last:border-0 hover:bg-indigo-50/50 rounded transition-colors text-xs md:text-sm font-mono text-slate-700">${name}</div>`
+                ).join('');
+            } else {
+                if (ep4SuppliersSubtitle) {
+                    ep4SuppliersSubtitle.textContent = 'Lista de nomes recuperados do PDF:';
+                }
+                ep4SuppliersList.innerHTML = '<p class="text-gray-500 py-3 text-center text-sm italic">Nenhum fornecedor listado na coluna "Fornecedores" da tabela de compras consideradas deste PDF.</p>';
+            }
+
+            ep4SuppliersBanner.classList.remove('hidden');
+            lucide.createIcons({ root: ep4SuppliersBanner });
+        }
+
+        async function ep4HandleFileSelection(file) {
             if (!file) {
                 ep4File = null;
                 ep4FileName.textContent = '';
                 ep4ProcessBtn.disabled = true;
+                if (ep4SuppliersBanner) ep4SuppliersBanner.classList.add('hidden');
+                ep4CurrentSuppliers = [];
+                ep4CachedData = null;
                 return;
             }
+
             ep4File = file;
             ep4FileName.textContent = file.name;
             ep4ProcessBtn.disabled = false;
             ep4HideError();
+
+            if (ep4SuppliersBanner && ep4SuppliersList) {
+                ep4SuppliersBanner.classList.remove('hidden');
+                ep4SuppliersList.innerHTML = '<div class="flex items-center justify-center py-6 text-indigo-600 text-sm font-medium"><i data-lucide="loader-2" class="w-5 h-5 animate-spin mr-2"></i> Extraindo fornecedores do PDF...</div>';
+                lucide.createIcons({ root: ep4SuppliersBanner });
+            }
+
+            try {
+                const parsed = await ep4ExtractPdfData(file);
+                ep4CachedData = parsed;
+                ep4DisplaySuppliers(parsed.suppliers);
+            } catch (err) {
+                console.error(err);
+                ep4ShowError("Erro ao processar PDF: " + err.message);
+                if (ep4SuppliersBanner) ep4SuppliersBanner.classList.add('hidden');
+            }
+        }
+
+        ep4FileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            ep4HandleFileSelection(file);
         });
 
         applyDropZone('ep4-drop-zone', 'ep4-file-input');
+
+        if (ep4CopySuppliersBtn) {
+            ep4CopySuppliersBtn.addEventListener('click', () => {
+                if (!ep4CurrentSuppliers || ep4CurrentSuppliers.length === 0) {
+                    if (typeof catmat_showToast === 'function') catmat_showToast('Não há fornecedores para copiar.', true);
+                    return;
+                }
+                const introSentence = "Busque profundamente e extensivamente na internet por emails e/ou telefones dos fornecedores/empresas listados abaixo:";
+                const textToCopy = introSentence + "\n\n" + ep4CurrentSuppliers.join('\n');
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    if (typeof catmat_showToast === 'function') {
+                        catmat_showToast('Lista de fornecedores copiada para a IA!');
+                    }
+                }).catch(err => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    if (typeof catmat_showToast === 'function') {
+                        catmat_showToast('Lista de fornecedores copiada!');
+                    }
+                });
+            });
+        }
 
         ep4ProcessBtn.addEventListener('click', async () => {
             if (!ep4File) return;
@@ -4545,117 +4775,15 @@
             lucide.createIcons();
 
             try {
-                const arrayBuffer = await ep4File.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let allLines = [];
-                
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    
-                    const items = textContent.items;
-                    
-                    let lineGroups = [];
-                    items.forEach(item => {
-                        const y = Math.round(item.transform[5]);
-                        const x = item.transform[4];
-                        let found = false;
-                        for(let group of lineGroups) {
-                            if (Math.abs(group.y - y) <= 2) {
-                                group.items.push({text: item.str, x: x});
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            lineGroups.push({y: y, items: [{text: item.str, x: x}]});
-                        }
-                    });
-                    
-                    lineGroups.sort((a, b) => b.y - a.y);
-                    
-                    for (let group of lineGroups) {
-                        group.items.sort((a, b) => a.x - b.x);
-                        let lineText = group.items.map(i => i.text.trim()).filter(t => t.length > 0).join(' ');
-                        if (lineText) {
-                            allLines.push(lineText);
-                        }
-                    }
+                let dataToExport = ep4CachedData;
+                if (!dataToExport || !dataToExport.excelData) {
+                    dataToExport = await ep4ExtractPdfData(ep4File);
+                    ep4CachedData = dataToExport;
+                    ep4DisplaySuppliers(dataToExport.suppliers);
                 }
-                
-                let itemToCodigo = {};
-                let itemToValues = {};
-                let inTable1 = false;
-                let inTable2 = false;
 
-                for (let line of allLines) {
-                    const cleanLine = line.toLowerCase().replace(/\s+/g, ' ');
-
-                    if (cleanLine.includes("resultado das amostras")) {
-                        inTable1 = true;
-                        inTable2 = false;
-                        continue;
-                    }
-                    if (cleanLine.includes("considerados no per") || cleanLine.includes("consideradas no per")) {
-                        inTable1 = false;
-                        inTable2 = true;
-                        continue;
-                    }
-                    if (cleanLine.includes("registros descartados") || cleanLine.includes("descartes")) {
-                        inTable1 = false;
-                        inTable2 = false;
-                        continue;
-                    }
-                    
-                    if (inTable1) {
-                        const match1 = line.match(/^\s*(\d+)\s+(\d+)\s+/);
-                        if (match1) {
-                            if (!itemToCodigo[match1[1]]) {
-                                itemToCodigo[match1[1]] = match1[2];
-                            }
-                        }
-                    } else if (inTable2) {
-                        const match2 = line.match(/^\s*(\d+)\s+(?:\d+).*?R\$\s*([\d,.]+)/);
-                        if (match2) {
-                            let item = match2[1];
-                            let val = match2[2];
-                            if (!itemToValues[item]) itemToValues[item] = [];
-                            itemToValues[item].push(val);
-                        }
-                    }
-                }
-                
-                let excelData = [];
-                let maxValues = 0;
-                
-                for (let item in itemToValues) {
-                    if (itemToValues[item].length > maxValues) {
-                        maxValues = itemToValues[item].length;
-                    }
-                }
-                
-                const sortedItems = Object.keys(itemToCodigo).map(Number).sort((a, b) => a - b);
-                
-                for (let itemNum of sortedItems) {
-                    let row = {
-                        'Item': itemNum,
-                        'Código': itemToCodigo[itemNum] || ''
-                    };
-                    
-                    const values = itemToValues[itemNum] || [];
-                    for (let i = 0; i < maxValues; i++) {
-                        let valStr = values[i] || '';
-                        if (valStr) {
-                            let valNum = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
-                            row[`Valor unitário (${i+1})`] = isNaN(valNum) ? valStr : valNum;
-                        } else {
-                            row[`Valor unitário (${i+1})`] = '';
-                        }
-                    }
-                    excelData.push(row);
-                }
-                
-                if (excelData.length === 0) {
+                const excelData = dataToExport.excelData;
+                if (!excelData || excelData.length === 0) {
                     ep4ShowError("Nenhum dado encontrado nas tabelas 'Resultado das amostras' e 'Registros considerados no período'.");
                 } else {
                     const ws = XLSX.utils.json_to_sheet(excelData);
@@ -4670,7 +4798,6 @@
                         alert("Excel gerado com sucesso!");
                     }
                 }
-                
             } catch (err) {
                 console.error(err);
                 ep4ShowError("Erro ao ler o PDF: " + err.message);
