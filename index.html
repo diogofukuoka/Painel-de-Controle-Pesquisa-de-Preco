@@ -1237,7 +1237,7 @@
                         <i data-lucide="copy" class="w-4 h-4 mr-1.5"></i> Copiar para IA
                     </button>
                 </div>
-                <p id="ep4-suppliers-subtitle" class="font-medium italic text-indigo-600/70 mb-3 text-sm" title="Fornecedores participantes extraídos do PDF do P4.">Lista de nomes recuperados do PDF:</p>
+                <p id="ep4-suppliers-subtitle" class="font-medium italic text-indigo-600/70 mb-3 text-sm" title="Fornecedores participantes extraídos do PDF do P4.">Lista de fornecedores dos itens do PDF:</p>
                 <div id="ep4-suppliers-list" class="text-sm text-gray-700 space-y-1.5 max-h-[400px] overflow-y-auto bg-white p-4 rounded-lg border border-indigo-200/50" title="Razões sociais das empresas fornecedoras.">
                     <!-- Lista de fornecedores -->
                 </div>
@@ -4682,14 +4682,14 @@
 
             if (ep4CurrentSuppliers.length > 0) {
                 if (ep4SuppliersSubtitle) {
-                    ep4SuppliersSubtitle.textContent = `Lista de nomes recuperados do PDF (${ep4CurrentSuppliers.length}):`;
+                    ep4SuppliersSubtitle.textContent = `Lista de fornecedores dos itens do PDF (${ep4CurrentSuppliers.length}):`;
                 }
                 ep4SuppliersList.innerHTML = ep4CurrentSuppliers.map(name => 
                     `<div class="py-1.5 px-2 border-b border-gray-100 last:border-0 hover:bg-indigo-50/50 rounded transition-colors text-xs md:text-sm font-mono text-slate-700">${name}</div>`
                 ).join('');
             } else {
                 if (ep4SuppliersSubtitle) {
-                    ep4SuppliersSubtitle.textContent = 'Lista de nomes recuperados do PDF:';
+                    ep4SuppliersSubtitle.textContent = 'Lista de fornecedores dos itens do PDF:';
                 }
                 ep4SuppliersList.innerHTML = '<p class="text-gray-500 py-3 text-center text-sm italic">Nenhum fornecedor listado na coluna "Fornecedores" da tabela de compras consideradas deste PDF.</p>';
             }
