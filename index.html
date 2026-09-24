@@ -81,6 +81,19 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
+            align-items: center;
+        }
+        #emailExtractorView .seletor-lote-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 5px 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            min-height: 42px;
+            box-sizing: border-box;
         }
         #emailExtractorView button.email-btn {
             padding: 10px 20px;
@@ -767,21 +780,42 @@
     <div id="emailExtractorView" style="display: none;" class="px-4 md:px-6 lg:px-8 flex-1 min-h-0 flex-col container mx-auto max-w-7xl" title="Extrator automático de e-mails com remoção de duplicatas e divisão em lotes.">
         <div class="email-ext-container mt-4 mb-10 w-full">
             <h1 class="text-2xl font-bold mb-2" title="Ferramenta de extração, filtragem e organização de listas de e-mail.">Extrator de E-mails</h1>
-            <p class="text-gray-600 mb-4 text-sm" title="Instruções de uso: cole o texto bruto, clique em Extrair E-mails e obtenha listas limpas de até 400 contatos.">Cole seu texto na caixa abaixo. Os e-mails serão convertidos para minúsculas, as duplicatas serão removidas e listas de no máximo 400 e-mails serão geradas.</p>
+            <p class="text-gray-600 mb-4 text-sm" title="Instruções de uso: cole o texto bruto, defina a quantidade por lista e clique em Extrair E-mails.">Cole seu texto na caixa abaixo. Os e-mails serão convertidos para minúsculas, as duplicatas serão removidas e listas de no máximo <span id="descTamanhoLote" class="font-semibold text-indigo-600">400</span> e-mails serão geradas.</p>
             
             <textarea id="textoEntrada" class="email-textarea" title="Cole aqui o texto contendo os e-mails que deseja extrair." placeholder="Cole seu texto aqui..."></textarea>
             
-            <div class="botoes-acao" title="Ações principais para colar texto, extrair e-mails ou limpar os campos.">
+            <div class="botoes-acao" title="Ações principais para colar texto, extrair e-mails, definir limite por lista ou limpar os campos.">
                 <button onclick="colarTexto()" class="email-btn btn-secundario" title="Cola o conteúdo da área de transferência diretamente no campo de texto.">Colar</button>
                 <button onclick="extrairEmails()" class="email-btn btn-principal" title="Extrai os e-mails do texto, remove duplicatas e gera lotes organizados.">Extrair E-mails</button>
                 <button onclick="limparCampos()" class="email-btn btn-secundario" title="Limpa o campo de entrada e apaga as listas de e-mails geradas.">Limpar Tudo</button>
+                
+                <!-- Seletor de quantidade de e-mails por lista -->
+                <div class="seletor-lote-box" title="Defina a quantidade máxima de e-mails por lista/lote para cópia.">
+                    <label for="seletorQtdEmails" class="text-sm font-semibold text-gray-700 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i>
+                        E-mails por lista:
+                    </label>
+                    <select id="seletorQtdEmails" onchange="atualizarSeletorLote()" class="bg-white border border-gray-300 text-gray-800 text-sm font-medium rounded px-2.5 py-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
+                        <option value="50">50 e-mails</option>
+                        <option value="100">100 e-mails</option>
+                        <option value="200">200 e-mails</option>
+                        <option value="300">300 e-mails</option>
+                        <option value="400" selected>400 e-mails (Padrão)</option>
+                        <option value="500">500 e-mails</option>
+                        <option value="1000">1.000 e-mails</option>
+                        <option value="custom">Personalizado...</option>
+                    </select>
+                    <div id="containerCustomQtd" class="hidden items-center gap-1">
+                        <input type="number" id="inputCustomQtd" min="1" max="100000" placeholder="Ex: 250" value="400" oninput="atualizarCustomLote()" class="w-24 bg-white border border-gray-300 text-gray-800 text-sm font-medium rounded px-2 py-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none" title="Digite a quantidade personalizada de e-mails por lote." />
+                    </div>
+                </div>
             </div>
             
             <div id="email-resultado" title="Área de exibição dos resultados da extração de e-mails.">
                 <div id="resumoTotal" title="Resumo estatístico do total de e-mails únicos extraídos.">
                     <h2>Aguardando extração...</h2>
                 </div>
-                <div id="containerListas" title="Listas de e-mails divididas em lotes de até 400 endereços cada.">
+                <div id="containerListas" title="Listas de e-mails divididas em lotes para cópia.">
                     <!-- As listas separadas aparecerão aqui lado a lado -->
                 </div>
             </div>
@@ -2887,6 +2921,7 @@
             } else if (tab === 'emailExtractor') {
                 if (btnChildEmail) btnChildEmail.setAttribute('class', 'lucide lucide-mail w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 emailExtractorView.style.display = 'flex';
+                if (typeof lucide !== 'undefined') lucide.createIcons({ root: emailExtractorView });
             } else if (tab === 'listaEmailsGeral') {
                 if (btnChildListaEmailsGeral) btnChildListaEmailsGeral.setAttribute('class', 'lucide lucide-mail-search w-3.5 h-3.5 mr-1.5 xl:w-4 xl:h-4 xl:mr-2 text-indigo-300 pointer-events-none');
                 if (listaEmailsGeralView) listaEmailsGeralView.style.display = 'flex';
@@ -3634,8 +3669,76 @@
         const textoEntrada = document.getElementById('textoEntrada');
         const resumoTotal = document.getElementById('resumoTotal');
         const containerListas = document.getElementById('containerListas');
+        const seletorQtdEmails = document.getElementById('seletorQtdEmails');
+        const inputCustomQtd = document.getElementById('inputCustomQtd');
+        const containerCustomQtd = document.getElementById('containerCustomQtd');
+        const descTamanhoLote = document.getElementById('descTamanhoLote');
         
         let todosEmailsExtraidos = [];
+
+        function getTamanhoLote() {
+            if (!seletorQtdEmails) return 400;
+            if (seletorQtdEmails.value === 'custom') {
+                const val = parseInt(inputCustomQtd ? inputCustomQtd.value : '400', 10);
+                return (!isNaN(val) && val > 0) ? val : 400;
+            }
+            const val = parseInt(seletorQtdEmails.value, 10);
+            return (!isNaN(val) && val > 0) ? val : 400;
+        }
+
+        function atualizarSeletorLote() {
+            if (!seletorQtdEmails) return;
+            const isCustom = seletorQtdEmails.value === 'custom';
+            if (containerCustomQtd) {
+                if (isCustom) {
+                    containerCustomQtd.classList.remove('hidden');
+                    containerCustomQtd.classList.add('flex');
+                    if (inputCustomQtd) inputCustomQtd.focus();
+                } else {
+                    containerCustomQtd.classList.remove('flex');
+                    containerCustomQtd.classList.add('hidden');
+                }
+            }
+            const tamanho = getTamanhoLote();
+            if (descTamanhoLote) {
+                descTamanhoLote.textContent = tamanho;
+            }
+            if (todosEmailsExtraidos.length > 0) {
+                renderizarListas();
+            }
+        }
+
+        function atualizarCustomLote() {
+            const tamanho = getTamanhoLote();
+            if (descTamanhoLote) {
+                descTamanhoLote.textContent = tamanho;
+            }
+            if (todosEmailsExtraidos.length > 0) {
+                renderizarListas();
+            }
+        }
+
+        function renderizarListas() {
+            if (!containerListas) return;
+            containerListas.innerHTML = '';
+            if (todosEmailsExtraidos.length === 0) return;
+
+            const tamanhoMaximo = getTamanhoLote();
+            const totalEmails = todosEmailsExtraidos.length;
+
+            for (let i = 0; i < totalEmails; i += tamanhoMaximo) {
+                const lote = todosEmailsExtraidos.slice(i, i + tamanhoMaximo);
+                const numeroDaLista = Math.floor(i / tamanhoMaximo) + 1;
+                criarElementoLista(lote, numeroDaLista);
+            }
+        }
+
+        if (seletorQtdEmails) {
+            seletorQtdEmails.addEventListener('change', atualizarSeletorLote);
+        }
+        if (inputCustomQtd) {
+            inputCustomQtd.addEventListener('input', atualizarCustomLote);
+        }
 
         async function colarTexto() {
             try {
@@ -3668,12 +3771,7 @@
                     </div>
                 `;
 
-                const tamanhoMaximo = 400;
-                for (let i = 0; i < totalEmails; i += tamanhoMaximo) {
-                    const lote = todosEmailsExtraidos.slice(i, i + tamanhoMaximo);
-                    const numeroDaLista = (i / tamanhoMaximo) + 1;
-                    criarElementoLista(lote, numeroDaLista);
-                }
+                renderizarListas();
             } else {
                 resumoTotal.innerHTML = `<h2 title="Nenhum padrão de endereço de e-mail válido foi encontrado no texto inserido.">Nenhum e-mail encontrado.</h2>`;
             }
